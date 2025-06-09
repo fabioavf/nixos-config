@@ -73,6 +73,17 @@
       "/var/lib/flatpak/exports/share"
       "/home/fabio/.local/share/flatpak/exports/share"
     ];
+    # Set Zen browser as default
+    BROWSER = "zen-browser";
+  };
+  
+  # Set default applications
+  xdg.mime.defaultApplications = {
+    "text/html" = "zen.desktop";
+    "x-scheme-handler/http" = "zen.desktop";
+    "x-scheme-handler/https" = "zen.desktop";
+    "x-scheme-handler/about" = "zen.desktop";
+    "x-scheme-handler/unknown" = "zen.desktop";
   };
   
   # CoreCtrl configuration for AMD GPU control
