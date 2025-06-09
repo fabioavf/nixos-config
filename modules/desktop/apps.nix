@@ -13,6 +13,7 @@
     
     # Media
     spotify
+    playerctl
     
     # Productivity
     qbittorrent

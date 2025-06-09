@@ -12,6 +12,12 @@
     nodejs
     bun
     
+    # Node2nix for generating Nix packages from npm
+    nodePackages.node2nix
+    
+    # Claude Code (custom package)
+    claude-code
+    
     # Python
     pyenv
     
