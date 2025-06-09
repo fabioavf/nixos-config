@@ -31,7 +31,6 @@
     ./modules/development/editors.nix
     ./modules/development/shell.nix
     ./modules/development/rocm.nix
-    ./modules/development/ai.nix          # NEW: AI and ML tools with ROCm
     
     # Services
     ./modules/services/openssh.nix
