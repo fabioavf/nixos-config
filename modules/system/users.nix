@@ -8,10 +8,9 @@
   users.users.fabio = {
     isNormalUser = true;
     description = "Fabio";
-    extraGroups = [ "networkmanager" "wheel" "audio" "video" "corectrl" ];
+    extraGroups = [ "networkmanager" "wheel" "audio" "video" "corectrl" "input" "render" ];
     packages = with pkgs; [
       # Basic user utilities
-      firefox
       git
       vim
       wget
@@ -19,6 +18,8 @@
       htop
       tree
       unzip
+      # Network tools
+      ookla-speedtest
     ];
   };
 

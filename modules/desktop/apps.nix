@@ -41,6 +41,7 @@
     ranger        # Terminal file manager
     fd            # Better find
     ripgrep       # Better grep (already have this?)
+    gdu
 
     # Network tools
     wget
@@ -48,6 +49,7 @@
     aria2         # Multi-connection downloader
     rsync         # File synchronization
     sshfs         # Mount remote filesystems
+    ethtool       # Ethernet configuration tool
 
     # Image manipulation
     imagemagick
@@ -75,11 +77,15 @@
     ];
     # Set Zen browser as default
     BROWSER = "zen-browser";
+    # Force VS Code and other apps to use Zen Browser
+    DEFAULT_BROWSER = "zen-browser";
   };
   
   # Set default applications
   xdg.mime.defaultApplications = {
     "text/html" = "zen.desktop";
+    "text/xml" = "zen.desktop";
+    "application/xhtml+xml" = "zen.desktop";
     "x-scheme-handler/http" = "zen.desktop";
     "x-scheme-handler/https" = "zen.desktop";
     "x-scheme-handler/about" = "zen.desktop";
@@ -92,4 +98,12 @@
   
   # Add user to corectrl group
   users.users.fabio.extraGroups = [ "corectrl" ];
+  
+  # Sunshine configuration for game streaming
+  security.wrappers.sunshine = {
+    owner = "root";
+    group = "root";
+    capabilities = "cap_sys_admin+p";
+    source = "${pkgs.sunshine}/bin/sunshine";
+  };
 }

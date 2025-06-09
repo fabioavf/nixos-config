@@ -14,14 +14,14 @@
       # Epic Games
       { from = 5795; to = 5847; }
       # Sunshine streaming
-      { from = 47984; to = 47990; }  # Sunshine HTTPS and Web UI
+      { from = 47984; to = 48010; }  # Sunshine HTTPS and Web UI
     ];
     allowedUDPPortRanges = [
       # Steam
       { from = 27000; to = 27100; }
       { from = 3478; to = 4380; }
       # Sunshine streaming
-      { from = 47998; to = 48000; }  # Sunshine video/audio streaming
+      { from = 47998; to = 48010; }  # Sunshine video/audio streaming
     ];
     # Allow ping
     allowPing = true;
@@ -38,4 +38,14 @@
     bantime = "24h";
     bantime-increment.enable = true;
   };
+  
+  # Sunshine streaming service permissions
+  services.udev.extraRules = ''
+    # Allow access to DRM devices for video capture
+    KERNEL=="card[0-9]*", GROUP="video", MODE="0664"
+    KERNEL=="renderD[0-9]*", GROUP="render", MODE="0664"
+    # Allow access to input devices for controller support
+    KERNEL=="event[0-9]*", GROUP="input", MODE="0664"
+    KERNEL=="js[0-9]*", GROUP="input", MODE="0664"
+  '';
 }
