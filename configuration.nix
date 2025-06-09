@@ -14,13 +14,16 @@
     ./modules/system/locale.nix
     ./modules/system/nix.nix
     ./modules/system/users.nix
+    ./modules/system/security.nix
+    ./modules/system/monitoring.nix
+    ./modules/system/performance.nix
     
     # Desktop environment
     ./modules/desktop/hyprland.nix
     ./modules/desktop/audio.nix
     ./modules/desktop/fonts.nix
     ./modules/desktop/apps.nix
-    ./modules/desktop/theming.nix  # Add theming module
+    ./modules/desktop/theming.nix
     
     # Development environment
     ./modules/development/languages.nix

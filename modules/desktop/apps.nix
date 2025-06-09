@@ -20,7 +20,41 @@
     
     # System monitoring and control
     corectrl              # AMD GPU control
-    
+
+    # Archive and compression
+    zip
+    unzip
+    p7zip
+    rar
+    unrar
+    xz
+    zstd
+
+    # File management
+    ranger        # Terminal file manager
+    fd            # Better find
+    ripgrep       # Better grep (already have this?)
+
+    # Network tools
+    wget
+    curl
+    aria2         # Multi-connection downloader
+    rsync         # File synchronization
+    sshfs         # Mount remote filesystems
+
+    # Image manipulation
+    imagemagick
+    gimp          # If you need advanced image editing
+
+    # Video tools
+    vlc           # Media player
+    ffmpeg        # Video processing
+    obs-studio    # Screen recording/streaming
+
+    # PDF tools
+    okular        # PDF viewer
+    pandoc        # Document conversion
+
     # Qt support for applications
     qt6.qt5compat
     libsForQt5.qt5.qtgraphicaleffects

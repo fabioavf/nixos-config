@@ -5,6 +5,15 @@
 
 {
   environment.systemPackages = with pkgs; [
+    # Version control
+    gh            # GitHub CLI
+    git-lfs       # Large file support
+    glab          # GitLab CLI
+
+    # Containers (if needed)
+    docker
+    docker-compose
+
     # System development
     gcc
     
