@@ -152,8 +152,7 @@
     # Performance
     __GL_THREADED_OPTIMIZATIONS = "1";
     
-    # MangoHud default config
-    MANGOHUD = "1";
+    # MangoHud config (use 'mangohud command' to enable per-app)
     MANGOHUD_CONFIG = "cpu_temp,gpu_temp,cpu_load_change,gpu_load_change,cpu_mhz,gpu_core_clock,ram,vram,fps,frametime,frame_timing";
   };
 

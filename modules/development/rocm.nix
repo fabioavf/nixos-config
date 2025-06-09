@@ -1,6 +1,7 @@
 # /etc/nixos/modules/development/rocm.nix
 # ROCm (Radeon Open Compute) support for AMD RX 5600/5700 XT
 # Enables machine learning, compute workloads, and GPU development
+# Updated with actual available packages in nixpkgs
 
 { config, lib, pkgs, ... }:
 
@@ -10,34 +11,44 @@
     "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
   ];
 
-  # ROCm packages and tools
+  # ROCm packages and tools (CORRECTED - only existing packages)
   environment.systemPackages = with pkgs; [
     # Core ROCm packages
-    rocmPackages.rocm-runtime      # ROCm runtime
-    rocmPackages.rocm-device-libs  # Device libraries
+    rocmPackages.clr               # Compute Language Runtime (replaces rocm-runtime)
+    rocmPackages.hip-common        # HIP common files
+    rocmPackages.hipcc             # HIP compiler
+    
+    # ROCm utilities and info tools
     rocmPackages.rocminfo          # ROCm system info tool
     rocmPackages.rocm-smi          # System management interface
     
-    # HIP (CUDA alternative for AMD)
-    rocmPackages.hip               # HIP runtime
-    rocmPackages.hipcc             # HIP compiler
-    rocmPackages.clr               # Compute Language Runtime
+    # Math libraries
+    rocmPackages.rocblas           # Basic Linear Algebra Subprograms
+    rocmPackages.hipblas           # HIP BLAS
+    rocmPackages.rocfft            # Fast Fourier Transform
+    rocmPackages.hipfft            # HIP FFT
+    rocmPackages.rocsolver         # Linear algebra solvers
+    rocmPackages.hipsolver         # HIP solver
+    rocmPackages.rocrand           # Random number generation
+    rocmPackages.hiprand           # HIP random
+    rocmPackages.rocsparse         # Sparse matrix operations
+    rocmPackages.hipsparse         # HIP sparse
+    rocmPackages.rocprim           # Primitive operations
+    rocmPackages.hipcub            # HIP CUB
+    rocmPackages.rocthrust         # ROC Thrust
     
-    # Development tools
-    rocmPackages.rocm-cmake        # ROCm CMake modules
+    # Development and profiling tools
+    rocmPackages.hipify            # CUDA to HIP conversion
     rocmPackages.roctracer         # ROCm tracer
     rocmPackages.rocprofiler       # ROCm profiler
     
-    # Math libraries
-    rocmPackages.rocblas           # Basic Linear Algebra Subprograms
-    rocmPackages.rocsparse         # Sparse matrix operations
-    rocmPackages.rocfft            # Fast Fourier Transform
-    rocmPackages.rocsolver         # Linear algebra solvers
-    rocmPackages.rocrand           # Random number generation
-    
     # Machine Learning libraries
     rocmPackages.miopen            # Deep learning primitives
-    rocmPackages.rccl              # Communication library
+    rocmPackages.migraphx          # Graph optimization engine
+    
+    # Additional ROCm tools
+    rocmPackages.half              # Half precision library
+    rocmPackages.tensile           # Tensor contraction library
     
     # Utilities
     clinfo                         # OpenCL info tool
@@ -47,10 +58,8 @@
   # Hardware configuration for ROCm
   hardware.graphics = {
     extraPackages = with pkgs; [
-      # Ensure ROCm OpenCL is available
-      rocmPackages.clr
-      rocmPackages.rocm-opencl-icd
-      rocmPackages.rocm-opencl-runtime
+      # ROCm OpenCL ICD
+      rocmPackages.clr.icd
     ];
   };
 
@@ -64,9 +73,6 @@
     ROCM_PATH = "${pkgs.rocmPackages.clr}";
     HIP_PATH = "${pkgs.rocmPackages.clr}";
     
-    # OpenCL
-    OCL_ICD_VENDORS = "${pkgs.rocmPackages.rocm-opencl-icd}/etc/OpenCL/vendors/";
-    
     # HIP platform
     HIP_PLATFORM = "amd";
     HIP_COMPILER = "clang";
@@ -79,6 +85,9 @@
     # Performance optimizations
     HSA_ENABLE_SDMA = "0";                # Disable SDMA for stability
     AMD_DIRECT_DISPATCH = "1";            # Enable direct dispatch
+    
+    # Pre-Vega support (for RDNA1 cards like yours)
+    ROC_ENABLE_PRE_VEGA = "1";            # Enable ROCm on pre-Vega (including RDNA1)
   };
 
   # System configuration for ROCm
@@ -119,7 +128,7 @@
   # Kernel modules for ROCm
   boot.kernelModules = [ "amdgpu" ];
   
-  # Kernel parameters for ROCm optimization
+  # Additional kernel parameters for ROCm optimization
   boot.kernelParams = [
     # Enable all AMD GPU features for ROCm
     "amdgpu.ppfeaturemask=0xffffffff"
@@ -150,7 +159,4 @@
       value = "unlimited";
     }
   ];
-
-  # Configure OpenCL ICD loader
-  environment.etc."OpenCL/vendors/amdocl64.icd".text = "libamdocl64.so";
 }
