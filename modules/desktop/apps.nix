@@ -42,6 +42,7 @@
     fd            # Better find
     ripgrep       # Better grep (already have this?)
     gdu
+    neofetch
 
     # Network tools
     wget

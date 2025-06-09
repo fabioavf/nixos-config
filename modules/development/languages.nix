@@ -16,6 +16,7 @@
 
     # System development
     gcc
+    openssl
     
     # JavaScript/TypeScript
     nodejs
