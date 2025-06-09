@@ -30,10 +30,12 @@
     ./modules/development/languages.nix
     ./modules/development/editors.nix
     ./modules/development/shell.nix
+    ./modules/development/rocm.nix
     
     # Services
     ./modules/services/openssh.nix
     ./modules/services/filesystems.nix
+    ./modules/services/duckdns.nix
   ];
 
   # System state version
