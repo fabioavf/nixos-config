@@ -27,10 +27,9 @@
     allowPing = true;
   };
   
-  # Add UFW for additional management (as standalone tool)
+  # Additional firewall management tools
   environment.systemPackages = with pkgs; [
-    ufw    # UFW command line tool
-    gufw   # GTK GUI for UFW (can be used alongside iptables)
+    iptables   # Direct iptables management
   ];
   
   # Fail2ban for SSH protection
