@@ -32,6 +32,7 @@
   environment.systemPackages = with pkgs; [
     # Local LLM tools
     ollama                         # Primary LLM server
+    open-webui                     # Web interface for Ollama
     
     # Python ML stack (with ROCm support where available)
     python3                        # Python interpreter
@@ -71,7 +72,51 @@
     python3Packages.protobuf      # Protocol buffers
   ];
 
-  # Systemd service customizations for Ollama
+  # Open WebUI service for web interface
+  services.open-webui = {
+    enable = true;
+    host = "127.0.0.1";
+    port = 3000;
+    environment = {
+      # Connect to local Ollama instance
+      OLLAMA_BASE_URL = "http://127.0.0.1:11434";
+      
+      # Additional configuration
+      WEBUI_AUTH = "False";  # Set to "True" if you want authentication
+      WEBUI_NAME = "Fabio's AI Assistant";
+      WEBUI_URL = "http://localhost:3000";
+      
+      # Enable features
+      ENABLE_SIGNUP = "False";  # Disable public signups
+      DEFAULT_USER_ROLE = "admin";
+    };
+  };
+
+  # Override Open WebUI service to fix permissions
+  systemd.services.open-webui = {
+    serviceConfig = {
+      # Use static user instead of dynamic
+      DynamicUser = lib.mkForce false;
+      User = "open-webui";
+      Group = "open-webui";
+      
+      # Ensure proper group membership for GPU access
+      SupplementaryGroups = [ "render" ];
+      
+      # State directory with proper permissions
+      StateDirectory = "open-webui";
+      StateDirectoryMode = "0755";
+    };
+  };
+
+  # Create open-webui system user
+  users.users.open-webui = {
+    isSystemUser = true;
+    group = "open-webui";
+    extraGroups = [ "render" ];
+  };
+  
+  users.groups.open-webui = {};
   systemd.services.ollama = {
     # Ensure ROCm devices are available before starting
     after = [ "rocm-init.service" ];
@@ -110,10 +155,11 @@
     };
   };
 
-  # Networking for Ollama API
+  # Networking for AI services
   networking.firewall = {
     allowedTCPPorts = [ 
       11434  # Ollama API server
+      3000   # Open WebUI interface
     ];
   };
 

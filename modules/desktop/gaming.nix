@@ -48,7 +48,7 @@
   environment.systemPackages = with pkgs; [
     # Game launchers and stores
     bottles                # Wine prefix manager
-    
+  
     # Game streaming
     sunshine              # NVIDIA GameStream alternative
     
@@ -61,9 +61,12 @@
     wine                  # Windows compatibility layer
     winetricks           # Wine helper scripts
     dxvk                 # DirectX to Vulkan
-    
+
     # Controllers and input
     antimicrox           # Controller mapping
+    jstest-gtk           # Controller testing GUI
+    linuxConsoleTools    # Includes jstest for testing controllers
+    evtest               # Event testing tool
     
     # System tools for gaming
     nvtopPackages.amd    # AMD GPU monitoring
@@ -110,11 +113,29 @@
 
   # Services for gaming
   services = {
-    # Optional: Enable Game Bar equivalent
     # udev rules for controllers
     udev.packages = with pkgs; [
       game-devices-udev-rules  # Controller recognition
     ];
+    
+    # Additional udev rules for 8BitDo controllers
+    udev.extraRules = ''
+      # 8BitDo Ultimate 2C Controller
+      SUBSYSTEM=="input", ATTRS{idVendor}=="2dc8", ATTRS{idProduct}=="310a", MODE="0666", TAG+="uaccess"
+      SUBSYSTEM=="usb", ATTRS{idVendor}=="2dc8", ATTRS{idProduct}=="310a", MODE="0666", TAG+="uaccess"
+      
+      # 8BitDo controllers (general)
+      SUBSYSTEM=="input", ATTRS{idVendor}=="2dc8", MODE="0666", TAG+="uaccess"
+      SUBSYSTEM=="usb", ATTRS{idVendor}=="2dc8", MODE="0666", TAG+="uaccess"
+      
+      # Ensure joystick devices are accessible
+      KERNEL=="js[0-9]*", MODE="0664", GROUP="input"
+      SUBSYSTEM=="input", GROUP="input", MODE="0664"
+      
+      # Additional gamepad permissions for browsers
+      SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="*Controller*", MODE="0664", GROUP="input", TAG+="uaccess"
+      SUBSYSTEM=="input", KERNEL=="js*", MODE="0664", GROUP="input", TAG+="uaccess"
+    '';
   };
 
   # Note: Firewall ports now handled in security.nix with UFW
