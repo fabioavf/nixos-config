@@ -8,6 +8,7 @@
     # Modern editors
     zed-editor
     neovim
+    vscode
     
     # Terminal
     alacritty

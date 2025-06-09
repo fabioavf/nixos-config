@@ -49,6 +49,9 @@
     # Game launchers and stores
     bottles                # Wine prefix manager
     
+    # Game streaming
+    sunshine              # NVIDIA GameStream alternative
+    
     # Performance and monitoring
     mangohud              # Performance overlay
     gamemode              # Performance optimizations
@@ -114,21 +117,8 @@
     ];
   };
 
-  # FIXED: Extend existing firewall config instead of overriding
-  networking.firewall = {
-    allowedTCPPortRanges = [
-      # Steam
-      { from = 27015; to = 27030; }
-      { from = 27036; to = 27037; }
-      # Epic Games
-      { from = 5795; to = 5847; }
-    ];
-    allowedUDPPortRanges = [
-      # Steam
-      { from = 27000; to = 27100; }
-      { from = 3478; to = 4380; }
-    ];
-  };
+  # Note: Firewall ports now handled in security.nix with UFW
+  # Gaming ports are configured there along with Sunshine streaming ports
 
   # Security exceptions for anti-cheat (if needed)
   security.pam.loginLimits = [

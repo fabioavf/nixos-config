@@ -22,6 +22,11 @@
     
     # System monitoring and control
     corectrl              # AMD GPU control
+    gnome-disk-utility    # GNOME Disks for disk management
+    
+    # GNOME document and media viewers
+    evince                # GNOME Document Viewer (PDF, etc.)
+    eog                   # GNOME Image Viewer (Eye of GNOME)
 
     # Archive and compression
     zip
