@@ -1,18 +1,9 @@
 # /etc/nixos/modules/system/security.nix
 { config, lib, pkgs, ... }:
 {
-  # Disable default iptables firewall in favor of UFW
-  networking.firewall.enable = false;
-  
-  # Enable UFW (Uncomplicated Firewall)
-  networking.ufw = {
+  # Enable firewall with comprehensive port configuration
+  networking.firewall = {
     enable = true;
-    settings = {
-      IPV6 = "yes";
-      DEFAULT_INPUT_POLICY = "DROP";
-      DEFAULT_OUTPUT_POLICY = "ACCEPT";
-      DEFAULT_FORWARD_POLICY = "DROP";
-    };
     # Allow SSH
     allowedTCPPorts = [ 22 ];
     # Gaming and streaming ports
@@ -32,24 +23,20 @@
       # Sunshine streaming
       { from = 47998; to = 48000; }  # Sunshine video/audio streaming
     ];
+    # Allow ping
+    allowPing = true;
   };
   
-  # Add UFW GUI for easy management
+  # Add UFW for additional management (as standalone tool)
   environment.systemPackages = with pkgs; [
-    ufw
-    gufw  # GTK GUI for UFW
+    ufw    # UFW command line tool
+    gufw   # GTK GUI for UFW (can be used alongside iptables)
   ];
   
-  # Fail2ban for SSH protection (compatible with UFW)
+  # Fail2ban for SSH protection
   services.fail2ban = {
     enable = true;
     bantime = "24h";
     bantime-increment.enable = true;
-    # Configure fail2ban to work with UFW
-    jails = {
-      DEFAULT = {
-        banaction = "ufw";
-      };
-    };
   };
 }
