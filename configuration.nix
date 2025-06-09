@@ -22,6 +22,7 @@
     ./modules/desktop/hyprland.nix
     ./modules/desktop/audio.nix
     ./modules/desktop/fonts.nix
+    ./modules/desktop/gaming.nix
     ./modules/desktop/apps.nix
     ./modules/desktop/theming.nix
     

@@ -51,10 +51,6 @@
     ffmpeg        # Video processing
     obs-studio    # Screen recording/streaming
 
-    # PDF tools
-    okular        # PDF viewer
-    pandoc        # Document conversion
-
     # Qt support for applications
     qt6.qt5compat
     libsForQt5.qt5.qtgraphicaleffects
