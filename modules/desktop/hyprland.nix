@@ -28,7 +28,8 @@
     wl-clipboard           # Clipboard manager
     grim                   # Screenshot tool
     slurp                  # Screen area selection
-    swww                   # Wallpaper daemon
+    swww                   # Wallpaper daemon (keeping for compatibility)
+    hyprpaper              # Hyprland's native wallpaper manager
     
     # System tray and utilities
     networkmanagerapplet   # Network manager applet

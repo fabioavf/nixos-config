@@ -8,7 +8,7 @@
   users.users.fabio = {
     isNormalUser = true;
     description = "Fabio";
-    extraGroups = [ "networkmanager" "wheel" "audio" "video" ];
+    extraGroups = [ "networkmanager" "wheel" "audio" "video" "corectrl" ];
     packages = with pkgs; [
       # Basic user utilities
       firefox

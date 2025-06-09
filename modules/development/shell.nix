@@ -54,6 +54,11 @@
     shellInit = ''
       # Enable starship prompt
       eval "$(starship init zsh)"
+
+      # Auto-start Hyprland on TTY1
+      if [ -z "$WAYLAND_DISPLAY" ] && [ "$XDG_VTNR" -eq 1 ]; then
+        exec Hyprland
+      fi
       
       # Enhanced history settings
       HISTSIZE=50000

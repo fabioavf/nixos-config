@@ -28,4 +28,19 @@
   
   # Enable Flatpak
   services.flatpak.enable = true;
+  
+  # Add Flatpak desktop files to XDG paths so launchers can find them
+  environment.sessionVariables = {
+    XDG_DATA_DIRS = [
+      "/var/lib/flatpak/exports/share"
+      "/home/fabio/.local/share/flatpak/exports/share"
+    ];
+  };
+  
+  # CoreCtrl configuration for AMD GPU control
+  programs.corectrl.enable = true;
+  hardware.amdgpu.overdrive.enable = true;  # Updated option name
+  
+  # Add user to corectrl group
+  users.users.fabio.extraGroups = [ "corectrl" ];
 }
