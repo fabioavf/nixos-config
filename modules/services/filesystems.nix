@@ -11,10 +11,10 @@
     options = [ "defaults" "user" "rw" ];
   };
   
-  # Optional: Mount backup drive with UUID (more reliable)
-  # fileSystems."/backup" = {
-  #   device = "/dev/disk/by-uuid/YOUR-BACKUP-UUID";
-  #   fsType = "ext4";
-  #   options = [ "defaults" "user" "rw" "noauto" ];
-  # };
+  # Mount sdb1 drive with UUID (more reliable than device path)
+  fileSystems."/mnt/hd" = {
+    device = "/dev/disk/by-uuid/c997d32a-3a0d-43c7-b0b5-1a7ed6fcaa29";
+    fsType = "ext4";
+    options = [ "defaults" "user" "rw" ];
+  };
 }
