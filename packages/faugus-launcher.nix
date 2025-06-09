@@ -12,7 +12,7 @@
 , imagemagick
 , icoextract
 , libayatana-appindicator
-, wrapGAppsHook
+, wrapGAppsHook3
 }:
 
 python3Packages.buildPythonApplication rec {
@@ -33,7 +33,7 @@ python3Packages.buildPythonApplication rec {
     ninja
     pkg-config
     gobject-introspection
-    wrapGAppsHook
+    wrapGAppsHook3
   ];
 
   buildInputs = [
@@ -52,33 +52,42 @@ python3Packages.buildPythonApplication rec {
   ];
 
   postPatch = ''
-    # Fix shebang in main script
+    # Fix shebangs in all Python scripts
     substituteInPlace faugus_launcher.py \
       --replace "#!/usr/bin/env python3" "#!${python3}/bin/python3"
+    substituteInPlace faugus_run.py \
+      --replace "#!/usr/bin/env python3" "#!${python3}/bin/python3"
+    substituteInPlace faugus_proton_manager.py \
+      --replace "#!/usr/bin/env python3" "#!${python3}/bin/python3"
+    substituteInPlace faugus_components.py \
+      --replace "#!/usr/bin/python3" "#!${python3}/bin/python3"
     
-    # Ensure imagemagick and icoextract are available
+    # Replace subprocess calls to use the binary directly instead of python + script
+    substituteInPlace faugus_launcher.py \
+      --replace "subprocess.Popen([sys.executable, faugus_run_path, command]" \
+                "subprocess.Popen([faugus_run_path, command]" \
+      --replace "subprocess.Popen([sys.executable, faugus_run, command]" \
+                "subprocess.Popen([faugus_run, command]" \
+      --replace "subprocess.Popen([sys.executable, faugus_run_path, command, \"winetricks\"]" \
+                "subprocess.Popen([faugus_run_path, command, \"winetricks\"]" \
+      --replace "subprocess.run([faugus_run_path, command]" \
+                "subprocess.run([faugus_run_path, command]"
+    
+    # Ensure binary paths are correct for Nix
     substituteInPlace faugus_components.py \
       --replace "convert" "${imagemagick}/bin/convert" \
       --replace "icoextract" "${icoextract}/bin/icoextract"
+    
+    # Fix umu-run path in launcher
+    substituteInPlace faugus_launcher.py \
+      --replace '"/usr/bin/umu-run"' '"umu-run"'
   '';
 
-  configurePhase = ''
-    runHook preConfigure
-    meson setup builddir --prefix=$out
-    runHook postConfigure
-  '';
-
-  buildPhase = ''
-    runHook preBuild
-    cd builddir
-    ninja
-    runHook postBuild
-  '';
-
-  installPhase = ''
-    runHook preInstall
-    ninja install
-    runHook postInstall
+  # Let wrapGAppsHook3 handle GTK app wrapping
+  dontWrapGApps = true;
+  
+  preFixup = ''
+    makeWrapperArgs+=("''${gappsWrapperArgs[@]}")
   '';
 
   # Don't strip Python bytecode

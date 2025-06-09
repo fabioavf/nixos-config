@@ -48,6 +48,7 @@
   environment.systemPackages = with pkgs; [
     # Game launchers and stores
     bottles                # Wine prefix manager
+    umu-launcher          # Unified Wine launcher for Proton/Wine
   
     # Game streaming
     sunshine              # NVIDIA GameStream alternative
