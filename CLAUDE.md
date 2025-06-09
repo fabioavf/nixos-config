@@ -1,7 +1,7 @@
 # Fabio's NixOS Configuration Documentation
 
 ## Overview
-This is a comprehensive NixOS configuration built with flakes, featuring a modular structure for a high-performance gaming, AI/ML, and development workstation with Hyprland desktop environment and AMD GPU support.
+This is a comprehensive NixOS configuration built with flakes, featuring a modular structure for a high-performance gaming and development workstation with Hyprland desktop environment and AMD GPU support.
 
 ## System Information
 - **Hostname**: fabio-nixos
@@ -10,7 +10,7 @@ This is a comprehensive NixOS configuration built with flakes, featuring a modul
 - **CPU**: AMD (with KVM support)
 - **Storage**: NVMe SSD with ext4 root, separate data partition
 - **NixOS Version**: 25.05 (unstable branch)
-- **Browser**: Zen Browser (default)
+- **Browser**: Zen Browser (default, installed via Flatpak)
 
 ## Architecture
 
@@ -30,11 +30,10 @@ modules/
 │   ├── hyprland.nix  # Wayland compositor and tools
 │   └── theming.nix   # GTK/Qt themes (Adwaita Dark)
 ├── development/      # Programming tools and languages
-│   ├── ai.nix        # NEW: Ollama, Open WebUI, ML tools with ROCm
 │   ├── editors.nix   # Zed Editor, Neovim, VS Code, Alacritty
 │   ├── languages.nix # Git, Docker, Node.js, Python, Rust, Claude Code
 │   ├── rocm.nix      # AMD GPU compute support with compatibility overrides
-│   └── shell.nix     # Zsh, Oh My Zsh, Starship prompt
+│   └── shell.nix     # Zsh, Oh My Zsh, Starship prompt, enhanced features
 ├── services/         # System services
 │   ├── duckdns.nix   # NEW: Dynamic DNS service
 │   ├── filesystems.nix # Data partition mounting
@@ -75,7 +74,7 @@ modules/
 - **Network**: wget, curl, aria2, rsync, sshfs, ethtool
 - **Image editing**: ImageMagick, GIMP
 - **Streaming**: Sunshine (game streaming with security wrappers)
-- **Browser**: Zen Browser (set as default)
+- **Browser**: Zen Browser (default, installed via Flatpak)
 - **Qt support**: Qt6, Qt5 compatibility layers
 - **Flatpak**: Enabled with proper XDG paths
 
@@ -131,10 +130,17 @@ modules/
 ### Shell (`modules/development/shell.nix`)
 - **Shell**: Zsh with Oh My Zsh (robbyrussell theme)
 - **Prompt**: Starship
-- **Plugins**: git, history, sudo, docker, extract, colored-man-pages
+- **Plugins**: git, history, sudo, docker, extract, colored-man-pages, z, fzf
+- **Enhanced Features**: 
+  - zsh-autosuggestions (fish-like command suggestions)
+  - zsh-syntax-highlighting (real-time syntax highlighting)
+  - zsh-completions (additional completion definitions)
+  - pay-respects (command correction, alias: fuck)
+  - Custom fzf functions: fcd (interactive directory navigation), fe (fuzzy file editor)
+- **Completion**: Case-insensitive, colored, enhanced with multiple options
 - **Aliases**: NixOS shortcuts (nrs, nrt, nrb, nru), git shortcuts, directory navigation
 - **History**: Enhanced with 50k entries, duplicate handling, sharing
-- **Tools**: bat (better cat), fzf (fuzzy finder)
+- **Tools**: bat (better cat), fzf (fuzzy finder), pay-respects (command correction)
 - **Auto-start**: Hyprland on TTY1
 
 ### ROCm Support (`modules/development/rocm.nix`)
@@ -149,21 +155,6 @@ modules/
 - **Permissions**: render group access, udev rules, memlock limits
 - **Service**: rocm-init systemd service for device setup
 
-### AI and Machine Learning (`modules/development/ai.nix`)
-- **Local LLM**: Ollama server with ROCm acceleration
-- **Web Interface**: Open WebUI (port 3000) with authentication disabled
-- **GPU Target**: HCC_AMDGPU_TARGET="gfx1010" for RX 5600/5700 XT
-- **Memory Management**: OLLAMA_MAX_VRAM="7GB" (8GB GPU with 1GB reserved)
-- **Python ML Stack**: NumPy, SciPy, Matplotlib, Pandas, Jupyter, IPython
-- **AI Libraries**: Hugging Face (hub, transformers, tokenizers, datasets)
-- **Computer Vision**: OpenCV4, Pillow
-- **Model Tools**: ONNX, git-lfs for large models
-- **Development**: Rich terminal output, Typer CLI, Pydantic validation
-- **Data Directories**: /data/ai-models, /data/ai-datasets, /data/ai-projects
-- **Cache**: Hugging Face cache on data partition
-- **Services**: Both Ollama (port 11434) and Open WebUI with proper user/group setup
-- **Performance**: Increased shared memory limits, memory map areas
-- **Firewall**: TCP ports 11434 (Ollama) and 3000 (Open WebUI) opened
 
 ## System Configuration
 
@@ -223,6 +214,7 @@ modules/
 
 ### Filesystems (`modules/services/filesystems.nix`)
 - **Data partition**: /dev/nvme0n1p3 mounted at /data
+- **Backup drive**: /dev/disk/by-uuid/c997d32a-3a0d-43c7-b0b5-1a7ed6fcaa29 mounted at /mnt/hd
 - **Options**: defaults, user-accessible, read/write
 
 ### DuckDNS (`modules/services/duckdns.nix`)
@@ -284,14 +276,13 @@ nvtop                  # AMD GPU usage
 corectrl               # AMD GPU control interface
 ```
 
-### AI/ML
+### Shell Features
 ```bash
-ollama                 # LLM server CLI
-ollama list            # List installed models
-ollama pull llama2     # Download model
-systemctl status ollama # Check Ollama service
-http://localhost:3000  # Open WebUI interface
-http://localhost:11434 # Ollama API endpoint
+fcd                    # Interactive directory navigation with fzf
+fe                     # Fuzzy file finder and editor
+fuck                   # Correct last command with pay-respects
+Ctrl+R                 # Fuzzy history search with fzf
+z dirname              # Jump to frequently used directories
 ```
 
 ## Maintenance
@@ -308,32 +299,34 @@ http://localhost:11434 # Ollama API endpoint
 - ROCm: Verify with `rocminfo` and check HSA_OVERRIDE_GFX_VERSION=10.3.0
 - Audio: Check PipeWire status: `systemctl --user status pipewire`
 - Gaming: Check Steam in gamemode, verify controller with `jstest`
-- AI/ML: Check Ollama service, verify ROCm with render group access
+- Shell: Test autosuggestions, syntax highlighting, and fzf functions
 - Network: Check DuckDNS updates, firewall port status
 
 ### File Locations
 - **Configuration**: /etc/nixos/
 - **User data**: /data/
-- **AI Models**: /data/ai-models/ (Ollama and Hugging Face cache)
-- **AI Projects**: /data/ai-datasets/, /data/ai-projects/
+- **Backup**: /mnt/hd/ (additional storage drive)
 - **Logs**: /var/log/ and `journalctl`
 - **Flatpak**: /var/lib/flatpak/ and ~/.local/share/flatpak/
-- **Services**: /var/lib/ollama/, /var/lib/open-webui/
 
 ## Hardware Notes
 - **GPU**: RX 5600/5700 XT (Navi 10/RDNA1) requires HSA override for ROCm compatibility
-- **Storage**: NVMe with ext4, separate data partition for user files and AI models
+- **Storage**: NVMe with ext4, separate data partition for user files, additional backup drive
 - **Audio**: PipeWire handles all audio routing with 32-bit support
 - **Controllers**: Game controller support via udev rules, including 8BitDo Ultimate 2C
 - **ROCm**: Full compute stack with compatibility overrides for RDNA1 architecture
 - **Streaming**: Sunshine configured for low-latency game streaming
 
 ## Recent Updates
-- **NEW**: AI/ML module with Ollama and Open WebUI
+- **NEW**: Enhanced shell with zsh-autosuggestions, syntax-highlighting, and advanced fzf integration
+- **NEW**: pay-respects command correction tool replacing thefuck
+- **NEW**: Custom interactive functions for directory navigation (fcd) and file editing (fe)
 - **NEW**: DuckDNS dynamic DNS service
 - **NEW**: Comprehensive gaming optimizations with 8BitDo controller support
 - **NEW**: Faugus Launcher custom package for game management
+- **NEW**: Additional backup drive mount at /mnt/hd
 - **UPDATED**: Enhanced security with comprehensive firewall rules
 - **UPDATED**: Improved theming with detailed GTK/Qt configuration
+- **REMOVED**: AI/ML module (ai.nix) - not implemented
 
-This configuration provides a complete desktop environment optimized for gaming, AI/ML development, and GPU compute workloads on AMD hardware with comprehensive ROCm support.
+This configuration provides a complete desktop environment optimized for gaming and development workloads on AMD hardware with comprehensive ROCm support and an enhanced terminal experience.

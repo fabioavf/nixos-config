@@ -8,6 +8,10 @@
   programs.zsh = {
     enable = true;
     
+    # Enable zsh plugins
+    autosuggestions.enable = true;
+    syntaxHighlighting.enable = true;
+    
     # Oh My Zsh configuration
     ohMyZsh = {
       enable = true;
@@ -17,7 +21,9 @@
         "sudo" 
         "docker" 
         "extract" 
-        "colored-man-pages" 
+        "colored-man-pages"
+        "z"
+        "fzf"
       ];
       theme = "robbyrussell";  # Simple theme, change as needed
     };
@@ -54,6 +60,11 @@
     shellInit = ''
       # Enable starship prompt
       eval "$(starship init zsh)"
+      
+      # Enable pay-respects (modern thefuck alternative)
+      if command -v pay-respects >/dev/null 2>&1; then
+        alias fuck='pay-respects'
+      fi
 
       # Auto-start Hyprland on TTY1
       if [ -z "$WAYLAND_DISPLAY" ] && [ "$XDG_VTNR" -eq 1 ]; then
@@ -70,6 +81,44 @@
       setopt hist_verify
       setopt inc_append_history
       setopt share_history
+      
+      # Additional zsh options for better UX
+      setopt auto_cd              # cd by typing directory name
+      setopt correct              # command correction
+      setopt complete_in_word     # complete from both ends of word
+      setopt always_to_end        # move cursor to end if word had one match
+      setopt auto_menu            # show completion menu on tab
+      setopt auto_list            # automatically list choices on ambiguous completion
+      setopt complete_aliases     # complete aliases
+      
+      # Case insensitive completion
+      zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
+      
+      # Colored completion (different colors for dirs/files/etc)
+      zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
+      
+      # Use fzf for history search and interactive cd
+      if command -v fzf >/dev/null 2>&1; then
+        source <(fzf --zsh)
+        
+        # Interactive cd with fzf
+        fcd() {
+          local dir
+          dir=$(find ''${1:-.} -type d 2>/dev/null | fzf --preview 'ls -la {}' --height 40%)
+          if [[ -n $dir ]]; then
+            cd "$dir"
+          fi
+        }
+        
+        # Fuzzy find and edit files
+        fe() {
+          local file
+          file=$(fzf --preview 'bat --color=always --style=numbers {}' --height 60%)
+          if [[ -n $file ]]; then
+            ''${EDITOR:-vim} "$file"
+          fi
+        }
+      fi
     '';
   };
   
@@ -81,5 +130,7 @@
     starship           # Modern prompt
     bat               # Better cat
     fzf               # Fuzzy finder
+    pay-respects      # Command correction (modern thefuck alternative)
+    zsh-completions   # Additional completions
   ];
 }
