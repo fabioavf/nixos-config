@@ -5,6 +5,8 @@
 
 {
   environment.systemPackages = with pkgs; [
+    # Custom packages
+    (callPackage ../../packages/faugus-launcher.nix {})
     # File manager
     nautilus
     

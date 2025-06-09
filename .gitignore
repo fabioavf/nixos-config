@@ -1,0 +1,21 @@
+# Nix build outputs
+result
+result-*
+
+# Hardware configuration backup
+hardware-configuration.nix.backup
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
