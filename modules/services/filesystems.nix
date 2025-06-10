@@ -4,6 +4,9 @@
 { config, lib, pkgs, ... }:
 
 {
+  # Enable udisks2 for disk management (required for GNOME Disks)
+  services.udisks2.enable = true;
+  
   # Mount your data partition
   fileSystems."/data" = {
     device = "/dev/nvme0n1p3";

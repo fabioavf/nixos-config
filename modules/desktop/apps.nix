@@ -60,6 +60,7 @@
     vlc           # Media player
     ffmpeg        # Video processing
     obs-studio    # Screen recording/streaming
+    droidcam      # Android camera as webcam
 
     # Qt support for applications
     qt6.qt5compat
