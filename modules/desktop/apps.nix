@@ -64,7 +64,9 @@
 
     # Qt support for applications
     qt6.qt5compat
+    qt6.qtwayland        # Qt6 Wayland support for rare and other Qt apps
     libsForQt5.qt5.qtgraphicaleffects
+    libsForQt5.qt5.qtwayland  # Qt5 Wayland support
     kdePackages.qt5compat
   ];
   

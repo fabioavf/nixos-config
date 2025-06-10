@@ -59,7 +59,7 @@
     gamescope             # Wayland compositor for games
     
     # Wine and compatibility
-    wine                  # Windows compatibility layer
+    wineWowPackages.staging  # 64-bit Wine with 32-bit support
     winetricks           # Wine helper scripts
     dxvk                 # DirectX to Vulkan
 
@@ -87,6 +87,8 @@
       extraPackages = with pkgs; [
         # AMD GPU packages
         amdvlk          # AMD Vulkan driver
+	vulkan-loader
+	vulkan-tools
         rocmPackages.clr # AMD OpenCL
       ];
       extraPackages32 = with pkgs.driversi686Linux; [
@@ -156,7 +158,9 @@
   environment.sessionVariables = {
     # AMD GPU optimizations
     AMD_VULKAN_ICD = "RADV";  # Use Mesa RADV driver
-    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/radeon_icd.x86_64.json";
+    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/radeon_icd.x86_64.json:/run/opengl-driver-32/share/vulkan/icd.d/radeon_icd.i686.json";
+    VK_LAYER_PATH = "/run/opengl-driver/share/vulkan/explicit_layer.d:/run/opengl-driver-32/share/vulkan/explicit_layer.d";
+
     
     # Wine/Proton optimizations
     WINEPREFIX = "$HOME/.wine-games";
