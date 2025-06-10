@@ -108,4 +108,8 @@
     capabilities = "cap_sys_admin+p";
     source = "${pkgs.sunshine}/bin/sunshine";
   };
+  
+  # v4l2loopback support for droidcam (virtual camera)
+  boot.kernelModules = [ "v4l2loopback" ];
+  boot.extraModulePackages = [ config.boot.kernelPackages.v4l2loopback ];
 }
