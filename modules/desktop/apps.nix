@@ -24,6 +24,7 @@
     
     # Productivity
     qbittorrent
+    obsidian
     
     # System monitoring and control
     corectrl              # AMD GPU control

@@ -60,7 +60,7 @@
     VK_LAYER_PATH = "/run/opengl-driver/share/vulkan/explicit_layer.d:/run/opengl-driver-32/share/vulkan/explicit_layer.d";
     
     # RADV Driver Optimizations
-    RADV_DEBUG = "nongg,zerovram";           # Disable NGG pipeline, zero VRAM on allocation
+    RADV_DEBUG = "nongg";           # Disable NGG pipeline, zero VRAM on allocation
     MESA_VK_DEVICE_SELECT_FORCE_DEFAULT_DEVICE = "1";
     
     # OpenGL Performance
