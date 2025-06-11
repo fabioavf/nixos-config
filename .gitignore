@@ -19,3 +19,7 @@ hardware-configuration.nix.backup
 # OS files
 .DS_Store
 Thumbs.db
+
+# Secrets - keep private keys out of version control
+secrets/keys.txt
+secrets/*.key

@@ -1,0 +1,7 @@
+keys:
+  - &admin age1xucx5zz7g33fmur0f74x5wg55qs4m6kwqujnc90gg35f5k35n50s3vsvrc
+creation_rules:
+  - path_regex: secrets/secrets\.ya?ml$
+    key_groups:
+    - age:
+      - *admin

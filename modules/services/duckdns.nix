@@ -3,6 +3,14 @@
 { config, lib, pkgs, ... }:
 
 {
+  # Sops secret for DuckDNS token
+  sops.secrets.duckdns_token = {
+    sopsFile = ../../secrets/secrets.yaml;
+    owner = "nobody";
+    group = "nogroup";
+    mode = "0400";
+  };
+
   # Custom DuckDNS systemd service
   systemd.services.duckdns = {
     description = "DuckDNS Dynamic DNS updater";
@@ -12,7 +20,8 @@
     serviceConfig = {
       Type = "oneshot";
       User = "nobody";
-      ExecStart = "${pkgs.curl}/bin/curl -s 'https://www.duckdns.org/update?domains=fabioavf&token=49d0657d-81f9-44d9-8995-98b484ab4272&ip='";
+      ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.curl}/bin/curl -s \"https://www.duckdns.org/update?domains=fabioavf&token=$(cat ${config.sops.secrets.duckdns_token.path})&ip=\"'";
+      LoadCredential = "duckdns_token:${config.sops.secrets.duckdns_token.path}";
     };
   };
 

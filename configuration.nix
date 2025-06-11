@@ -38,6 +38,12 @@
     ./modules/services/duckdns.nix
   ];
 
+  # Sops configuration
+  sops = {
+    defaultSopsFile = ./secrets/secrets.yaml;
+    age.keyFile = "/var/lib/sops-nix/key.txt";
+  };
+
   # System state version
   system.stateVersion = "25.05";
 }

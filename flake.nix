@@ -7,6 +7,18 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     
+    # Secrets management
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
+    # Home Manager
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
     # Quickshell flake
     quickshell = {
       url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
@@ -20,12 +32,14 @@
     };
   };
 
-  outputs = { self, nixpkgs, quickshell, claude-desktop, ... }@inputs: {
+  outputs = { self, nixpkgs, sops-nix, home-manager, quickshell, claude-desktop, ... }@inputs: {
     nixosConfigurations.fabio-nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };
       modules = [
         ./configuration.nix
+        sops-nix.nixosModules.sops
+        home-manager.nixosModules.home-manager
         
         # Custom packages overlay
         ({ config, lib, pkgs, inputs, ... }: {
