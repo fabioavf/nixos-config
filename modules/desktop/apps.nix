@@ -14,7 +14,12 @@
     discord
     
     # Media
-    spotify
+    (spotify.overrideAttrs (oldAttrs: {
+      postFixup = (oldAttrs.postFixup or "") + ''
+        wrapProgram $out/bin/spotify \
+          --add-flags "--force-device-scale-factor=1.5"
+      '';
+    }))
     playerctl
     
     # Productivity

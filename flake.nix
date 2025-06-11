@@ -34,11 +34,11 @@
             (final: prev: {
               claude-code = final.stdenv.mkDerivation rec {
                 pname = "claude-code";
-                version = "1.0.17";
+                version = "1.0.18";
 
                 src = final.fetchurl {
                   url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${version}.tgz";
-                  sha256 = "0xsg7gzwcj8rpfq5qp638s3wslz5d7dyfisz8lbl6fskjyay9lnp";
+                  sha256 = "bY+lkBeGYGy3xLcoo6Hlf5223z1raWuatR0VMQPfxKc=";
                 };
 
                 nativeBuildInputs = [ final.makeWrapper ];

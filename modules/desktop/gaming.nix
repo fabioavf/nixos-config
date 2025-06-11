@@ -160,7 +160,10 @@
     AMD_VULKAN_ICD = "RADV";  # Use Mesa RADV driver
     VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/radeon_icd.x86_64.json:/run/opengl-driver-32/share/vulkan/icd.d/radeon_icd.i686.json";
     VK_LAYER_PATH = "/run/opengl-driver/share/vulkan/explicit_layer.d:/run/opengl-driver-32/share/vulkan/explicit_layer.d";
-
+    
+    # RADV driver tweaks
+    RADV_DEBUG = "nongg,zerovram";  # Disable NGG pipeline, zero VRAM on allocation
+    MESA_VK_DEVICE_SELECT_FORCE_DEFAULT_DEVICE = "1";  # Force default Vulkan device selection
     
     # Wine/Proton optimizations
     WINEPREFIX = "$HOME/.wine-games";

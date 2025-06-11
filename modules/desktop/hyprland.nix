@@ -1,7 +1,7 @@
 # /etc/nixos/modules/desktop/hyprland.nix
 # Hyprland window manager configuration
 
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   # Enable Hyprland
@@ -24,15 +24,11 @@
   # Wayland/Hyprland system packages
   environment.systemPackages = with pkgs; [
     # Wayland utilities
-    wofi                    # Application launcher
-    wl-clipboard           # Clipboard manager
     grim                   # Screenshot tool
     slurp                  # Screen area selection
-    swww                   # Wallpaper daemon (keeping for compatibility)
     hyprpaper              # Hyprland's native wallpaper manager
     
     # System tray and utilities
-    networkmanagerapplet   # Network manager applet
     pavucontrol           # Audio control
     brightnessctl         # Brightness control
     udiskie               # Auto-mount removable media
@@ -40,10 +36,24 @@
     # Polkit agent for authentication
     kdePackages.polkit-kde-agent-1
     
-    # Idle management
-    hypridle
-    
     # Clipboard manager
     clipse
   ];
+
+  # Systemd user service for quickshell
+  systemd.user.services.quickshell = {
+    enable = true;
+    description = "Quickshell Desktop Shell";
+    wantedBy = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    serviceConfig = {
+      ExecStart = "/home/fabio/.config/quickshell/fabios-qs/utils/quickshell-wrapper.sh";
+      Restart = "on-failure";
+      RestartSec = 3;
+      Environment = [
+        # Unset the problematic Qt style that breaks QtQuick.Controls
+        "QT_STYLE_OVERRIDE="
+      ];
+    };
+  };
 }
