@@ -17,6 +17,8 @@
     ./modules/system/security.nix
     ./modules/system/monitoring.nix
     ./modules/system/performance.nix
+    ./modules/system/secrets.nix
+    ./modules/system/home-manager.nix
     
     # Desktop environment
     ./modules/desktop/hyprland.nix
@@ -37,12 +39,6 @@
     ./modules/services/filesystems.nix
     ./modules/services/duckdns.nix
   ];
-
-  # Sops configuration
-  sops = {
-    defaultSopsFile = ./secrets/secrets.yaml;
-    age.keyFile = "/var/lib/sops-nix/key.txt";
-  };
 
   # System state version
   system.stateVersion = "25.05";
