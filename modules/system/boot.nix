@@ -23,8 +23,7 @@
     "udev.log_priority=3"           # Reduce udev log priority
   ];
   
-  # Enable early KMS for smooth graphics transition
-  boot.initrd.kernelModules = [ "amdgpu" ];  # For your AMD GPU
+  # AMD GPU early KMS loading moved to modules/hardware/amd.nix
   
   # Uncomment to use LTS kernel
   # boot.kernelPackages = pkgs.linuxPackages_lts;

@@ -21,8 +21,10 @@ This configuration follows a modular approach with clear separation of concerns:
 modules/
 ├── desktop/          # Desktop environment and applications
 ├── development/      # Programming tools and languages
-├── services/         # System services
+├── hardware/         # Hardware-specific configurations (AMD GPU)
+├── services/         # System services (SSH, filesystems, DuckDNS)
 ├── system/          # Core system configuration
+├── users/           # User-specific configurations (Home Manager)
 └── packages/        # Custom package definitions
 ```
 
@@ -33,7 +35,9 @@ modules/
 - **🎨 Modern Desktop**: Hyprland with Adwaita Dark theming
 - **🔊 Audio**: PipeWire with full audio stack
 - **🚀 Performance**: AMD GPU optimization, SSD tuning, ROCm compute support
-- **🛡️ Security**: Firewall, fail2ban, secure SSH configuration
+- **🛡️ Security**: Firewall, fail2ban, encrypted secrets with sops-nix
+- **🏠 User Management**: Home Manager for personal environment isolation
+- **⚡ Hardware Configuration**: Consolidated AMD GPU settings
 - **📦 Package Management**: Flakes with custom overlays and packages
 
 ## 🚀 Quick Start
@@ -84,8 +88,10 @@ sudo nixos-rebuild switch --flake .#fabio-nixos
 ### System Configuration (`modules/system/`)
 
 - **Boot**: systemd-boot with Plymouth splash screen
-- **Performance**: SSD optimization, CPU governor tuning
+- **Performance**: SSD optimization, CPU governor tuning  
 - **Security**: Comprehensive firewall, fail2ban protection
+- **Secrets**: sops-nix encrypted secrets management
+- **Home Manager**: User environment integration
 - **Monitoring**: System monitoring tools and auto-updates
 - **Networking**: NetworkManager with hostname configuration
 
@@ -93,7 +99,21 @@ sudo nixos-rebuild switch --flake .#fabio-nixos
 
 - **SSH**: Secure configuration with key-only authentication
 - **Filesystems**: Data partition and backup drive mounting
-- **DuckDNS**: Dynamic DNS service for remote access
+- **DuckDNS**: Dynamic DNS service with encrypted token
+
+### Hardware (`modules/hardware/`)
+
+- **AMD GPU**: Consolidated RX 5600/5700 XT configuration
+- **ROCm Support**: Complete compute stack for ML/AI workloads
+- **Kernel Parameters**: Optimized AMD GPU settings
+- **Environment Variables**: ROCm compatibility overrides
+
+### Users (`modules/users/`)
+
+- **Personal Environment**: Home Manager user configuration
+- **Shell Setup**: Enhanced Zsh with advanced features
+- **Git Configuration**: Personal development settings
+- **Dotfiles Management**: Automatic backup and version control
 
 ## 🎮 Gaming Features
 
@@ -154,10 +174,12 @@ z <directory>         # Jump to frequently used directories
 
 ## 🔒 Security Features
 
+- **Secrets Management**: sops-nix with age encryption for sensitive data
 - **Firewall**: Configured for gaming, development, and streaming
 - **SSH**: Key-only authentication, fail2ban protection
 - **User Permissions**: Proper group membership for hardware access
 - **Services**: Minimal attack surface with required services only
+- **Encrypted Storage**: All secrets stored encrypted, no plaintext tokens
 
 ## 🚨 Troubleshooting
 
@@ -177,6 +199,19 @@ systemctl --user status pipewire    # Check PipeWire status
 ```bash
 rocminfo               # Verify ROCm installation
 echo $HSA_OVERRIDE_GFX_VERSION    # Should show 10.3.0
+clinfo                 # Check OpenCL support
+```
+
+**Secrets Issues**:
+```bash
+sudo systemctl status duckdns.service    # Check encrypted secret access
+sops -d secrets/secrets.yaml            # Decrypt secrets file
+```
+
+**Home Manager Problems**:
+```bash
+systemctl --user status home-manager-fabio    # Check user service
+home-manager switch                           # Manual user environment rebuild
 ```
 
 ### Log Checking
@@ -187,8 +222,18 @@ systemctl status <service>    # Service-specific logs
 
 ## 📦 Custom Packages
 
-- **Claude Code**: Anthropic's AI CLI tool (v1.0.17)
+- **Claude Code**: Anthropic's AI CLI tool (v1.0.18)
 - **Faugus Launcher**: Game launcher for Windows games on Linux
+
+## 🔄 Recent Updates (2025-06-10)
+
+### Major Improvements Implemented
+- **🔒 Secrets Management**: Implemented sops-nix for encrypted secret storage
+- **🏠 Home Manager**: Added user environment isolation and dotfiles management
+- **⚡ AMD Consolidation**: Unified all AMD GPU settings into single hardware module
+- **📁 Module Restructuring**: Improved organization with hardware/, users/, and enhanced system/ modules
+- **🛡️ Security Enhancement**: Eliminated hardcoded secrets, proper encryption
+- **🧹 Code Cleanup**: Removed duplications, improved maintainability
 
 ## 🔄 Maintenance
 
@@ -206,7 +251,9 @@ systemctl status <service>    # Service-specific logs
 
 ## 📝 Documentation
 
-For detailed information about specific components, see `CLAUDE.md` which contains comprehensive documentation about every aspect of this configuration.
+- **CLAUDE.md**: Comprehensive technical documentation
+- **IMPROVEMENTS.md**: Implementation status and improvement history
+- **README.md**: This overview and quick start guide
 
 ## 🤝 Contributing
 

@@ -103,7 +103,7 @@
   
   # CoreCtrl configuration for AMD GPU control
   programs.corectrl.enable = true;
-  hardware.amdgpu.overdrive.enable = true;  # Updated option name
+  # AMD hardware overdrive setting moved to modules/hardware/amd.nix
   
   # Add user to corectrl group
   users.users.fabio.extraGroups = [ "corectrl" ];

@@ -26,29 +26,38 @@ modules/
 │   ├── apps.nix      # Desktop applications, Faugus Launcher, file managers
 │   ├── audio.nix     # PipeWire audio configuration
 │   ├── fonts.nix     # System and programming fonts (Nerd Fonts)
-│   ├── gaming.nix    # Steam, Wine, controllers, AMD GPU optimizations
+│   ├── gaming.nix    # Steam, Wine, controllers, GameMode
 │   ├── hyprland.nix  # Wayland compositor and tools
 │   └── theming.nix   # GTK/Qt themes (Adwaita Dark)
 ├── development/      # Programming tools and languages
 │   ├── editors.nix   # Zed Editor, Neovim, VS Code, Alacritty
 │   ├── languages.nix # Git, Docker, Node.js, Python, Rust, Claude Code
-│   ├── rocm.nix      # AMD GPU compute support with compatibility overrides
-│   └── shell.nix     # Zsh, Oh My Zsh, Starship prompt, enhanced features
+│   ├── rocm.nix      # ROCm packages for ML/AI compute workloads
+│   └── shell.nix     # System-wide Zsh configuration
+├── hardware/         # Hardware-specific configurations
+│   └── amd.nix       # AMD RX 5600/5700 XT hardware configuration
 ├── services/         # System services
-│   ├── duckdns.nix   # NEW: Dynamic DNS service
+│   ├── duckdns.nix   # Dynamic DNS service with encrypted secrets
 │   ├── filesystems.nix # Data partition mounting
 │   └── openssh.nix   # SSH server configuration
 ├── system/          # Core system configuration
 │   ├── boot.nix      # systemd-boot, Plymouth splash
+│   ├── home-manager.nix # Home Manager integration
 │   ├── locale.nix    # Timezone and locale settings
 │   ├── monitoring.nix # System monitoring, auto-updates
 │   ├── networking.nix # NetworkManager configuration
 │   ├── nix.nix       # Nix settings, garbage collection
 │   ├── performance.nix # SSD optimization, CPU governor
+│   ├── secrets.nix   # Secrets management with sops-nix
 │   ├── security.nix  # Firewall, fail2ban, streaming ports
-│   └── users.nix     # User configuration with auto-login
+│   └── users.nix     # System user configuration with auto-login
+├── users/           # User-specific configurations (Home Manager)
+│   └── fabio.nix     # Personal user environment and dotfiles
 └── packages/        # Custom package definitions
     └── faugus-launcher.nix # Custom game launcher package
+└── secrets/         # Encrypted secrets management
+    ├── keys.txt     # Age encryption key (not in git)
+    └── secrets.yaml # Encrypted secrets file
 ```
 
 ## Desktop Environment
@@ -96,11 +105,11 @@ modules/
 - **Tools**: MangoHud (performance overlay), Gamescope
 - **Controllers**: antimicrox, jstest-gtk, Linux Console Tools, evtest
 - **8BitDo support**: Custom udev rules for Ultimate 2C and other models
-- **Hardware**: 32-bit graphics drivers, AMD Vulkan (RADV), ROCm OpenCL
 - **Streaming**: Sunshine with proper capabilities and firewall rules
-- **Performance**: Custom kernel parameters, sysctl settings, GameMode group
+- **Performance**: GameMode group and PAM limits
 - **Monitoring**: nvtop for AMD GPUs
 - **Archives**: Support for game archive formats (unrar, p7zip, cabextract)
+- **Note**: AMD GPU hardware settings moved to modules/hardware/amd.nix
 
 ### Theming (`modules/desktop/theming.nix`)
 - **Theme**: Adwaita Dark system-wide
@@ -127,33 +136,34 @@ modules/
 - **Python**: pyenv
 - **Rust**: rustc, cargo
 
-### Shell (`modules/development/shell.nix`)
-- **Shell**: Zsh with Oh My Zsh (robbyrussell theme)
-- **Prompt**: Starship
+### Shell Configuration
+
+#### System Shell (`modules/development/shell.nix`)
+- **System-wide**: Zsh enabled with autosuggestions and syntax highlighting
+- **Default Shell**: Zsh set as system default
+- **Packages**: starship, bat, fzf, pay-respects, zsh-completions
+
+#### User Shell (`modules/users/fabio.nix` - Home Manager)
+- **Personal Config**: Oh My Zsh with robbyrussell theme
+- **Prompt**: Starship prompt integration
 - **Plugins**: git, history, sudo, docker, extract, colored-man-pages, z, fzf
 - **Enhanced Features**: 
-  - zsh-autosuggestions (fish-like command suggestions)
-  - zsh-syntax-highlighting (real-time syntax highlighting)
-  - zsh-completions (additional completion definitions)
-  - pay-respects (command correction, alias: fuck)
   - Custom fzf functions: fcd (interactive directory navigation), fe (fuzzy file editor)
-- **Completion**: Case-insensitive, colored, enhanced with multiple options
+  - pay-respects (command correction, alias: fuck)
+  - Advanced history management (50k entries, deduplication)
+  - Case-insensitive completion with colors
 - **Aliases**: NixOS shortcuts (nrs, nrt, nrb, nru), git shortcuts, directory navigation
-- **History**: Enhanced with 50k entries, duplicate handling, sharing
-- **Tools**: bat (better cat), fzf (fuzzy finder), pay-respects (command correction)
 - **Auto-start**: Hyprland on TTY1
+- **Git Integration**: Personal git configuration with user details
 
 ### ROCm Support (`modules/development/rocm.nix`)
-- **Purpose**: AMD GPU compute for ML/AI workloads
-- **Compatibility**: RX 5600/5700 XT (Navi 10) support via HSA override to 10.3.0
+- **Purpose**: AMD GPU compute for ML/AI workloads (packages only)
 - **Core**: CLR (Compute Language Runtime), HIP, hipcc compiler
 - **Math Libraries**: ROCBlas, HIPBlas, ROCFFT, HIPFFT, ROCSolver, HIPSolver, ROCRand, HIPRand, ROCSparse, HIPSparse, ROCPrim, HIPCUB, ROCThrust
 - **ML Libraries**: MIOpen (deep learning), MIGraphX (graph optimization), Tensile
 - **Tools**: rocminfo, rocm-smi, roctracer, rocprofiler, hipify (CUDA conversion)
 - **OpenCL**: ROCm OpenCL ICD support
-- **Environment**: HSA_OVERRIDE_GFX_VERSION="10.3.0", ROC_ENABLE_PRE_VEGA="1"
-- **Permissions**: render group access, udev rules, memlock limits
-- **Service**: rocm-init systemd service for device setup
+- **Note**: Hardware configuration, environment variables, and services moved to modules/hardware/amd.nix
 
 
 ## System Configuration
@@ -217,25 +227,41 @@ modules/
 - **Backup drive**: /dev/disk/by-uuid/c997d32a-3a0d-43c7-b0b5-1a7ed6fcaa29 mounted at /mnt/hd
 - **Options**: defaults, user-accessible, read/write
 
-### DuckDNS (`modules/services/duckdns.nix`)
+### Secrets Management
+
+#### Secrets Configuration (`modules/system/secrets.nix`)
+- **Framework**: sops-nix with age encryption
+- **Key Management**: Age key stored in `/var/lib/sops-nix/key.txt`
+- **Secrets File**: `secrets/secrets.yaml` (encrypted)
+- **Access Control**: Proper ownership and permissions for secrets
+
+#### DuckDNS Service (`modules/services/duckdns.nix`)
 - **Service**: Dynamic DNS updater for fabioavf.duckdns.org
 - **Timer**: Updates every 5 minutes with systemd timer
-- **Security**: Runs as nobody user
-- **Token**: 49d0657d-81f9-44d9-8995-98b484ab4272
+- **Security**: Runs as nobody user with encrypted token
+- **Token**: Securely stored in encrypted secrets file
+
+#### Home Manager Integration (`modules/system/home-manager.nix`)
+- **User Management**: Home Manager integration for user fabio
+- **Backup**: Automatic backup of existing dotfiles with `.backup` extension
+- **Global Packages**: Access to system packages in user environment
+- **User Packages**: User-specific package management
 
 ## Flake Dependencies
 
 ### External Inputs
 - **nixpkgs**: NixOS unstable branch
+- **sops-nix**: Secrets management with age encryption
+- **home-manager**: User environment and dotfiles management
 - **quickshell**: Custom shell/bar (git.outfoxxed.me)
 - **claude-desktop**: Claude AI desktop app (github:k3d3/claude-desktop-linux-flake)
 
 ### Custom Overlays
 - **Claude Code**: Custom package for Anthropic's CLI tool
-  - Version: 1.0.17
+  - Version: 1.0.18
   - Commands: `claude` and `claude-code` (symlinked)
   - Built from npm registry with Node.js wrapper
-  - SHA256: 0xsg7gzwcj8rpfq5qp638s3wslz5d7dyfisz8lbl6fskjyay9lnp
+  - SHA256: bY+lkBeGYGy3xLcoo6Hlf5223z1raWuatR0VMQPfxKc=
 
 ### Custom Packages (`packages/`)
 - **Faugus Launcher**: Game launcher for Windows games on Linux
@@ -300,7 +326,10 @@ z dirname              # Jump to frequently used directories
 - Audio: Check PipeWire status: `systemctl --user status pipewire`
 - Gaming: Check Steam in gamemode, verify controller with `jstest`
 - Shell: Test autosuggestions, syntax highlighting, and fzf functions
-- Network: Check DuckDNS updates, firewall port status
+- **Network**: Check DuckDNS updates, firewall port status
+- **Secrets**: Verify sops decryption with encrypted secrets access
+- **Home Manager**: Check user service status: `systemctl --user status home-manager-fabio`
+- **AMD Hardware**: Verify kernel parameters: `cat /proc/cmdline | grep amdgpu`
 
 ### File Locations
 - **Configuration**: /etc/nixos/
@@ -309,24 +338,37 @@ z dirname              # Jump to frequently used directories
 - **Logs**: /var/log/ and `journalctl`
 - **Flatpak**: /var/lib/flatpak/ and ~/.local/share/flatpak/
 
-## Hardware Notes
-- **GPU**: RX 5600/5700 XT (Navi 10/RDNA1) requires HSA override for ROCm compatibility
+## Hardware Configuration (`modules/hardware/amd.nix`)
+
+### Consolidated AMD RX 5600/5700 XT Settings
+- **Kernel Parameters**: Complete AMD GPU optimization (ppfeaturemask, IOMMU, recovery)
+- **Environment Variables**: ROCm compatibility (HSA_OVERRIDE_GFX_VERSION=10.3.0, ROC_ENABLE_PRE_VEGA=1)
+- **Graphics Hardware**: Vulkan (RADV), OpenCL, 32-bit support
+- **Device Permissions**: render group access, udev rules for /dev/kfd and /dev/dri
+- **Services**: rocm-init service for device initialization
+- **System Limits**: Unlimited memlock for compute workloads
+- **Overdrive**: AMD GPU overdrive support for advanced tuning
+
+### Other Hardware
 - **Storage**: NVMe with ext4, separate data partition for user files, additional backup drive
 - **Audio**: PipeWire handles all audio routing with 32-bit support
 - **Controllers**: Game controller support via udev rules, including 8BitDo Ultimate 2C
-- **ROCm**: Full compute stack with compatibility overrides for RDNA1 architecture
 - **Streaming**: Sunshine configured for low-latency game streaming
 
-## Recent Updates
-- **NEW**: Enhanced shell with zsh-autosuggestions, syntax-highlighting, and advanced fzf integration
-- **NEW**: pay-respects command correction tool replacing thefuck
-- **NEW**: Custom interactive functions for directory navigation (fcd) and file editing (fe)
-- **NEW**: DuckDNS dynamic DNS service
-- **NEW**: Comprehensive gaming optimizations with 8BitDo controller support
-- **NEW**: Faugus Launcher custom package for game management
-- **NEW**: Additional backup drive mount at /mnt/hd
-- **UPDATED**: Enhanced security with comprehensive firewall rules
-- **UPDATED**: Improved theming with detailed GTK/Qt configuration
-- **REMOVED**: AI/ML module (ai.nix) - not implemented
+## Recent Updates (2025-06-10)
+- **🔒 NEW**: Secrets management with sops-nix for encrypted DuckDNS token
+- **🏠 NEW**: Home Manager integration for user-specific configurations
+- **⚡ NEW**: AMD hardware consolidation - single source of truth for all GPU settings
+- **📁 NEW**: Modular user configuration structure (modules/users/fabio.nix)
+- **🔧 IMPROVED**: Enhanced shell with zsh-autosuggestions, syntax-highlighting, and advanced fzf integration
+- **🎮 IMPROVED**: pay-respects command correction tool replacing thefuck
+- **💻 IMPROVED**: Custom interactive functions for directory navigation (fcd) and file editing (fe)
+- **🌐 IMPROVED**: DuckDNS dynamic DNS service with encrypted secrets
+- **🎯 IMPROVED**: Comprehensive gaming optimizations with 8BitDo controller support
+- **📦 IMPROVED**: Faugus Launcher custom package for game management
+- **💾 IMPROVED**: Additional backup drive mount at /mnt/hd
+- **🛡️ UPDATED**: Enhanced security with comprehensive firewall rules
+- **🎨 UPDATED**: Improved theming with detailed GTK/Qt configuration
+- **♻️ REFACTORED**: AMD settings consolidated from 4 files into dedicated hardware module
 
-This configuration provides a complete desktop environment optimized for gaming and development workloads on AMD hardware with comprehensive ROCm support and an enhanced terminal experience.
+This configuration provides a complete desktop environment optimized for gaming and development workloads on AMD hardware with comprehensive ROCm support, secure secrets management, and personalized user environments through Home Manager integration.

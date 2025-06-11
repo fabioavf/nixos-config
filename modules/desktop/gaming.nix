@@ -78,34 +78,9 @@
     cabextract
   ];
 
-  # Hardware optimizations for gaming
-  hardware = {
-    # Enable graphics drivers
-    graphics = {
-      enable = true;
-      enable32Bit = true;  # Required for 32-bit games
-      extraPackages = with pkgs; [
-        # AMD GPU packages
-        amdvlk          # AMD Vulkan driver
-	vulkan-loader
-	vulkan-tools
-        rocmPackages.clr # AMD OpenCL
-      ];
-      extraPackages32 = with pkgs.driversi686Linux; [
-        amdvlk          # 32-bit AMD Vulkan
-      ];
-    };
-  };
+  # Hardware graphics configuration moved to modules/hardware/amd.nix
 
-  # FIXED: Additional kernel parameters (merged with existing)
-  boot.kernelParams = [
-    # Gaming-specific AMD GPU optimizations
-    "amdgpu.ppfeaturemask=0xffffffff"  # Enable all AMD GPU features
-    "amdgpu.gpu_recovery=1"            # Enable GPU recovery
-    
-    # Performance optimizations (optional - enable if you want less security for more performance)
-    # "mitigations=off"                # Disable CPU mitigations for performance
-  ];
+  # AMD GPU kernel parameters moved to modules/hardware/amd.nix
 
   # FIXED: Additional sysctl settings (merged with existing)
   boot.kernel.sysctl = {
@@ -156,25 +131,17 @@
 
   # Environment variables for gaming
   environment.sessionVariables = {
-    # AMD GPU optimizations
-    AMD_VULKAN_ICD = "RADV";  # Use Mesa RADV driver
-    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/radeon_icd.x86_64.json:/run/opengl-driver-32/share/vulkan/icd.d/radeon_icd.i686.json";
-    VK_LAYER_PATH = "/run/opengl-driver/share/vulkan/explicit_layer.d:/run/opengl-driver-32/share/vulkan/explicit_layer.d";
-    
-    # RADV driver tweaks
-    RADV_DEBUG = "nongg,zerovram";  # Disable NGG pipeline, zero VRAM on allocation
-    MESA_VK_DEVICE_SELECT_FORCE_DEFAULT_DEVICE = "1";  # Force default Vulkan device selection
-    
-    # Wine/Proton optimizations
+    # Wine/Proton optimizations (non-AMD specific)
     WINEPREFIX = "$HOME/.wine-games";
-    
-    # Performance
-    __GL_THREADED_OPTIMIZATIONS = "1";
   };
+  
+  # AMD GPU environment variables moved to modules/hardware/amd.nix
 
   # Add gaming group for permissions
   users.groups.gamemode = {};
   users.users.fabio.extraGroups = [ "gamemode" ];
+  
+  # Note: render group for AMD GPU access is handled in modules/hardware/amd.nix
   
   # FIXED: PipeWire 32-bit support (instead of PulseAudio)
   # Since you use PipeWire, enable 32-bit ALSA support for Steam

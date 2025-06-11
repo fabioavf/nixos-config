@@ -13,12 +13,7 @@
     "vm.vfs_cache_pressure" = 50;
   };
   
-  # AMD GPU specific
-  boot.kernelParams = [
-    "amd_iommu=on"
-    "amdgpu.si_support=1"
-    "amdgpu.cik_support=1"
-  ];
+  # AMD GPU settings moved to modules/hardware/amd.nix
   
   # Performance packages are in monitoring.nix (iotop, etc.)
 }

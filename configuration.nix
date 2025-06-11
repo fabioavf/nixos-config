@@ -7,6 +7,7 @@
   imports = [
     # Hardware
     ./hardware-configuration.nix
+    ./modules/hardware/amd.nix
     
     # System modules
     ./modules/system/boot.nix
