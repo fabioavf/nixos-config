@@ -1,4 +1,4 @@
-# /etc/nixos/modules/desktop/theming.nix
+# /etc/nixos/modules/environment/theming.nix
 # GTK and Qt theming configuration
 
 { config, lib, pkgs, ... }:

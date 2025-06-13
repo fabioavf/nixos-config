@@ -1,10 +1,10 @@
-# /etc/nixos/modules/desktop/gaming.nix
+# /etc/nixos/modules/environment/gaming.nix
 # Gaming setup with Steam, optimizations, and Faugus Launcher
-# Designed to work with existing audio.nix, security.nix, and performance.nix
+# Desktop-only configuration (fabio-nixos)
 
 { config, lib, pkgs, ... }:
 
-{
+lib.mkIf (config.networking.hostName == "fabio-nixos") {
   # Enable Steam and gaming features
   programs.steam = {
     enable = true;

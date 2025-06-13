@@ -1,9 +1,10 @@
 # /etc/nixos/modules/services/filesystems.nix
 # Filesystem mounts and configuration
+# Desktop-only mounts (fabio-nixos)
 
 { config, lib, pkgs, ... }:
 
-{
+lib.mkIf (config.networking.hostName == "fabio-nixos") {
   # Enable udisks2 for disk management (required for GNOME Disks)
   services.udisks2.enable = true;
   

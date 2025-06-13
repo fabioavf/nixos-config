@@ -1,4 +1,4 @@
-# /etc/nixos/modules/desktop/audio.nix
+# /etc/nixos/modules/environment/audio.nix
 # Audio configuration with PipeWire
 
 { config, lib, pkgs, ... }:

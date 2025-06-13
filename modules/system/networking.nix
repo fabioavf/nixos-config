@@ -5,7 +5,7 @@
 
 {
   networking = {
-    hostName = "fabio-nixos";
+    # hostName is set in each host's configuration.nix
     networkmanager.enable = true;
   };
 }

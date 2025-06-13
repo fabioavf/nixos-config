@@ -1,4 +1,4 @@
-# /etc/nixos/modules/desktop/hyprland.nix
+# /etc/nixos/modules/environment/hyprland.nix
 # Hyprland window manager configuration
 
 { config, lib, pkgs, inputs, ... }:
@@ -26,6 +26,7 @@
     # Wayland utilities
     grim                   # Screenshot tool
     slurp                  # Screen area selection
+    wl-clipboard           # Wayland clipboard utilities (wl-copy, wl-paste)
     hyprpaper              # Hyprland's native wallpaper manager
     
     # System tray and utilities

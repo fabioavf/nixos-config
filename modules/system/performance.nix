@@ -4,13 +4,13 @@
   # SSD optimizations
   services.fstrim.enable = true;
   
-  # Optimize for desktop workload
-  powerManagement.cpuFreqGovernor = "performance"; # or "ondemand"
+  # Optimize for desktop workload (desktop gets performance, laptop will override)
+  powerManagement.cpuFreqGovernor = lib.mkDefault "performance";
   
-  # Memory optimization
+  # Memory optimization (laptop can override)
   boot.kernel.sysctl = {
-    "vm.swappiness" = 10;
-    "vm.vfs_cache_pressure" = 50;
+    "vm.swappiness" = lib.mkDefault 10;
+    "vm.vfs_cache_pressure" = lib.mkDefault 50;
   };
   
   # AMD GPU settings moved to modules/hardware/amd.nix

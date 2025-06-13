@@ -1,10 +1,10 @@
 # /etc/nixos/modules/hardware/amd.nix
 # Consolidated AMD hardware configuration for RX 5600/5700 XT (Navi 10/RDNA1)
-# Single source of truth for all AMD GPU settings
+# Desktop-only configuration (fabio-nixos)
 
 { config, lib, pkgs, ... }:
 
-{
+lib.mkIf (config.networking.hostName == "fabio-nixos") {
   # ========================================
   # Kernel Parameters - Consolidated from multiple files
   # ========================================

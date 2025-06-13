@@ -32,11 +32,11 @@
       
       # User-specific aliases
       shellAliases = {
-        # NixOS shortcuts
-        nrs = "sudo nixos-rebuild switch --flake /etc/nixos#fabio-nixos";
-        nrt = "sudo nixos-rebuild test --flake /etc/nixos#fabio-nixos";
-        nrb = "sudo nixos-rebuild boot --flake /etc/nixos#fabio-nixos";
-        nru = "sudo nix flake update /etc/nixos && sudo nixos-rebuild switch --flake /etc/nixos#fabio-nixos";
+        # NixOS shortcuts (machine-aware)
+        nrs = "sudo nixos-rebuild switch --flake /etc/nixos#$(hostname)";
+        nrt = "sudo nixos-rebuild test --flake /etc/nixos#$(hostname)";
+        nrb = "sudo nixos-rebuild boot --flake /etc/nixos#$(hostname)";
+        nru = "sudo nix flake update /etc/nixos && sudo nixos-rebuild switch --flake /etc/nixos#$(hostname)";
         
         # Directory shortcuts
         ".." = "cd ..";
@@ -71,6 +71,14 @@
         # Auto-start Hyprland on TTY1
         if [ -z "$WAYLAND_DISPLAY" ] && [ "$XDG_VTNR" -eq 1 ]; then
           exec Hyprland
+        fi
+        
+        # Machine-specific aliases based on hostname
+        if [[ "$(hostname)" == "fabio-macbook" ]]; then
+          alias battery='acpi -b'
+          alias powersave='sudo tlp bat'
+          alias performance='sudo tlp ac'
+          alias wifi='impala'
         fi
         
         # Enhanced history settings

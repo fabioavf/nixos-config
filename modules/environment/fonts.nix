@@ -1,4 +1,4 @@
-# /etc/nixos/modules/desktop/fonts.nix
+# /etc/nixos/modules/environment/fonts.nix
 # Font configuration
 
 { config, lib, pkgs, ... }:

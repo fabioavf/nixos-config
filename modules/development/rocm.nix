@@ -1,11 +1,10 @@
 # /etc/nixos/modules/development/rocm.nix
 # ROCm (Radeon Open Compute) support for AMD RX 5600/5700 XT
-# Enables machine learning, compute workloads, and GPU development
-# Updated with actual available packages in nixpkgs
+# Desktop-only configuration (fabio-nixos)
 
 { config, lib, pkgs, ... }:
 
-{
+lib.mkIf (config.networking.hostName == "fabio-nixos") {
   # ROCm tmpfiles moved to modules/hardware/amd.nix
 
   # ROCm packages and tools (CORRECTED - only existing packages)

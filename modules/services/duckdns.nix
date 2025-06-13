@@ -1,8 +1,9 @@
 # DuckDNS dynamic DNS service configuration
+# Desktop-only service (fabio-nixos)
 
 { config, lib, pkgs, ... }:
 
-{
+lib.mkIf (config.networking.hostName == "fabio-nixos") {
   # Sops secret for DuckDNS token
   sops.secrets.duckdns_token = {
     sopsFile = ../../secrets/secrets.yaml;
