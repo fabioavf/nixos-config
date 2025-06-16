@@ -21,18 +21,20 @@
     ../../modules/system/secrets.nix
     ../../modules/system/home-manager.nix
     
-    # Environment (desktop)
-    ../../modules/environment/hyprland.nix
+    # Interface modules (desktop)
+    ../../modules/interface/tui/default.nix  # Terminal tools
+    ../../modules/interface/gui/default.nix  # GUI apps
+    ../../modules/interface/gui/desktop-heavy.nix  # Desktop-specific apps  
+    ../../modules/interface/wm/hyprland/default.nix  # Window manager
+    
+    # Environment (system-wide)
     ../../modules/environment/audio.nix
     ../../modules/environment/fonts.nix
     ../../modules/environment/gaming.nix
-    ../../modules/environment/apps.nix      # Common apps
-    ../../modules/environment/desktop.nix   # Desktop-specific apps
     ../../modules/environment/theming.nix
     
     # Development environment
-    ../../modules/development/languages.nix
-    ../../modules/development/editors.nix
+    ../../modules/interface/tui/editors.nix
     ../../modules/development/shell.nix
     ../../modules/development/rocm.nix
     
@@ -44,6 +46,11 @@
 
   # Machine identification
   networking.hostName = "fabio-nixos";
+
+  # Install git globally for root user
+  environment.systemPackages = with pkgs; [
+    git
+  ];
 
   # System state version
   system.stateVersion = "25.05";

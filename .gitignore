@@ -15,11 +15,26 @@ hardware-configuration.nix.backup
 .idea/
 *.swp
 *.swo
+*.vim
 
 # OS files
 .DS_Store
 Thumbs.db
 
+# Git files
+*.orig
+*.rej
+
+# Nix development
+.direnv/
+.envrc
+shell.nix
+
+# System links and caches
+system-*-link
+.cache/
+
 # Secrets - keep private keys out of version control
 secrets/keys.txt
 secrets/*.key
+secrets/*.age

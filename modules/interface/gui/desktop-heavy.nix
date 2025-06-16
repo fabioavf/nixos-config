@@ -1,4 +1,4 @@
-# /etc/nixos/modules/environment/desktop.nix
+# /etc/nixos/modules/interface/gui/desktop-heavy.nix
 # Desktop-specific heavy applications (fabio-nixos only)
 
 { config, lib, pkgs, ... }:
@@ -8,7 +8,7 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
     # ========================================
     # Custom Desktop Packages
     # ========================================
-    (callPackage ../../packages/faugus-launcher.nix {})
+    (callPackage ../../../packages/faugus-launcher.nix {})
     
     # ========================================
     # Media Production (Heavy)
@@ -34,6 +34,7 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
     # ========================================
     corectrl               # AMD GPU control
     neofetch               # System info
+    openrgb-with-all-plugins
     
     # ========================================
     # Network Tools (Desktop-specific)

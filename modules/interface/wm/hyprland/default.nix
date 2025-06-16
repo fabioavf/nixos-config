@@ -1,5 +1,5 @@
-# /etc/nixos/modules/environment/hyprland.nix
-# Hyprland window manager configuration
+# /etc/nixos/modules/interface/wm/hyprland/default.nix
+# Hyprland window manager system configuration
 
 { config, lib, pkgs, inputs, ... }:
 

@@ -1,5 +1,5 @@
-# /etc/nixos/modules/environment/apps.nix
-# Common applications for both machines
+# /etc/nixos/modules/interface/gui/default.nix
+# Common GUI applications for both machines (system-level)
 
 { config, lib, pkgs, ... }:
 
@@ -9,9 +9,6 @@
     # File Management (Common)
     # ========================================
     nautilus            # GNOME file manager
-    ranger              # Terminal file manager
-    fd                  # Better find
-    ripgrep             # Better grep
     gdu                 # Disk usage analyzer
     
     # ========================================
@@ -31,15 +28,6 @@
     unrar               # RAR extraction
     xz
     zstd
-    
-    # ========================================
-    # Network and Download Tools (Common)
-    # ========================================
-    wget
-    curl
-    aria2               # Multi-connection downloader
-    rsync               # File synchronization
-    sshfs               # Mount remote filesystems
     
     # ========================================
     # Communication (Common)

@@ -4,6 +4,8 @@
 { config, lib, pkgs, ... }:
 
 {
+  # Note: Conditional imports moved to host-specific configurations
+  # to avoid infinite recursion with config.networking.hostName
   # Home Manager needs to know about the user
   home.username = "fabio";
   home.homeDirectory = "/home/fabio";
@@ -30,25 +32,25 @@
         theme = "robbyrussell";
       };
       
-      # User-specific aliases
+      # User-specific aliases (conditional based on hostname)
       shellAliases = {
-        # NixOS shortcuts (machine-aware)
+        # NixOS shortcuts (common)
         nrs = "sudo nixos-rebuild switch --flake /etc/nixos#$(hostname)";
         nrt = "sudo nixos-rebuild test --flake /etc/nixos#$(hostname)";
         nrb = "sudo nixos-rebuild boot --flake /etc/nixos#$(hostname)";
         nru = "sudo nix flake update /etc/nixos && sudo nixos-rebuild switch --flake /etc/nixos#$(hostname)";
         
-        # Directory shortcuts
+        # Directory shortcuts (common)
         ".." = "cd ..";
         "..." = "cd ../..";
         "...." = "cd ../../..";
         
-        # Enhanced ls
+        # Enhanced ls (common)
         ll = "ls -alFh";
         la = "ls -A";
         l = "ls -CF";
         
-        # Git shortcuts
+        # Git shortcuts (common)
         gs = "git status";
         ga = "git add";
         gc = "git commit";
@@ -57,6 +59,8 @@
         gl = "git pull";
         gd = "git diff";
       };
+      
+      # Machine-specific aliases will be handled in host configurations
       
       # Shell initialization  
       initContent = ''
@@ -71,14 +75,6 @@
         # Auto-start Hyprland on TTY1
         if [ -z "$WAYLAND_DISPLAY" ] && [ "$XDG_VTNR" -eq 1 ]; then
           exec Hyprland
-        fi
-        
-        # Machine-specific aliases based on hostname
-        if [[ "$(hostname)" == "fabio-macbook" ]]; then
-          alias battery='acpi -b'
-          alias powersave='sudo tlp bat'
-          alias performance='sudo tlp ac'
-          alias wifi='impala'
         fi
         
         # Enhanced history settings

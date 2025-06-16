@@ -19,42 +19,59 @@ This is a comprehensive NixOS configuration built with flakes, featuring a modul
 - **configuration.nix**: Main imports-only file that ties all modules together
 - **hardware-configuration.nix**: Auto-generated hardware detection (do not edit)
 
-### Module Structure
+### Hybrid Module Structure (2025-06-15 Reorganization)
 ```
 modules/
-├── desktop/          # Desktop environment and applications
-│   ├── apps.nix      # Desktop applications, Faugus Launcher, file managers
-│   ├── audio.nix     # PipeWire audio configuration
-│   ├── fonts.nix     # System and programming fonts (Nerd Fonts)
-│   ├── gaming.nix    # Steam, Wine, controllers, GameMode
-│   ├── hyprland.nix  # Wayland compositor and tools
-│   └── theming.nix   # GTK/Qt themes (Adwaita Dark)
-├── development/      # Programming tools and languages
-│   ├── editors.nix   # Zed Editor, Neovim, VS Code, Alacritty
-│   ├── languages.nix # Git, Docker, Node.js, Python, Rust, Claude Code
-│   ├── rocm.nix      # ROCm packages for ML/AI compute workloads
-│   └── shell.nix     # System-wide Zsh configuration
-├── hardware/         # Hardware-specific configurations
-│   └── amd.nix       # AMD RX 5600/5700 XT hardware configuration
-├── services/         # System services
-│   ├── duckdns.nix   # Dynamic DNS service with encrypted secrets
-│   ├── filesystems.nix # Data partition mounting
-│   └── openssh.nix   # SSH server configuration
+├── interface/        # NEW: Interface-based organization
+│   ├── tui/         # Terminal user interfaces
+│   │   ├── default.nix   # Core terminal tools and CLI utilities
+│   │   ├── editors.nix   # Text editors and terminal applications
+│   │   └── home.nix      # User-level TUI configurations (Home Manager)
+│   ├── gui/         # Graphical user interfaces
+│   │   ├── default.nix   # Common GUI applications
+│   │   ├── desktop-heavy.nix # Desktop-specific heavy applications
+│   │   └── home.nix      # User-level GUI configurations (Home Manager)
+│   └── wm/          # Window managers
+│       └── hyprland/
+│           ├── default.nix # System-level WM configuration
+│           └── home.nix    # User-level WM settings (Home Manager)
+├── environment/     # System-wide concerns
+│   ├── audio.nix    # PipeWire audio configuration
+│   ├── fonts.nix    # System and programming fonts (Nerd Fonts)
+│   ├── gaming.nix   # Steam, Wine, controllers, GameMode
+│   └── theming.nix  # GTK/Qt themes (Adwaita Dark)
+├── development/     # Development-specific modules
+│   ├── shell.nix    # System-wide Zsh configuration
+│   └── rocm.nix     # ROCm packages for ML/AI compute workloads
+├── hardware/        # Hardware-specific configurations
+│   └── amd.nix      # AMD RX 5600/5700 XT hardware configuration
 ├── system/          # Core system configuration
-│   ├── boot.nix      # systemd-boot, Plymouth splash
+│   ├── boot.nix     # systemd-boot, Plymouth splash
 │   ├── home-manager.nix # Home Manager integration
-│   ├── locale.nix    # Timezone and locale settings
+│   ├── locale.nix   # Timezone and locale settings
 │   ├── monitoring.nix # System monitoring, auto-updates
 │   ├── networking.nix # NetworkManager configuration
-│   ├── nix.nix       # Nix settings, garbage collection
+│   ├── nix.nix      # Nix settings, garbage collection
 │   ├── performance.nix # SSD optimization, CPU governor
-│   ├── secrets.nix   # Secrets management with sops-nix
-│   ├── security.nix  # Firewall, fail2ban, streaming ports
-│   └── users.nix     # System user configuration with auto-login
+│   ├── secrets.nix  # Secrets management with sops-nix
+│   ├── security.nix # Firewall, fail2ban, streaming ports
+│   └── users.nix    # System user configuration with auto-login
+├── services/        # System services
+│   ├── duckdns.nix  # Dynamic DNS service with encrypted secrets
+│   ├── filesystems.nix # Data partition mounting
+│   └── openssh.nix  # SSH server configuration
 ├── users/           # User-specific configurations (Home Manager)
-│   └── fabio.nix     # Personal user environment and dotfiles
+│   └── fabio.nix    # Personal user environment and dotfiles
 └── packages/        # Custom package definitions
     └── faugus-launcher.nix # Custom game launcher package
+├── overlays/        # NEW: Organized overlay system
+│   ├── default.nix  # Main overlays combiner
+│   └── packages.nix # Custom package overlays (Claude Code)
+├── docs/            # NEW: Structured documentation
+│   ├── README.md    # Overview and quick start
+│   ├── architecture.md # Detailed module organization
+│   ├── maintenance.md # Commands and troubleshooting
+│   └── modules/     # Module-specific documentation
 └── secrets/         # Encrypted secrets management
     ├── keys.txt     # Age encryption key (not in git)
     └── secrets.yaml # Encrypted secrets file
@@ -355,7 +372,19 @@ z dirname              # Jump to frequently used directories
 - **Controllers**: Game controller support via udev rules, including 8BitDo Ultimate 2C
 - **Streaming**: Sunshine configured for low-latency game streaming
 
-## Recent Updates (2025-06-10)
+## Recent Updates
+
+### Major Reorganization (2025-06-15)
+- **🏗️ RESTRUCTURED**: Hybrid architecture combining domain-based and interface-based organization
+- **📱 NEW**: Interface modules (TUI/GUI/WM) for better usage context grouping
+- **🔄 NEW**: Dual-level modules with system and user configurations
+- **📚 NEW**: Comprehensive documentation structure (docs/README.md, architecture.md, maintenance.md)
+- **📦 NEW**: Organized overlay system for custom packages
+- **🎯 IMPROVED**: Host-specific configurations for better machine targeting
+- **🔧 ENHANCED**: User configuration with conditional loading patterns
+- **📋 ADDED**: Module templates and best practices documentation
+
+### Previous Updates (2025-06-10)
 - **🔒 NEW**: Secrets management with sops-nix for encrypted DuckDNS token
 - **🏠 NEW**: Home Manager integration for user-specific configurations
 - **⚡ NEW**: AMD hardware consolidation - single source of truth for all GPU settings
@@ -371,4 +400,4 @@ z dirname              # Jump to frequently used directories
 - **🎨 UPDATED**: Improved theming with detailed GTK/Qt configuration
 - **♻️ REFACTORED**: AMD settings consolidated from 4 files into dedicated hardware module
 
-This configuration provides a complete desktop environment optimized for gaming and development workloads on AMD hardware with comprehensive ROCm support, secure secrets management, and personalized user environments through Home Manager integration.
+This configuration provides a complete desktop environment optimized for gaming and development workloads on AMD hardware with comprehensive ROCm support, secure secrets management, and personalized user environments through Home Manager integration. The recent reorganization improves maintainability and scalability while preserving all existing functionality.
