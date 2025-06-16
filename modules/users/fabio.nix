@@ -62,6 +62,11 @@
         gp = "git push";
         gl = "git pull";
         gd = "git diff";
+        
+        # NixOS config editing shortcuts
+        nixedit = "sudo chown -R $USER /etc/nixos && zeditor /etc/nixos";
+        nixdone = "sudo chown -R root /etc/nixos";
+        nixopen = "zeditor /etc/nixos";
       };
       
       # Machine-specific aliases will be handled in host configurations
