@@ -10,5 +10,9 @@
     useUserPackages = true;
     backupFileExtension = "backup";
     users.fabio = import ../users/fabio.nix;
+    extraSpecialArgs = {
+      # Pass the module path so imports work correctly
+      modulePath = /etc/nixos/modules;
+    };
   };
 }

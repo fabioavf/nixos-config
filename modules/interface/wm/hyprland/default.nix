@@ -28,17 +28,30 @@
     slurp                  # Screen area selection
     wl-clipboard           # Wayland clipboard utilities (wl-copy, wl-paste)
     hyprpaper              # Hyprland's native wallpaper manager
+    swww                   # Animated wallpaper daemon
     
     # System tray and utilities
     pavucontrol           # Audio control
     brightnessctl         # Brightness control
     udiskie               # Auto-mount removable media
+    playerctl             # Media player control
     
-    # Polkit agent for authentication
+    # Polkit agents for authentication
     kdePackages.polkit-kde-agent-1
+    hyprpolkitagent       # Hyprland's polkit agent
     
     # Clipboard manager
     clipse
+    
+    # Idle and lock management
+    hypridle              # Idle daemon
+    hyprlock              # Screen locker
+    
+    # Network management
+    networkmanagerapplet  # nm-applet
+    
+    # Game streaming
+    sunshine              # Game streaming server
   ];
 
   # Systemd user service for quickshell

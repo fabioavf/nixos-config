@@ -4,6 +4,9 @@
 { config, lib, pkgs, ... }:
 
 {
+  imports = [
+    ../interface/wm/hyprland/home.nix
+  ];
   # Note: Conditional imports moved to host-specific configurations
   # to avoid infinite recursion with config.networking.hostName
   # Home Manager needs to know about the user
