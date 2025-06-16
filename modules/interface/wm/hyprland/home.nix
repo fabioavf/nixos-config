@@ -5,6 +5,9 @@
   osConfig,
   ...
 }: let
+  # Machine detection
+  isMacBook = osConfig.networking.hostName == "fabio-macbook";
+  
   # Animation configuration inline for self-contained module
   animations = {
     enabled = true;
@@ -67,8 +70,10 @@ in {
 
     settings = {
 
-      # Monitor configuration
-      monitor = [
+      # Monitor configuration (conditional)
+      monitor = if isMacBook then [
+        "eDP-1, 2560x1600@60, 0x0, 1.6"
+      ] else [
         "eDP-1, 3840x2160@60, 0x0, 1.5"
       ];
 
@@ -175,13 +180,17 @@ in {
         sensitivity = 0;
         
         touchpad = {
-          natural_scroll = false;
+          natural_scroll = true;
+	  disable_while_typing = true;
+	  clickfinger_behavior = true;
+	  tap-to-click = false;
+
         };
       };
 
       # Gestures
       gestures = {
-        workspace_swipe = false;
+        workspace_swipe = true;
       };
 
       # XWayland settings
@@ -263,9 +272,14 @@ in {
         # Clipboard manager
         "$mainMod, comma, exec, alacritty --class clipse -e clipse"
 
-        # Screenshots
+        # Screenshots (with conditional MacBook binds)
         ", Print, exec, grim -g \"$(slurp)\" - | wl-copy"
         "$mainMod, Print, exec, grim -g \"$(slurp)\" ~/Pictures/Screenshots/screenshot_$(date +%Y-%m-%d_%H-%M-%S).png"
+      ] ++ lib.optionals isMacBook [
+        # MacBook-specific screenshot keybinds
+        "$mainMod CTRL SHIFT, 4, exec, grim -g \"$(slurp)\" - | wl-copy"
+        "$mainMod CTRL SHIFT, 3, exec, grim -g \"$(slurp)\" ~/Pictures/Screenshots/screenshot_$(date +%Y-%m-%d_%H-%M-%S).png"
+      ] ++ [
 
         # Mouse workspace navigation
         "$mainMod, mouse_down, workspace, e+1"
@@ -403,7 +417,7 @@ in {
       # Blur layer shell
       blurls = ["simple-bar"];
 
-      # Startup applications
+      # Startup applications (conditional)
       exec-once = [
         "systemctl --user start hyprpolkitagent"
         "nm-applet &"
@@ -412,14 +426,18 @@ in {
         "hypridle"
         "polkit-kde-agent-1"
         "hyprpaper"
-        "sunshine"
         "swww-daemon"
         "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
-        
-        # Auto-start applications on specific workspaces
-        "[workspace 1 silent] spotify --force-device-scale-factor=1.5"
+      ] ++ lib.optionals (!isMacBook) [
+        # Desktop-specific startup apps
+        "sunshine"
+      ] ++ [
+        # Auto-start applications on specific workspaces (conditional scaling)
+        "[workspace 1 silent] spotify --force-device-scale-factor=${if isMacBook then "1.6" else "1.5"}"
         "[workspace 2 silent] app.zen_browser.zen"
         "[workspace 4 silent] discord"
+      ] ++ lib.optionals (!isMacBook) [
+        # Desktop-specific workspace apps
         "[workspace 5 silent] corectrl"
         "[workspace 5 silent] qbittorrent"
       ];

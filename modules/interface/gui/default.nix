@@ -61,6 +61,14 @@
   # ========================================
   services.flatpak.enable = true;
   
+  # XDG Desktop Portal for Flatpak
+  xdg.portal = {
+    enable = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+    ];
+  };
+  
   # Add Flatpak desktop files to XDG paths
   environment.sessionVariables = {
     XDG_DATA_DIRS = [

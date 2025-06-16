@@ -1,7 +1,7 @@
 # /etc/nixos/modules/system/home-manager.nix
 # Home Manager integration for user configuration
 
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   # Home Manager configuration
@@ -13,6 +13,8 @@
     extraSpecialArgs = {
       # Pass the module path so imports work correctly
       modulePath = /etc/nixos/modules;
+      # Pass inputs for niri-flake and other flake inputs
+      inherit inputs;
     };
   };
 }

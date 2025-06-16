@@ -1,11 +1,12 @@
 # /etc/nixos/modules/users/fabio.nix
 # Home Manager configuration for user fabioavf
 
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   imports = [
-    ../interface/wm/hyprland/home.nix
+    inputs.niri.homeModules.niri
+    ../interface/wm/niri/home.nix
   ];
   # Note: Conditional imports moved to host-specific configurations
   # to avoid infinite recursion with config.networking.hostName
@@ -77,7 +78,7 @@
 
         # Auto-start Hyprland on TTY1
         if [ -z "$WAYLAND_DISPLAY" ] && [ "$XDG_VTNR" -eq 1 ]; then
-          exec Hyprland
+          exec niri
         fi
         
         # Enhanced history settings
