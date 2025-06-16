@@ -1,5 +1,10 @@
+# /etc/nixos/system/default.nix
+# Platform-specific module organization
+
 let
-  desktop = [
+  # Common modules for all systems
+  common = [
+    # Core system functionality
     ./core/boot.nix
     ./core/locale.nix
     ./core/nix.nix
@@ -10,27 +15,40 @@ let
     ./core/secrets.nix
     ./core/home-manager.nix
 
-    ./hardware/amd.nix
-
+    # Network (common to all)
     ./network/default.nix
 
+    # Programs (common to all)
     ./programs
     ./programs/fonts.nix
     ./programs/audio.nix
-    ./programs/gaming.nix
     ./programs/theming.nix
 
+    # Services (common to all)
     ./services
     ./services/openssh.nix
+  ];
+
+  # Desktop-specific modules (fabio-nixos)
+  desktop = common ++ [
+    # Desktop hardware
+    ./hardware/amd.nix
+
+    # Desktop-specific programs
+    ./programs/gaming.nix
+
+    # Desktop-specific services
     ./services/filesystems.nix
     ./services/duckdns.nix
   ];
 
-  laptop =
-    desktop
-    ++ [
-      ./hardware/macbook-audio.nix
-    ];
+  # Laptop-specific modules (fabio-macbook)
+  laptop = common ++ [
+    # MacBook hardware
+    ./hardware/macbook-audio.nix
+    
+    # No gaming, filesystem mounts, or DuckDNS for laptop
+  ];
 in {
   inherit desktop laptop;
 }
