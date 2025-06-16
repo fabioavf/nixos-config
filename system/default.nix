@@ -23,6 +23,9 @@ let
     ./programs/fonts.nix
     ./programs/audio.nix
     ./programs/theming.nix
+    ./programs/gui.nix
+    ./programs/development.nix
+    ./programs/niri.nix
 
     # Services (common to all)
     ./services
@@ -36,6 +39,7 @@ let
 
     # Desktop-specific programs
     ./programs/gaming.nix
+    ./programs/desktop-heavy.nix
 
     # Desktop-specific services
     ./services/filesystems.nix
@@ -46,8 +50,9 @@ let
   laptop = common ++ [
     # MacBook hardware
     ./hardware/macbook-audio.nix
+    ./hardware/intel-graphics.nix
     
-    # No gaming, filesystem mounts, or DuckDNS for laptop
+    # No gaming, desktop-heavy apps, filesystem mounts, or DuckDNS for laptop
   ];
 in {
   inherit desktop laptop;
