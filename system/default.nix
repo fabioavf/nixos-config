@@ -25,7 +25,6 @@ let
     ./programs/theming.nix
     ./programs/gui.nix
     ./programs/development.nix
-    ./programs/niri.nix
 
     # Services (common to all)
     ./services

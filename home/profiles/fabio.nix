@@ -7,6 +7,7 @@
   imports = [
     ../services/niri
     ../terminal/default.nix
+    ../media/default.nix
   ];
 
   # Home Manager needs to know about the user

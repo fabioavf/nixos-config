@@ -1,38 +1,39 @@
 # /etc/nixos/home/terminal/default.nix
-# Terminal tools and CLI utilities
+# Terminal tools, CLI utilities, and development environment
 
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
-  # Terminal packages that are better managed at user level
+  # Terminal and development packages for user-level management
   home.packages = with pkgs; [
+    # ========================================
+    # Editors and Terminal (User Preference)
+    # ========================================
+    zed-editor              # Modern editor
+    neovim                  # Terminal editor
+    vscode                  # GUI editor
+    alacritty               # Modern terminal emulator
+    
     # ========================================
     # File Management (Terminal)
     # ========================================
-    ranger              # Terminal file manager
-    fd                  # Better find
-    ripgrep             # Better grep
+    ranger                  # Terminal file manager
+    fd                      # Better find
+    ripgrep                 # Better grep
     
     # ========================================
-    # Network and Download Tools (Terminal)
+    # Network and Download Tools (User-level)
     # ========================================
-    wget
-    curl
-    aria2               # Multi-connection downloader
-    rsync               # File synchronization
-    sshfs               # Mount remote filesystems
+    aria2                   # Multi-connection downloader
+    sshfs                   # Mount remote filesystems
     
     # ========================================
-    # Development Tools (Terminal)
+    # Development Tools (User-specific)
     # ========================================
     # Version control
-    gh                  # GitHub CLI
-    git-lfs             # Large file support
-    glab                # GitLab CLI
-    
-    # System development
-    gcc
-    openssl
+    gh                      # GitHub CLI
+    git-lfs                 # Large file support
+    glab                    # GitLab CLI
     
     # JavaScript/TypeScript
     nodejs
@@ -48,8 +49,7 @@
     rustc
     cargo
     
-    # Containers (if needed)
-    docker
-    docker-compose
+    # Custom packages
+    inputs.self.packages.x86_64-linux.claude-code
   ];
 }

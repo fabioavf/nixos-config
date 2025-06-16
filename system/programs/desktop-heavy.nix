@@ -13,12 +13,6 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
     # ========================================
     # Media Production (Heavy)
     # ========================================
-    (spotify.overrideAttrs (oldAttrs: {
-      postFixup = (oldAttrs.postFixup or "") + ''
-        wrapProgram $out/bin/spotify \
-          --add-flags "--force-device-scale-factor=1.5"
-      '';
-    }))
     obs-studio              # Screen recording/streaming
     droidcam               # Android camera as webcam
     ffmpeg                 # Video processing
