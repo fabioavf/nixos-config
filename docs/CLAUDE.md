@@ -149,7 +149,7 @@ modules/
 - **Containers**: Docker, docker-compose
 - **System**: GCC compiler
 - **JavaScript**: Node.js, Bun, node2nix
-- **AI Tools**: Claude Code (custom package v1.0.17)
+- **AI Tools**: Claude Code (custom package v1.0.17), Claude Desktop (GUI app)
 - **Python**: pyenv
 - **Rust**: rustc, cargo
 
@@ -271,6 +271,7 @@ modules/
 - **sops-nix**: Secrets management with age encryption
 - **home-manager**: User environment and dotfiles management
 - **quickshell**: Custom shell/bar (git.outfoxxed.me)
+- **niri**: Niri window manager (github:sodiboo/niri-flake)
 - **claude-desktop**: Claude AI desktop app (github:k3d3/claude-desktop-linux-flake)
 
 ### Custom Overlays
