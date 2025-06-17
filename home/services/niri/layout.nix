@@ -25,7 +25,7 @@
       ];
       default-column-width = {proportion = 0.5;};
 
-      gaps = 6;
+      gaps = 16;
       struts = {
         left = 0;
         right = 0;

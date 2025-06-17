@@ -16,7 +16,18 @@
     dconf.enable = true;
     seahorse.enable = true;
     adb.enable = true;
+
+    zsh = {
+      enable = true;
+
+      # Enable system-wide zsh plugins for all users
+      autosuggestions.enable = true;
+      syntaxHighlighting.enable = true;
+    };
   };
-  
+
+  # Set zsh as default shell
+  users.defaultUserShell = pkgs.zsh;
+
   services.udev.packages = [pkgs.android-udev-rules];
 }

@@ -8,6 +8,7 @@
   users.users.fabio = {
     isNormalUser = true;
     description = "Fabio";
+    shell = pkgs.zsh;
     extraGroups = [ "networkmanager" "wheel" "audio" "video" "corectrl" "input" "render" ];
     packages = with pkgs; [
       # Basic user utilities

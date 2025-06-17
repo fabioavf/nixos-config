@@ -11,12 +11,12 @@
 
   homeImports = {
     "fabio@fabio-nixos" = [
-      ../profiles/fabio.nix
+      ./fabio.nix
       # Desktop-specific home config can go here
     ];
     
     "fabio@fabio-macbook" = [
-      ../profiles/fabio.nix
+      ./fabio.nix
       # MacBook-specific home config can go here
     ];
   };

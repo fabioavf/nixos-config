@@ -12,7 +12,9 @@
     ./outputs.nix
     ./layout.nix
     ./keybinds.nix
+    ./rules.nix
     ./quickshell.nix
+    ./wallpaper.nix
   ];
 
   # Enable niri

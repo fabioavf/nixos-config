@@ -44,10 +44,11 @@
 
     # Window management
     "Mod+Shift+F".action = fullscreen-window;
+    "Mod+F".action = maximize-column;
 
     # Screenshots
     "Print".action = spawn ["grim" "-g" "\"$(slurp)\"" "-" "|" "wl-copy"];
-    "Mod+Ctrl+Shift+4".action = screenshot;
+    "Mod+Ctrl+Shift+4".action = spawn ["grim" "-g" "\"$(slurp)\"" "-" "|" "wl-copy"];
 
     # System shortcuts
     "Mod+Shift+M".action = quit;
@@ -63,6 +64,10 @@
     # Brightness controls (especially useful for MacBook)
     "XF86MonBrightnessUp".action = spawn ["brightnessctl" "set" "5%+"];
     "XF86MonBrightnessDown".action = spawn ["brightnessctl" "set" "5%-"];
+
+    # Wallpaper controls
+    "Mod+Shift+W".action = spawn ["set-wallpaper" "random"];
+    "Mod+Ctrl+W".action = spawn ["set-wallpaper"];
 
     # Scroll wheel bindings
     "Mod+WheelScrollDown".action = focus-workspace-down;

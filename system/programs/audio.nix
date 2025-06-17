@@ -23,6 +23,7 @@
     pulseaudio  # For pactl command
     wireplumber # PipeWire session manager
     pipewire    # PipeWire tools including wpctl
+    pamixer
     pavucontrol
   ];
 }

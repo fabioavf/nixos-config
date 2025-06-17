@@ -25,7 +25,7 @@ in
 
     # Startup programs
     spawn-at-startup = [
-      (makeCommand "swww-daemon")
+      # Removed swww-daemon - will be handled by wallpaper service
     ];
 
     # Hotkey overlay
