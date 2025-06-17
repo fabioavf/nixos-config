@@ -5,6 +5,7 @@ import QtQuick.Controls.Material
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
+import "./config" as Config
 
 ShellRoot {
     id: shellRoot
@@ -13,7 +14,256 @@ ShellRoot {
     Material.theme: Material.Dark
     Material.accent: Material.Blue
 
-    // Load NiriIPC singleton directly
+    // Create SystemStats instance directly
+    Item {
+        id: systemStatsInstance
+        
+        // System monitoring properties
+        property real cpuUsage: 0.0
+        property real memoryUsage: 0.0
+        property real memoryUsedGB: 0.0
+        property real memoryTotalGB: 0.0
+        property real diskUsage: 0.0
+        property real diskFreeGB: 0.0
+        property real diskTotalGB: 0.0
+        property real networkDownload: 0.0
+        property real networkUpload: 0.0
+        property bool connected: true
+        
+        // Internal state for calculations
+        property var lastCpuData: null
+        property var lastNetworkData: null
+        
+        // System monitoring with Timer
+        Timer {
+            interval: 3000
+            repeat: true
+            running: true
+            
+            property var statsInstance: systemStatsInstance
+            
+            onTriggered: statsInstance.updateSystemStats()
+        }
+        
+        function updateSystemStats() {
+            // Update CPU usage
+            cpuProcess.running = true
+        }
+        
+        Process {
+            id: cpuProcess
+            command: ["cat", "/proc/stat"]
+            running: false
+            
+            property var statsInstance: systemStatsInstance
+            
+            stdout: StdioCollector {
+                id: cpuCollector
+            }
+            
+            onExited: function(exitCode) {
+                if (exitCode === 0) {
+                    const data = cpuCollector.text.trim()
+                    statsInstance.parseCpuData(data)
+                    // After CPU, update memory
+                    memoryProcess.running = true
+                }
+            }
+        }
+        
+        Process {
+            id: memoryProcess
+            command: ["cat", "/proc/meminfo"]
+            running: false
+            
+            property var statsInstance: systemStatsInstance
+            
+            stdout: StdioCollector {
+                id: memoryCollector
+            }
+            
+            onExited: function(exitCode) {
+                if (exitCode === 0) {
+                    const data = memoryCollector.text.trim()
+                    statsInstance.parseMemoryData(data)
+                    // After memory, update disk
+                    diskProcess.running = true
+                }
+            }
+        }
+        
+        Process {
+            id: diskProcess
+            command: ["df", "-BG", "/"]
+            running: false
+            
+            property var statsInstance: systemStatsInstance
+            
+            stdout: StdioCollector {
+                id: diskCollector
+            }
+            
+            onExited: function(exitCode) {
+                if (exitCode === 0) {
+                    const data = diskCollector.text.trim()
+                    statsInstance.parseDiskData(data)
+                    // After disk, update network
+                    networkProcess.running = true
+                }
+            }
+        }
+        
+        Process {
+            id: networkProcess
+            command: ["cat", "/proc/net/dev"]
+            running: false
+            
+            property var statsInstance: systemStatsInstance
+            
+            stdout: StdioCollector {
+                id: networkCollector
+            }
+            
+            onExited: function(exitCode) {
+                if (exitCode === 0) {
+                    const data = networkCollector.text.trim()
+                    statsInstance.parseNetworkData(data)
+                }
+            }
+        }
+        
+        function parseCpuData(data) {
+            const lines = data.split('\n')
+            const cpuLine = lines[0] // First line is overall CPU
+            
+            if (cpuLine.startsWith('cpu ')) {
+                const values = cpuLine.split(/\s+/).slice(1).map(Number)
+                const currentData = {
+                    user: values[0] || 0,
+                    nice: values[1] || 0,
+                    system: values[2] || 0,
+                    idle: values[3] || 0,
+                    iowait: values[4] || 0,
+                    irq: values[5] || 0,
+                    softirq: values[6] || 0,
+                    steal: values[7] || 0
+                }
+
+                if (lastCpuData) {
+                    // Calculate differences
+                    const totalDiff = Object.values(currentData).reduce((a, b) => a + b, 0) - 
+                                    Object.values(lastCpuData).reduce((a, b) => a + b, 0)
+                    const idleDiff = currentData.idle - lastCpuData.idle
+                    
+                    if (totalDiff > 0) {
+                        const usage = Math.max(0, Math.min(100, ((totalDiff - idleDiff) / totalDiff) * 100))
+                        cpuUsage = usage
+                    }
+                }
+
+                lastCpuData = currentData
+            }
+        }
+        
+        function parseMemoryData(data) {
+            const lines = data.split('\n')
+            let memTotal = 0, memFree = 0, memAvailable = 0, buffers = 0, cached = 0
+
+            lines.forEach(line => {
+                const match = line.match(/^(\w+):\s+(\d+)\s+kB$/)
+                if (match) {
+                    const key = match[1]
+                    const value = parseInt(match[2]) * 1024 // Convert KB to bytes
+                    
+                    switch (key) {
+                        case 'MemTotal': memTotal = value; break
+                        case 'MemFree': memFree = value; break
+                        case 'MemAvailable': memAvailable = value; break
+                        case 'Buffers': buffers = value; break
+                        case 'Cached': cached = value; break
+                    }
+                }
+            })
+
+            if (memTotal > 0) {
+                // Use MemAvailable if available, otherwise calculate
+                const available = memAvailable > 0 ? memAvailable : (memFree + buffers + cached)
+                const used = memTotal - available
+                
+                memoryUsage = (used / memTotal) * 100
+                memoryUsedGB = used / (1024 * 1024 * 1024) // Convert to GB
+                memoryTotalGB = memTotal / (1024 * 1024 * 1024) // Convert to GB
+            }
+        }
+        
+        function parseDiskData(data) {
+            const lines = data.split('\n')
+            if (lines.length > 1) {
+                // Skip header line, get filesystem data
+                const fsLine = lines[1].trim().split(/\s+/)
+                if (fsLine.length >= 4) {
+                    const totalGB = parseInt(fsLine[1].replace('G', '')) || 0
+                    const usedGB = parseInt(fsLine[2].replace('G', '')) || 0
+                    const availableGB = parseInt(fsLine[3].replace('G', '')) || 0
+                    
+                    diskTotalGB = totalGB
+                    diskFreeGB = availableGB
+                    diskUsage = totalGB > 0 ? ((totalGB - availableGB) / totalGB) * 100 : 0
+                }
+            }
+        }
+        
+        function parseNetworkData(data) {
+            const lines = data.split('\n').slice(2) // Skip header lines
+            let totalRx = 0, totalTx = 0
+
+            lines.forEach(line => {
+                const parts = line.trim().split(/\s+/)
+                if (parts.length >= 10) {
+                    const iface = parts[0].replace(':', '')
+                    // Skip loopback and virtual interfaces
+                    if (!iface.startsWith('lo') && !iface.startsWith('veth') && !iface.startsWith('docker')) {
+                        totalRx += parseInt(parts[1]) || 0  // Received bytes
+                        totalTx += parseInt(parts[9]) || 0  // Transmitted bytes
+                    }
+                }
+            })
+
+            const currentData = { rx: totalRx, tx: totalTx, timestamp: Date.now() }
+
+            if (lastNetworkData) {
+                const timeDiff = (currentData.timestamp - lastNetworkData.timestamp) / 1000 // seconds
+                if (timeDiff > 0) {
+                    const rxDiff = currentData.rx - lastNetworkData.rx
+                    const txDiff = currentData.tx - lastNetworkData.tx
+                    
+                    // Convert to KB/s
+                    networkDownload = Math.max(0, rxDiff / timeDiff / 1024)
+                    networkUpload = Math.max(0, txDiff / timeDiff / 1024)
+                }
+            }
+
+            lastNetworkData = currentData
+        }
+        
+        function formatBytes(bytes) {
+            if (bytes === 0) return "0 B"
+            const k = 1024
+            const sizes = ["B", "KB", "MB", "GB"]
+            const i = Math.floor(Math.log(bytes) / Math.log(k))
+            return (bytes / Math.pow(k, i)).toFixed(1) + " " + sizes[i]
+        }
+        
+        function formatSpeed(kbps) {
+            if (kbps < 1024) {
+                return kbps.toFixed(1) + " KB/s"
+            } else {
+                return (kbps / 1024).toFixed(1) + " MB/s"
+            }
+        }
+        
+        Component.onCompleted: updateSystemStats()
+    }
     property var niriIPCInstance: niriIPCLoader.item
     property alias niriIPC: niriService
 
@@ -22,15 +272,36 @@ ShellRoot {
         source: "./services/NiriIPC.qml"
         
         onLoaded: {
-            console.log("Lumin: NiriIPC service loaded successfully")
-            console.log(`Lumin: NiriIPC item: ${item}`)
+            console.log("Lumin: NiriIPC service loaded")
         }
         
         onStatusChanged: {
-            console.log(`Lumin: NiriIPC loader status: ${status}`)
             if (status === Loader.Error) {
                 console.error("Lumin: Failed to load NiriIPC service")
             }
+        }
+    }
+    Item {
+        id: systemService
+        // Use the embedded SystemStats service
+        property var cpuUsage: systemStatsInstance.cpuUsage
+        property var memoryUsage: systemStatsInstance.memoryUsage
+        property var memoryUsedGB: systemStatsInstance.memoryUsedGB
+        property var memoryTotalGB: systemStatsInstance.memoryTotalGB
+        property var diskUsage: systemStatsInstance.diskUsage
+        property var diskFreeGB: systemStatsInstance.diskFreeGB
+        property var diskTotalGB: systemStatsInstance.diskTotalGB
+        property var networkDownload: systemStatsInstance.networkDownload
+        property var networkUpload: systemStatsInstance.networkUpload
+        property bool statsConnected: systemStatsInstance.connected
+        
+        // Helper functions
+        function formatBytes(bytes) {
+            return systemStatsInstance.formatBytes(bytes)
+        }
+        
+        function formatSpeed(kbps) {
+            return systemStatsInstance.formatSpeed(kbps)
         }
     }
     
@@ -43,34 +314,30 @@ ShellRoot {
         property var currentTime: new Date()
         
         Component.onCompleted: {
-            console.log("Lumin: Starting with proper NiriIPC service...")
-            console.log(`Lumin: Available screens: ${Quickshell.screens.length}`)
-            console.log(`Lumin: NiriIPC loader item: ${niriIPCLoader.item}`)
-            console.log(`Lumin: NiriIPC loader status: ${niriIPCLoader.status}`)
-            
-            for (let i = 0; i < Quickshell.screens.length; i++) {
-                const screen = Quickshell.screens[i]
-                console.log(`Lumin: Screen ${i}: ${screen.name} ${screen.width}x${screen.height}`)
-            }
+            console.log("Lumin: Starting Niri integration...")
             
             // Connect to NiriIPC signals for real-time updates when loaded
             if (niriIPCLoader.item) {
-                console.log("Lumin: Connecting to NiriIPC signals...")
+                connectToNiriSignals()
+            } else {
+                // Try to connect when it loads
+                connectTimer.start()
+            }
+        }
+        
+        function connectToNiriSignals() {
+            if (niriIPCLoader.item) {
                 niriIPCLoader.item.workspacesUpdated.connect(function(workspaces) {
-                    console.log(`Lumin: UI received workspace update - ${workspaces.length} workspaces`)
+                    // Workspace data updated
                 })
                 
                 niriIPCLoader.item.windowsUpdated.connect(function(windows) {
-                    console.log(`Lumin: UI received window update - ${windows.length} windows`)
+                    // Window data updated  
                 })
                 
                 niriIPCLoader.item.connectionStateUpdated.connect(function(connected) {
-                    console.log(`Lumin: UI received connection state update - ${connected}`)
+                    // Connection state updated
                 })
-            } else {
-                console.warn("Lumin: NiriIPC service not available yet")
-                // Try to connect when it loads
-                connectTimer.start()
             }
         }
         
@@ -79,23 +346,7 @@ ShellRoot {
             interval: 500
             repeat: false
             onTriggered: {
-                console.log("Lumin: Retrying NiriIPC connection...")
-                if (niriIPCLoader.item) {
-                    console.log("Lumin: Connecting to NiriIPC signals (delayed)...")
-                    niriIPCLoader.item.workspacesUpdated.connect(function(workspaces) {
-                        console.log(`Lumin: UI received workspace update - ${workspaces.length} workspaces`)
-                    })
-                    
-                    niriIPCLoader.item.windowsUpdated.connect(function(windows) {
-                        console.log(`Lumin: UI received window update - ${windows.length} windows`)
-                    })
-                    
-                    niriIPCLoader.item.connectionStateUpdated.connect(function(connected) {
-                        console.log(`Lumin: UI received connection state update - ${connected}`)
-                    })
-                } else {
-                    console.warn("Lumin: NiriIPC still not available, giving up")
-                }
+                connectToNiriSignals()
             }
         }
         
@@ -124,7 +375,7 @@ ShellRoot {
         
         // Full width at top of screen
         implicitWidth: screen.width
-        implicitHeight: 44
+        implicitHeight: Config.Device.config.barHeight
         
         color: "transparent"
         
@@ -139,15 +390,15 @@ ShellRoot {
             property var niriIPC: null
             
             anchors.fill: parent
-            color: "#111318" // Material.colors.surface
+            color: Config.Material.colors.surface // Use Material 3 surface color
             
             // Left section - Workspaces (absolute positioning)
             Row {
                 id: leftSection
                 anchors.left: parent.left
-                anchors.leftMargin: 16
+                anchors.leftMargin: Config.Device.config.barMargin
                 anchors.verticalCenter: parent.verticalCenter
-                spacing: 8
+                spacing: Config.Material.spacing.sm
                 
                 Repeater {
                     model: niriIPC?.workspaces?.slice().sort((a, b) => a.idx - b.idx) || []
@@ -176,52 +427,77 @@ ShellRoot {
             Text {
                 anchors.centerIn: parent
                 text: Qt.formatDateTime(niriIPC?.currentTime || new Date(), "hh:mm")
-                color: "#e3e2e6" // surfaceText
-                font.pixelSize: 16
-                font.weight: Font.Medium
-                font.family: "Inter"
+                color: Config.Material.colors.surfaceText
+                font.pixelSize: Config.Material.typography.titleMedium.size
+                font.weight: Config.Material.typography.titleMedium.weight
+                font.family: Config.Material.typography.fontFamily
             }
             
-            // Right section - System info (absolute positioning)
+            // Right section - System monitoring (absolute positioning)
             Row {
-                id: rightSection
+                id: systemMonitor
                 anchors.right: parent.right
-                anchors.rightMargin: 16
+                anchors.rightMargin: Config.Device.config.barMargin
                 anchors.verticalCenter: parent.verticalCenter
-                spacing: 12
+                spacing: Config.Material.spacing.sm
                 
-                Text {
-                    text: `${niriIPC?.windows?.length || 0} windows`
-                    color: "#c2c7ce" // surfaceVariantText
-                    font.pixelSize: 11
-                    font.family: "Inter"
+                // Helper functions for dynamic colors
+                function getColorForUsage(usage) {
+                    if (usage > 80) return Config.Material.colors.error
+                    if (usage > 60) return Config.Material.colors.warning
+                    return Config.Material.colors.success
                 }
                 
-                Rectangle {
-                    width: 8
-                    height: 8
-                    radius: 4
-                    anchors.verticalCenter: parent.verticalCenter
-                    color: niriIPC?.connected ? "#4ade80" : "#f87171" // success : error
-                    
-                    // Subtle glow effect when connected
-                    Rectangle {
-                        anchors.centerIn: parent
-                        width: parent.width + 4
-                        height: parent.height + 4
-                        radius: width / 2
-                        color: parent.color
-                        opacity: niriIPC?.connected ? 0.3 : 0
-                        visible: opacity > 0
-                        
-                        Behavior on opacity {
-                            NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
-                        }
-                    }
-                    
-                    Behavior on color {
-                        ColorAnimation { duration: 300; easing.type: Easing.OutCubic }
-                    }
+                function getColorForDiskUsage(usage) {
+                    // For disk, we want to show free space, so invert the logic
+                    if (usage > 90) return Config.Material.colors.error
+                    if (usage > 75) return Config.Material.colors.warning
+                    return Config.Material.colors.success
+                }
+                
+                function getNetworkColor() {
+                    return Config.Material.colors.info
+                }
+                
+                // CPU Indicator
+                SystemMetric {
+                    label: "󰻠" // Nerd Font CPU icon
+                    value: systemService?.cpuUsage || 0
+                    maxValue: 100
+                    unit: "%"
+                    metricColor: parent.getColorForUsage(value)
+                    isActive: value > 70
+                }
+                
+                // Memory Indicator  
+                SystemMetric {
+                    label: "󰍛" // Nerd Font Memory icon
+                    value: systemService?.memoryUsedGB || 0
+                    maxValue: systemService?.memoryTotalGB || 16
+                    unit: "GB"
+                    metricColor: parent.getColorForUsage((value / maxValue) * 100)
+                    isActive: (value / maxValue) > 0.8
+                }
+                
+                // Disk Indicator
+                SystemMetric {
+                    label: "󰋊" // Nerd Font Disk icon
+                    value: systemService?.diskFreeGB || 0
+                    maxValue: systemService?.diskTotalGB || 100
+                    unit: "GB"
+                    metricColor: parent.getColorForDiskUsage(systemService?.diskUsage || 0)
+                    isActive: (systemService?.diskUsage || 0) > 80
+                    isDiskIndicator: true
+                }
+                
+                // Network Indicator
+                SystemMetric {
+                    label: "󰛳" // Nerd Font Network icon
+                    value: (systemService?.networkDownload || 0) + (systemService?.networkUpload || 0)
+                    maxValue: 10240 // 10 MB/s max for scaling
+                    unit: "KB/s"
+                    metricColor: parent.getNetworkColor()
+                    isActive: value > 1024 // Active when > 1MB/s
                 }
             }
         }
@@ -241,20 +517,20 @@ ShellRoot {
             readonly property int visibleDots: Math.min(windowCount, maxVisibleDots)
             readonly property bool hasOverflow: windowCount > maxVisibleDots
             
-            width: windowCount === 0 ? 28 : Math.max(28, Math.min(44, 20 + (visibleDots * 6)))
-            height: 28
-            radius: 12
+            width: windowCount === 0 ? Config.Device.config.workspaceSize : Math.max(Config.Device.config.workspaceSize, Math.min(44, 20 + (visibleDots * 6)))
+            height: Config.Device.config.workspaceSize
+            radius: Config.Material.rounding.medium
             
             // Beautiful Material 3 colors
             color: {
-                if (isActive) return "#004a9c" // primaryContainer
-                if (mouseArea.containsMouse) return "#292d32" // surfaceContainerHigh  
-                return "#1e2328" // surfaceContainer
+                if (isActive) return Config.Material.colors.primaryContainer
+                if (mouseArea.containsMouse) return Config.Material.colors.surfaceContainerHigh  
+                return Config.Material.colors.surfaceContainer
             }
             
             // Focus border
             border.width: isFocused ? 2 : 0
-            border.color: "#a6c8ff" // primary
+            border.color: Config.Material.colors.primary
             
             // Drop shadow effect for active workspaces
             Rectangle {
@@ -299,7 +575,7 @@ ShellRoot {
                     radius: 2.5
                     color: "transparent"
                     border.width: 1
-                    border.color: isActive ? "#8c9199" : "#42474e" // More visible when active
+                    border.color: isActive ? Config.Material.colors.outline : Config.Material.colors.outlineVariant
                     visible: windowCount === 0
                     opacity: isActive ? 0.9 : 0.6
                     
@@ -329,9 +605,9 @@ ShellRoot {
                             readonly property bool isOverflowDot: hasOverflow && index === visibleDots
                             
                             color: {
-                                if (isOverflowDot) return "#8c9199" // More visible for unfocused
-                                if (isActive) return "#d5e3ff" // primaryContainerText
-                                return "#8c9199" // outline - more visible than surfaceVariantText
+                                if (isOverflowDot) return Config.Material.colors.outline
+                                if (isActive) return Config.Material.colors.primaryContainerText
+                                return Config.Material.colors.outline
                             }
                             
                             // Gradient effect for overflow dot
@@ -437,6 +713,112 @@ ShellRoot {
                 }
                 
                 onPressed: rippleAnimation.start()
+            }
+        }
+        
+        // Component for individual system metrics
+        component SystemMetric: Rectangle {
+            property string label: ""
+            property real value: 0
+            property real maxValue: 100
+            property string unit: ""
+            property color metricColor: Config.Material.colors.primary
+            property bool isActive: false
+            property bool isDiskIndicator: false
+            
+            width: Config.Device.config.systemCardWidth || 52
+            height: 24
+            radius: Config.Material.rounding.medium
+            
+            // Proper Material 3 background with contrast
+            color: Config.Material.colors.surfaceContainer
+            border.width: isActive ? 1 : 0
+            border.color: isActive ? metricColor : "transparent"
+            
+            // Subtle elevation shadow for depth
+            Rectangle {
+                anchors.centerIn: parent
+                width: parent.width + 2
+                height: parent.height + 2
+                radius: parent.radius + 1
+                color: Config.Material.elevation.shadowColor
+                opacity: Config.Material.elevation.shadowOpacity * 0.5
+                z: -1
+            }
+            
+            Row {
+                anchors.centerIn: parent
+                spacing: 3
+                
+                // Icon text (Nerd Font)
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: label
+                    color: metricColor
+                    font.pixelSize: Config.Device.config.iconSize || 12
+                    font.family: Config.Material.typography.monoFamily
+                }
+                
+                // Value text  
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: isDiskIndicator ? 
+                        value.toFixed(0) + unit : 
+                        value.toFixed(0) + unit
+                    color: Config.Material.colors.surfaceText
+                    font.pixelSize: Config.Material.typography.labelSmall.size
+                    font.family: Config.Material.typography.fontFamily
+                    font.weight: Config.Material.typography.labelSmall.weight
+                }
+            }
+            
+            // Hover effects and animations to match workspace indicators
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                
+                onEntered: {
+                    parent.scale = 1.05
+                }
+                
+                onExited: {
+                    parent.scale = 1.0
+                }
+            }
+            
+            // Hover effects
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                
+                onEntered: {
+                    parent.scale = 1.05
+                }
+                
+                onExited: {
+                    parent.scale = 1.0
+                }
+            }
+            
+            // Smooth transitions
+            Behavior on scale {
+                NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+            }
+            
+            Behavior on color {
+                ColorAnimation { duration: 200; easing.type: Easing.OutCubic }
+            }
+            
+            Behavior on border.color {
+                ColorAnimation { duration: 200; easing.type: Easing.OutCubic }
+            }
+            
+            // Subtle breathing animation when active
+            SequentialAnimation on opacity {
+                running: isActive
+                loops: Animation.Infinite
+                NumberAnimation { to: 0.8; duration: 1500; easing.type: Easing.InOutSine }
+                NumberAnimation { to: 1.0; duration: 1500; easing.type: Easing.InOutSine }
             }
         }
     }

@@ -27,8 +27,7 @@ QtObject {
 
     // Component.onCompleted handler
     Component.onCompleted: {
-        console.log("Lumin: Initializing Niri socket IPC connection...")
-        console.log("Lumin: Current environment check...")
+        console.log("Lumin: Initializing Niri IPC connection...")
         
         // Get socket path from environment
         getSocketPath.running = true
@@ -44,12 +43,8 @@ QtObject {
         }
 
         onExited: function(exitCode) {
-            console.log(`Lumin: getSocketPath exited with code: ${exitCode}`)
-            console.log(`Lumin: Raw output: "${socketPathCollector.text}"`)
-            
             if (exitCode === 0) {
                 const path = socketPathCollector.text.trim()
-                console.log(`Lumin: Trimmed path: "${path}"`)
                 if (path) {
                     root.socketPath = path
                     console.log(`Lumin: Found Niri socket: ${path}`)
@@ -76,16 +71,14 @@ QtObject {
         }
 
         onExited: function(exitCode) {
-            console.log(`Lumin: Socket fallback search exited with code: ${exitCode}`)
             if (exitCode === 0) {
                 const path = socketFallbackCollector.text.trim()
-                console.log(`Lumin: Fallback found socket: "${path}"`)
                 if (path) {
                     root.socketPath = path
                     console.log(`Lumin: Using fallback socket: ${path}`)
                     connectToSocket()
                 } else {
-                    console.error("Lumin: No niri socket found in /run/user/$(id -u)")
+                    console.error("Lumin: No niri socket found")
                     root.lastError = "No niri socket found"
                 }
             } else {
@@ -112,30 +105,21 @@ QtObject {
             root.connectionStateUpdated(connected)
             
             if (connected) {
-                console.log("Lumin: Connected to Niri socket")
-                
                 if (pendingRequest === "EventStream") {
-                    console.log("Lumin: Starting event stream (persistent connection)...")
                     sendRequest("EventStream")
                     eventStreamActive = true
                 } else if (pendingRequest) {
-                    console.log(`Lumin: Sending single query: ${pendingRequest}`)
                     sendRequest(pendingRequest)
                     pendingRequest = ""
                 } else {
                     // Initial connection - start with workspace query
-                    console.log("Lumin: Initial connection - querying workspaces")
                     sendRequest("Workspaces")
                 }
             } else {
-                console.log("Lumin: Disconnected from Niri socket")
-                
                 if (eventStreamActive) {
-                    console.log("Lumin: Event stream disconnected, will reconnect...")
                     eventStreamActive = false
                     reconnectTimer.start()
                 } else {
-                    console.log("Lumin: Query completed, will start additional queries")
                     // Query completed normally, continue with next queries
                     if (!initialQueriesDone) {
                         initialStateTimer.start()
@@ -169,7 +153,6 @@ QtObject {
 
         function sendRequest(request) {
             if (!connected) {
-                console.warn(`Lumin: Cannot send request - socket not connected`)
                 return
             }
 
@@ -184,8 +167,6 @@ QtObject {
                 // Complex requests (actions) - send as JSON object
                 jsonRequest = JSON.stringify(request)
             }
-
-            console.log(`Lumin: Sending request: ${jsonRequest}`)
             
             try {
                 write(jsonRequest + "\n")
@@ -233,15 +214,12 @@ QtObject {
             
             // Check if this is a nested response (e.g., {"Ok": {"Workspaces": [...]}})
             if (data.hasOwnProperty("Workspaces")) {
-                console.log(`Lumin: Received ${data.Workspaces.length} workspaces`)
                 root.workspaces = data.Workspaces
                 root.workspacesUpdated(data.Workspaces)
             } else if (data.hasOwnProperty("Windows")) {
-                console.log(`Lumin: Received ${data.Windows.length} windows`)
                 root.windows = data.Windows
                 root.windowsUpdated(data.Windows)
             } else if (data.hasOwnProperty("Outputs")) {
-                console.log(`Lumin: Received ${data.Outputs.length} outputs`)
                 root.outputs = data.Outputs
                 root.outputsUpdated(data.Outputs)
             } else if (data.hasOwnProperty("FocusedWindow")) {

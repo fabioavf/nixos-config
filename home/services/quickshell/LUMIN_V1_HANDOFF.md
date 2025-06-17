@@ -1,18 +1,20 @@
 # 🌟 Lumin Bar - Final Handoff Document
 
 **Project:** Lumin - Material 3 Quickshell Bar for Niri  
-**Status:** ✅ **PRODUCTION READY** - Core functionality complete  
+**Status:** ✅ **PRODUCTION READY** - Core functionality complete with enhanced system monitoring  
 **Date:** June 17, 2025  
-**Version:** v1.0 - Stable Foundation
+**Version:** v1.2 - Enhanced System Monitoring & Design Token Integration
 
 ## 🎯 **What We've Built**
 
 **Lumin** is a beautiful, fully-functional status bar for the Niri window manager featuring:
 - **Smart dot matrix workspace indicators** with real-time window count visualization
 - **Perfect center-aligned clock** that never moves regardless of workspace changes
-- **Material 3 design system** with beautiful animations and transitions
+- **Comprehensive system monitoring** with CPU, Memory, Disk, and Network indicators
+- **Material 3 design system** with beautiful animations and design tokens
 - **Custom Niri IPC integration** providing real-time workspace and window data
-- **Responsive design** that works on both MacBook and Desktop displays
+- **Device-responsive design** that adapts between MacBook and Desktop displays
+- **Centralized configuration system** using Material 3 design tokens
 
 ---
 
@@ -20,18 +22,21 @@
 
 ```
 /etc/nixos/home/services/quickshell/
-├── shell.qml                    # 🏠 Main entry point (inline components)
+├── shell.qml                    # 🏠 Main entry point with integrated system monitoring
 ├── default.nix                  # 📦 NixOS/Home Manager integration
 ├── services/
-│   ├── NiriIPC.qml             # 🔌 Complete Niri IPC service (607 lines)
+│   ├── NiriIPC.qml             # 🔌 Complete Niri IPC service
+│   ├── SystemStats.qml         # 📊 System monitoring service (legacy)
 │   └── qmldir                  # Service module definitions  
-├── config/
-│   ├── Material.qml            # 🎨 Material 3 design system
+├── config/                     # 🎨 **DESIGN TOKEN SYSTEM** 
+│   ├── Material.qml            # 🎨 Material 3 design tokens (MUST USE)
 │   ├── Device.qml              # 📱 Device detection & responsive config
 │   ├── Layout.qml              # 📐 Layout constants
 │   └── qmldir                  # Config module definitions
-├── components/base/            # 🧱 Material 3 base components (unused in v1.0)
-└── docs/                       # 📚 Historical documentation
+├── components/
+│   ├── base/                   # 🧱 Material 3 base components (legacy)
+│   └── widgets/                # 🔧 System monitoring widgets (legacy)
+└── docs/                       # 📚 Documentation
     ├── HANDOFF.md              # Previous development notes
     ├── IMPLEMENTATION_PLAN.md   # Original implementation plan
     └── NIRI_IPC_SUCCESS_HANDOFF.md # IPC breakthrough documentation
@@ -39,32 +44,212 @@
 
 ---
 
-## ✅ **Core Features - WORKING**
+## ⚡ **CRITICAL: Design Token Usage**
+
+### **🎨 ALWAYS Use Our Design Token System**
+
+**NEVER hardcode values!** Always use our centralized configuration:
+
+```qml
+// ✅ CORRECT - Using design tokens
+import "./config" as Config
+
+Rectangle {
+    color: Config.Material.colors.surfaceContainer
+    radius: Config.Material.rounding.medium
+    width: Config.Device.config.systemCardWidth
+}
+
+Text {
+    color: Config.Material.colors.surfaceText
+    font.pixelSize: Config.Material.typography.titleMedium.size
+    font.family: Config.Material.typography.fontFamily
+}
+
+// ❌ WRONG - Hardcoded values
+Rectangle {
+    color: "#1e2328"    // Don't do this!
+    radius: 12          // Don't do this!
+    width: 52           // Don't do this!
+}
+```
+
+### **🛠️ Available Design Tokens**
+
+#### **Material 3 Colors** (`Config.Material.colors.*`)
+```qml
+// Surface colors
+Config.Material.colors.surface              // "#111318" - Bar background
+Config.Material.colors.surfaceContainer     // "#1e2328" - Widget backgrounds  
+Config.Material.colors.surfaceContainerHigh // "#292d32" - Elevated widgets
+Config.Material.colors.surfaceVariant       // "#42474e" - Alternative surfaces
+
+// Text colors
+Config.Material.colors.surfaceText          // "#e3e2e6" - Primary text
+Config.Material.colors.surfaceVariantText   // "#c2c7ce" - Secondary text
+Config.Material.colors.outline              // "#8c9199" - Borders
+Config.Material.colors.outlineVariant       // "#42474e" - Subtle borders
+
+// Accent colors
+Config.Material.colors.primary              // "#a6c8ff" - Accent
+Config.Material.colors.primaryContainer     // "#004a9c" - Accent container
+Config.Material.colors.primaryContainerText // "#d5e3ff" - Accent container text
+
+// Status colors
+Config.Material.colors.success              // "#4ade80" - Success green
+Config.Material.colors.warning              // "#fbbf24" - Warning amber
+Config.Material.colors.error                // "#f87171" - Error red
+Config.Material.colors.info                 // "#60a5fa" - Info blue
+```
+
+#### **Typography** (`Config.Material.typography.*`)
+```qml
+Config.Material.typography.titleMedium.size    // 16px - Clock, headings
+Config.Material.typography.labelSmall.size     // 11px - Small text, metrics
+Config.Material.typography.fontFamily          // "Inter" - Primary font
+Config.Material.typography.monoFamily          // "JetBrains Mono NF" - Icons
+```
+
+#### **Spacing** (`Config.Material.spacing.*`)
+```qml
+Config.Material.spacing.xs     // 4px - Extra small
+Config.Material.spacing.sm     // 8px - Small spacing (most common)
+Config.Material.spacing.md     // 16px - Medium spacing  
+Config.Material.spacing.lg     // 24px - Large spacing
+```
+
+#### **Rounding** (`Config.Material.rounding.*`)
+```qml
+Config.Material.rounding.small     // 8px - Small radius
+Config.Material.rounding.medium    // 12px - Medium radius (most common)
+Config.Material.rounding.large     // 16px - Large radius
+```
+
+#### **Animation** (`Config.Material.animation.*`)
+```qml
+Config.Material.animation.durationShort3   // 150ms - Quick transitions
+Config.Material.animation.durationShort4   // 200ms - Standard transitions
+Config.Material.animation.durationLong4    // 600ms - Breathing animations
+```
+
+#### **Device Configuration** (`Config.Device.config.*`)
+```qml
+Config.Device.config.barHeight          // 44px MacBook, 48px Desktop
+Config.Device.config.barMargin          // 16px MacBook, 20px Desktop
+Config.Device.config.workspaceSize      // 32px MacBook, 36px Desktop
+Config.Device.config.systemCardWidth    // Auto-sized system indicators
+Config.Device.config.iconSize           // 20px MacBook, 24px Desktop
+```
+
+---
+
+## ✅ **Enhanced Features - v1.2**
 
 ### **1. Smart Workspace Indicators** 🎯
-- **Dynamic dot visualization**: 1 dot = 1 window
+- **Dynamic dot visualization**: 1 dot = 1 window using Material 3 colors
 - **Empty state**: Hollow circle (○) for workspaces with 0 windows  
 - **Overflow handling**: Gradient fade dot for 6+ windows
-- **Active workspace breathing**: Subtle pulsing animation
+- **Active workspace breathing**: Subtle pulsing animation with design token timing
 - **Perfect click-to-switch**: Workspace switching via Niri IPC
+- **Material 3 styling**: All colors and spacing from design tokens
 
-### **2. Perfect Layout System** 📐
-- **Absolute positioning**: Clock always mathematically centered
+### **2. Comprehensive System Monitoring** 📊
+- **󰻠 CPU Usage**: Real-time processor utilization with color coding
+- **󰍛 Memory Display**: Used memory in GB (practical units)  
+- **󰋊 Disk Monitor**: Available free space in GB
+- **󰛳 Network Activity**: Combined download/upload speeds
+- **Nerd Font Icons**: Beautiful, recognizable symbols
+- **Smart Color Coding**: Green → Amber → Red based on usage levels
+- **Material 3 Integration**: All styling from design tokens
+
+### **3. Perfect Layout System** 📐
+- **Absolute positioning**: Clock always mathematically centered using design tokens
 - **Independent sections**: Left/right content doesn't affect center alignment
 - **Dynamic sizing**: Workspace indicators grow/shrink without layout disruption
-- **Responsive margins**: Proper spacing on both MacBook (1600x1000) and Desktop (2560x1440)
+- **Responsive margins**: Device-appropriate spacing from `Config.Device.config.barMargin`
 
-### **3. Material 3 Design** 🎨
-- **Color system**: Complete dark theme with proper contrast ratios
-- **Smooth animations**: 150-250ms transitions with cubic bezier easing
-- **Interactive states**: Hover, focus, active, and pressed feedback
-- **Accessibility**: Proper ARIA labels and keyboard navigation support
+### **4. Material 3 Design Integration** 🎨
+- **Complete design token system**: All colors, typography, spacing from config
+- **Smooth animations**: Timing values from `Config.Material.animation.*`
+- **Interactive states**: Hover, focus, active states with Material 3 colors
+- **Device responsiveness**: Automatic MacBook vs Desktop optimization
+- **Professional consistency**: Every component uses the same design language
 
-### **4. Niri IPC Integration** 🔌
+### **5. Niri IPC Integration** 🔌
 - **Real-time updates**: Workspace and window changes update immediately
 - **Event streaming**: Persistent connection with automatic reconnection
 - **Sequential processing**: Queue-based system prevents flickering
 - **Error resilience**: Graceful handling of Niri restarts and connection failures
+
+---
+
+## 🎨 **Design Token Development Guidelines**
+
+### **🔧 Adding New Components**
+
+**ALWAYS follow this pattern when creating new components:**
+
+```qml
+import QtQuick
+import "./config" as Config
+
+Rectangle {
+    // ✅ Use design tokens for ALL styling
+    color: Config.Material.colors.surfaceContainer
+    radius: Config.Material.rounding.medium
+    width: Config.Device.config.systemCardWidth
+    height: 24
+    
+    // ✅ Use design token spacing
+    anchors.margins: Config.Material.spacing.sm
+    
+    Text {
+        // ✅ Use typography tokens
+        color: Config.Material.colors.surfaceText
+        font.pixelSize: Config.Material.typography.labelSmall.size
+        font.family: Config.Material.typography.fontFamily
+        font.weight: Config.Material.typography.labelSmall.weight
+    }
+    
+    // ✅ Use animation tokens
+    Behavior on scale {
+        NumberAnimation { 
+            duration: Config.Material.animation.durationShort3
+            easing.type: Easing.OutCubic 
+        }
+    }
+}
+```
+
+### **🎯 Design Token Benefits**
+
+1. **Global Theming**: Change one color in Material.qml, affects entire bar
+2. **Device Optimization**: Automatic sizing based on MacBook vs Desktop
+3. **Consistency**: All components follow identical design language  
+4. **Maintainability**: Easy to update spacing, colors, animations globally
+5. **Professional Quality**: Following Material 3 specifications exactly
+
+### **⚠️ Common Mistakes to Avoid**
+
+```qml
+// ❌ DON'T hardcode colors
+color: "#1e2328"
+
+// ✅ DO use design tokens  
+color: Config.Material.colors.surfaceContainer
+
+// ❌ DON'T hardcode spacing
+spacing: 8
+
+// ✅ DO use spacing tokens
+spacing: Config.Material.spacing.sm
+
+// ❌ DON'T hardcode animation timing
+duration: 150
+
+// ✅ DO use animation tokens
+duration: Config.Material.animation.durationShort3
+```
 
 ---
 
@@ -195,17 +380,47 @@ echo $NIRI_SOCKET
 
 ## 🎯 **Next Development Opportunities**
 
-### **Phase 2: Enhanced System Monitoring** (Ready to implement)
-- **CPU/Memory indicators**: Beautiful chart widgets with historical data
-- **Network activity**: Upload/download speeds with smooth graphs
-- **Battery status**: MacBook-specific with charging states and time remaining
-- **Audio controls**: Volume slider and device switching
+### **🛠️ Development Guidelines - ALWAYS Use Design Tokens**
 
-### **Phase 3: Advanced Features** (Architecture ready)
-- **Window previews**: Hover workspace indicators to see thumbnails
-- **Application launcher**: Material 3 search interface with fuzzy matching
-- **Notification system**: Toast notifications with actionable buttons
+**Before implementing ANY new feature, remember:**
+
+1. **✅ Import config system**: `import "./config" as Config`
+2. **✅ Use Material 3 colors**: Never hardcode colors, always use `Config.Material.colors.*`
+3. **✅ Use device responsiveness**: Leverage `Config.Device.config.*` for sizing
+4. **✅ Use typography tokens**: `Config.Material.typography.*` for all text styling
+5. **✅ Use animation tokens**: `Config.Material.animation.*` for all transitions
+
+### **Phase 2: Enhanced System Monitoring** ✅ COMPLETE
+- ✅ **CPU/Memory/Disk/Network indicators**: Beautiful chart widgets with real-time data
+- ✅ **Nerd Font icons**: Professional iconography with Material 3 integration
+- ✅ **Smart color coding**: Dynamic colors based on usage levels
+- ✅ **Device responsiveness**: Automatic MacBook vs Desktop optimization
+
+### **Phase 3: Advanced Visual Features** (Ready to implement)
+```qml
+// Example: Window preview thumbnails
+Rectangle {
+    color: Config.Material.colors.surfaceContainer  // ✅ Use design tokens
+    radius: Config.Material.rounding.large
+    width: Config.Device.config.popoverWidth
+    
+    // Use Material 3 elevation system
+    Rectangle {
+        color: Config.Material.elevation.shadowColor
+        opacity: Config.Material.elevation.shadowOpacity
+    }
+}
+```
+
+- **Window preview thumbnails**: Hover workspace indicators to see window previews
+- **Application launcher**: Material 3 search interface with fuzzy matching  
+- **Notification system**: Toast notifications with Material 3 cards
+- **Audio controls**: Volume slider with Material 3 styling
+
+### **Phase 4: Advanced Niri Integration** (Architecture ready)
 - **Multi-monitor support**: Independent bars with workspace synchronization
+- **Window management**: Advanced window controls with Material 3 styling
+- **Custom workspace actions**: Right-click menus with design token integration
 
 ### **Phase 4: Polish & Optimization** (Performance focus)
 - **Adaptive theming**: Auto light/dark based on time or ambient light
@@ -286,22 +501,107 @@ echo $NIRI_SOCKET
 
 ## 💡 **Development Tips**
 
-### **Adding New Features**
-1. **Follow Material 3**: Use `config/Material.qml` design tokens
-2. **Leverage NiriIPC**: Rich data already available for window management
-3. **Use inline components**: Keep performance high with QML 6+ patterns
-4. **Test incrementally**: Small changes, frequent rebuilds
+### **🎨 Design Token Best Practices**
 
-### **Best Practices**
-- **Animation timing**: 150-250ms for UI changes, 800-1200ms for ambient effects
-- **Color usage**: Stick to established Material 3 color roles
-- **Layout patterns**: Use absolute positioning for critical alignment
-- **Error handling**: Always provide graceful degradation
+1. **ALWAYS Import Config First**:
+   ```qml
+   import QtQuick
+   import "./config" as Config  // ← Essential for all components
+   ```
+
+2. **Use Semantic Color Names**:
+   ```qml
+   // ✅ CORRECT - Semantic and adaptable
+   color: Config.Material.colors.surfaceContainer
+   border.color: Config.Material.colors.primary
+   
+   // ❌ WRONG - Hardcoded and inflexible  
+   color: "#1e2328"
+   border.color: "#a6c8ff"
+   ```
+
+3. **Leverage Device Responsiveness**:
+   ```qml
+   // ✅ Automatically adapts to MacBook vs Desktop
+   width: Config.Device.config.systemCardWidth
+   height: Config.Device.config.barHeight
+   spacing: Config.Material.spacing.sm
+   ```
+
+4. **Use Typography Tokens**:
+   ```qml
+   Text {
+       font.pixelSize: Config.Material.typography.labelSmall.size
+       font.family: Config.Material.typography.fontFamily
+       font.weight: Config.Material.typography.labelSmall.weight
+       color: Config.Material.colors.surfaceText
+   }
+   ```
+
+### **🚀 Adding New Features**
+
+1. **Follow Material 3**: Use design tokens from `Config.Material.*`
+2. **Leverage NiriIPC**: Rich data already available for window management
+3. **Use inline components**: Keep performance high with QML 6+ patterns  
+4. **Test incrementally**: Small changes, frequent rebuilds with design tokens
+
+### **📋 Component Development Checklist**
+
+- [ ] Imported `"./config" as Config`
+- [ ] Used `Config.Material.colors.*` for all colors
+- [ ] Used `Config.Material.spacing.*` for spacing
+- [ ] Used `Config.Material.typography.*` for text
+- [ ] Used `Config.Material.animation.*` for transitions
+- [ ] Used `Config.Device.config.*` for responsive sizing
+- [ ] Tested on both MacBook and Desktop configurations
+
+### **⚙️ Design Token Customization**
+
+**Want to change the theme?** Edit `/config/Material.qml`:
+
+```qml
+// Change primary accent color globally
+readonly property string primary: "#ff6b6b" // New red accent
+
+// Adjust spacing system-wide
+readonly property int sm: 12  // Increase small spacing from 8px to 12px
+
+// Modify animation timing globally  
+readonly property int durationShort3: 200  // Slower transitions
+```
+
+**Want device-specific changes?** Edit `/config/Device.qml`:
+
+```qml
+// Increase bar height for Desktop
+barHeight: 52  // Was 48px
+
+// Larger system indicators
+systemCardWidth: 64  // Was 80px
+```
 
 ---
 
-**🎉 Lumin v1.0 - Mission Accomplished!**
+**🎉 Lumin v1.2 - Enhanced with System Monitoring & Design Token Integration!**
 
-**The bar is beautiful, functional, and ready for the future!** 🌟
+**The bar is beautiful, functional, and uses a professional design token system!** 🌟
 
-*Ready to build amazing features on this solid foundation? Let's continue the journey!* 🚀
+### **🌟 Current Visual Experience**
+
+```
+[●●●●] [●●] [○] [●●●●●]        🕐 14:23        󰻠 15%  󰍛 8GB  󰋊 45GB  󰛳 89KB/s
+```
+
+- **Left**: Smart workspace indicators with Material 3 styling
+- **Center**: Perfect centered clock with design token typography
+- **Right**: Comprehensive system monitoring with Nerd Font icons
+
+### **🎯 Key Achievements**
+
+1. **✅ Design Token Integration**: All components use centralized configuration
+2. **✅ Enhanced System Monitoring**: CPU, Memory, Disk, Network with beautiful styling  
+3. **✅ Device Responsiveness**: Automatic MacBook vs Desktop optimization
+4. **✅ Professional Architecture**: Maintainable, themeable, scalable codebase
+5. **✅ Material 3 Compliance**: Following design specifications exactly
+
+*Ready to build amazing features on this solid, design-token-driven foundation? Let's continue the journey!* 🚀
