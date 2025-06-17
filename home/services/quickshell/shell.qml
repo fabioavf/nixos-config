@@ -141,109 +141,107 @@ ShellRoot {
             anchors.fill: parent
             color: "#111318" // Material.colors.surface
             
+            // Left section - Workspaces (absolute positioning)
             Row {
-                anchors.fill: parent
+                id: leftSection
+                anchors.left: parent.left
                 anchors.leftMargin: 16
-                anchors.rightMargin: 16
-                spacing: 24
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 8
                 
-                // Left section - Workspaces
-                Item {
-                    width: childrenRect.width
-                    height: parent.height
+                Repeater {
+                    model: niriIPC?.workspaces?.slice().sort((a, b) => a.idx - b.idx) || []
                     
-                    Row {
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 8
-                        
-                        Repeater {
-                            model: niriIPC?.workspaces?.slice().sort((a, b) => a.idx - b.idx) || []
-                            
-                            WorkspaceIndicator {
-                                workspace: modelData
-                                onClicked: {
-                                    if (niriIPC && modelData) {
-                                        console.log(`Lumin: Switching to workspace ${modelData.id}`)
-                                        niriIPC.switchToWorkspace(modelData.id)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // Center section - Clock (flexible)
-                Item {
-                    width: parent.width - (parent.children[0].width + parent.children[2].width + 48) // Dynamic width
-                    height: parent.height
-                    
-                    Text {
-                        anchors.centerIn: parent
-                        text: Qt.formatDateTime(niriIPC?.currentTime || new Date(), "hh:mm")
-                        color: "#e3e2e6" // surfaceText
-                        font.pixelSize: 16
-                        font.weight: Font.Medium
-                        font.family: "Inter"
-                    }
-                }
-                
-                // Right section - System info  
-                Item {
-                    width: childrenRect.width
-                    height: parent.height
-                    
-                    Row {
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 12
-                        
-                        Text {
-                            text: `${niriIPC?.windows?.length || 0} windows`
-                            color: "#c2c7ce" // surfaceVariantText
-                            font.pixelSize: 11
-                            font.family: "Inter"
+                    WorkspaceIndicator {
+                        workspace: modelData
+                        workspaceWindows: {
+                            // Filter windows that belong to this workspace
+                            if (!niriIPC?.windows || !modelData) return []
+                            return niriIPC.windows.filter(window => 
+                                window.workspace_id === modelData.id
+                            )
                         }
                         
-                        Rectangle {
-                            width: 8
-                            height: 8
-                            radius: 4
-                            anchors.verticalCenter: parent.verticalCenter
-                            color: niriIPC?.connected ? "#4ade80" : "#f87171" // success : error
-                            
-                            // Subtle glow effect when connected
-                            Rectangle {
-                                anchors.centerIn: parent
-                                width: parent.width + 4
-                                height: parent.height + 4
-                                radius: width / 2
-                                color: parent.color
-                                opacity: niriIPC?.connected ? 0.3 : 0
-                                visible: opacity > 0
-                                
-                                Behavior on opacity {
-                                    NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
-                                }
-                            }
-                            
-                            Behavior on color {
-                                ColorAnimation { duration: 300; easing.type: Easing.OutCubic }
+                        onClicked: {
+                            if (niriIPC && modelData) {
+                                console.log(`Lumin: Switching to workspace ${modelData.id}`)
+                                niriIPC.switchToWorkspace(modelData.id)
                             }
                         }
                     }
                 }
             }
+            
+            // Center section - Clock (absolutely centered, ignores side content)
+            Text {
+                anchors.centerIn: parent
+                text: Qt.formatDateTime(niriIPC?.currentTime || new Date(), "hh:mm")
+                color: "#e3e2e6" // surfaceText
+                font.pixelSize: 16
+                font.weight: Font.Medium
+                font.family: "Inter"
+            }
+            
+            // Right section - System info (absolute positioning)
+            Row {
+                id: rightSection
+                anchors.right: parent.right
+                anchors.rightMargin: 16
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 12
+                
+                Text {
+                    text: `${niriIPC?.windows?.length || 0} windows`
+                    color: "#c2c7ce" // surfaceVariantText
+                    font.pixelSize: 11
+                    font.family: "Inter"
+                }
+                
+                Rectangle {
+                    width: 8
+                    height: 8
+                    radius: 4
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: niriIPC?.connected ? "#4ade80" : "#f87171" // success : error
+                    
+                    // Subtle glow effect when connected
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: parent.width + 4
+                        height: parent.height + 4
+                        radius: width / 2
+                        color: parent.color
+                        opacity: niriIPC?.connected ? 0.3 : 0
+                        visible: opacity > 0
+                        
+                        Behavior on opacity {
+                            NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
+                        }
+                    }
+                    
+                    Behavior on color {
+                        ColorAnimation { duration: 300; easing.type: Easing.OutCubic }
+                    }
+                }
+            }
         }
         
-        // Workspace Indicator Component  
+        // Clean Dot Matrix Workspace Indicator - Window Count Only
         component WorkspaceIndicator: Rectangle {
             property var workspace: null
             property bool isActive: workspace?.is_active || false
             property bool isFocused: workspace?.is_focused || false
-            property string workspaceId: workspace?.id || workspace?.idx || "?"
+            property var workspaceWindows: []
             
             signal clicked()
             
-            width: 40
+            // Dynamic sizing based on window count
+            readonly property int windowCount: workspaceWindows.length
+            readonly property int maxVisibleDots: 5
+            readonly property int visibleDots: Math.min(windowCount, maxVisibleDots)
+            readonly property bool hasOverflow: windowCount > maxVisibleDots
+            
+            width: windowCount === 0 ? 28 : Math.max(28, Math.min(44, 20 + (visibleDots * 6)))
             height: 28
             radius: 12
             
@@ -270,34 +268,107 @@ ShellRoot {
                 visible: opacity > 0
                 
                 Behavior on opacity {
-                    NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+                    NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
                 }
             }
             
-            // Smooth transitions
+            // Smooth transitions for container
             Behavior on color {
                 ColorAnimation { duration: 200; easing.type: Easing.OutCubic }
+            }
+            
+            Behavior on width {
+                NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
             }
             
             Behavior on border.width {
                 NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
             }
             
-            // Workspace label
-            Text {
+            // Window dots container
+            Item {
                 anchors.centerIn: parent
-                text: parent.workspaceId
-                color: {
-                    if (parent.isActive) return "#d5e3ff" // primaryContainerText
-                    if (mouseArea.containsMouse) return "#e3e2e6" // surfaceText
-                    return "#c2c7ce" // surfaceVariantText
-                }
-                font.pixelSize: 12
-                font.weight: Font.Medium
-                font.family: "Inter"
+                width: parent.width - 8
+                height: parent.height
                 
-                Behavior on color {
-                    ColorAnimation { duration: 200; easing.type: Easing.OutCubic }
+                // Empty state - hollow circle
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 5
+                    height: 5
+                    radius: 2.5
+                    color: "transparent"
+                    border.width: 1
+                    border.color: isActive ? "#8c9199" : "#42474e" // More visible when active
+                    visible: windowCount === 0
+                    opacity: isActive ? 0.9 : 0.6
+                    
+                    Behavior on border.color {
+                        ColorAnimation { duration: 150; easing.type: Easing.OutCubic }
+                    }
+                    
+                    Behavior on opacity {
+                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                    }
+                }
+                
+                // Window dots
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 2
+                    visible: windowCount > 0
+                    
+                    Repeater {
+                        model: visibleDots + (hasOverflow ? 1 : 0)
+                        
+                        Rectangle {
+                            width: 4
+                            height: 4
+                            radius: 2
+                            
+                            readonly property bool isOverflowDot: hasOverflow && index === visibleDots
+                            
+                            color: {
+                                if (isOverflowDot) return "#8c9199" // More visible for unfocused
+                                if (isActive) return "#d5e3ff" // primaryContainerText
+                                return "#8c9199" // outline - more visible than surfaceVariantText
+                            }
+                            
+                            // Gradient effect for overflow dot
+                            opacity: isOverflowDot ? 0.3 : 1.0
+                            
+                            // Smooth transitions
+                            Behavior on color {
+                                ColorAnimation { 
+                                    duration: 200; 
+                                    easing.type: Easing.OutCubic 
+                                }
+                            }
+                            
+                            Behavior on opacity {
+                                NumberAnimation { 
+                                    duration: 200; 
+                                    easing.type: Easing.OutCubic 
+                                }
+                            }
+                            
+                            // Gentle breathing animation for active workspace only
+                            SequentialAnimation on scale {
+                                running: isActive && !isOverflowDot && windowCount > 0
+                                loops: Animation.Infinite
+                                NumberAnimation { 
+                                    to: 1.05; 
+                                    duration: 1200; 
+                                    easing.type: Easing.InOutSine 
+                                }
+                                NumberAnimation { 
+                                    to: 1.0; 
+                                    duration: 1200; 
+                                    easing.type: Easing.InOutSine 
+                                }
+                            }
+                        }
+                    }
                 }
             }
             
@@ -308,7 +379,25 @@ ShellRoot {
                 hoverEnabled: true
                 onClicked: parent.clicked()
                 
-                // Ripple effect
+                // Hover elevation effect
+                onEntered: {
+                    elevationAnimation.to = 4
+                    elevationAnimation.start()
+                }
+                onExited: {
+                    elevationAnimation.to = isActive ? 2 : 1
+                    elevationAnimation.start()
+                }
+                
+                NumberAnimation {
+                    id: elevationAnimation
+                    target: parent.parent // target the shadow rectangle
+                    property: "opacity"
+                    duration: 150
+                    easing.type: Easing.OutCubic
+                }
+                
+                // Click ripple effect
                 Rectangle {
                     id: ripple
                     anchors.centerIn: parent
@@ -318,33 +407,36 @@ ShellRoot {
                     color: "#a6c8ff" // primary
                     opacity: 0
                     
-                    NumberAnimation {
+                    ParallelAnimation {
                         id: rippleAnimation
-                        target: ripple
-                        properties: "width,height"
-                        from: 0
-                        to: parent.width * 1.5
-                        duration: 300
-                        easing.type: Easing.OutCubic
-                    }
-                    
-                    NumberAnimation {
-                        id: rippleFade
-                        target: ripple
-                        property: "opacity"
-                        from: 0.3
-                        to: 0
-                        duration: 300
-                        easing.type: Easing.OutCubic
-                    }
-                    
-                    onParentChanged: {
-                        if (parent && mouseArea.pressed) {
-                            rippleAnimation.start()
-                            rippleFade.start()
+                        NumberAnimation {
+                            target: ripple
+                            properties: "width,height"
+                            from: 0
+                            to: mouseArea.width * 1.5
+                            duration: 200
+                            easing.type: Easing.OutCubic
+                        }
+                        SequentialAnimation {
+                            NumberAnimation {
+                                target: ripple
+                                property: "opacity"
+                                from: 0
+                                to: 0.3
+                                duration: 50
+                            }
+                            NumberAnimation {
+                                target: ripple
+                                property: "opacity"
+                                from: 0.3
+                                to: 0
+                                duration: 150
+                            }
                         }
                     }
                 }
+                
+                onPressed: rippleAnimation.start()
             }
         }
     }

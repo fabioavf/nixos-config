@@ -1,7 +1,0 @@
-module Lumin.Components.Bar
-
-MainBar 1.0 MainBar.qml
-LeftSection 1.0 LeftSection.qml
-CenterSection 1.0 CenterSection.qml
-RightSection 1.0 RightSection.qml
-WorkspaceIndicator 1.0 WorkspaceIndicator.qml

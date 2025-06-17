@@ -34,6 +34,7 @@ in
 
     mouse = {
       natural-scroll = false;
+      scroll-factor = 1.0;
       accel-speed = 0.0;
       accel-profile = "flat";
     };
