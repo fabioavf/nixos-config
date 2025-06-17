@@ -1,0 +1,7 @@
+module Lumin.Components.Base
+
+MaterialCard 1.0 MaterialCard.qml
+MaterialButton 1.0 MaterialButton.qml  
+MaterialIcon 1.0 MaterialIcon.qml
+MaterialText 1.0 MaterialText.qml
+MaterialPopover 1.0 MaterialPopover.qml

@@ -1,7 +1,7 @@
 # /etc/nixos/home/terminal/default.nix
 # Terminal tools, CLI utilities, and development environment
 
-{ config, lib, pkgs, inputs, ... }:
+{ pkgs, inputs, ... }:
 
 {
   imports = [
@@ -52,6 +52,13 @@
     # Rust
     rustc
     cargo
+
+    # Nix
+    nil
+    nixfmt-rfc-style
+
+    # Qt support
+    kdePackages.qtdeclarative
 
     # Custom packages
     inputs.self.packages.x86_64-linux.claude-code
