@@ -17,6 +17,8 @@
     wget                    # Basic download tool
     curl                    # HTTP client
     rsync                   # File synchronization
+
+    gh                      # GitHub CLI
     
     # ========================================
     # Container Runtime (System Service)

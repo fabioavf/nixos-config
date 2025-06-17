@@ -35,7 +35,6 @@
     # Development Tools (User-specific)
     # ========================================
     # Version control
-    gh                      # GitHub CLI
     git-lfs                 # Large file support
     glab                    # GitLab CLI
 
