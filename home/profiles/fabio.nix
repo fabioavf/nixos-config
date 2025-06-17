@@ -6,8 +6,9 @@
 {
   imports = [
     ../services/niri
-    # ../services/quickshell
+    ../services/quickshell
     ../terminal/default.nix
+    ../software/default.nix
     ../media/default.nix
   ];
 

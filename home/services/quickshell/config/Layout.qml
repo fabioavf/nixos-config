@@ -4,7 +4,7 @@ import QtQuick
 import "./Material.qml" as M
 import "./Device.qml" as D
 
-Singleton {
+QtObject {
     id: root
 
     // Responsive layout constants based on device

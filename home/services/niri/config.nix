@@ -26,6 +26,8 @@ in
     # Startup programs
     spawn-at-startup = [
       # Removed swww-daemon - will be handled by wallpaper service
+      # Lumin Bar - Material 3 Quickshell Bar
+      { command = ["quickshell" "-c" "lumin"]; }
     ];
 
     # Hotkey overlay

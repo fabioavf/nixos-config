@@ -3,7 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 
-Singleton {
+QtObject {
     id: root
 
     // Device detection based on screen resolution

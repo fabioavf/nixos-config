@@ -3,7 +3,7 @@ pragma Singleton
 import QtQuick
 import QtQuick.Controls.Material
 
-Singleton {
+QtObject {
     id: root
 
     readonly property Colors colors: Colors {}
@@ -22,16 +22,16 @@ Singleton {
         readonly property string surfaceVariant: "#42474e"    // Alternative surfaces
         
         // Text colors
-        readonly property string onSurface: "#e3e2e6"        // Primary text
-        readonly property string onSurfaceVariant: "#c2c7ce" // Secondary text
+        readonly property string surfaceText: "#e3e2e6"        // Primary text
+        readonly property string surfaceVariantText: "#c2c7ce" // Secondary text
         readonly property string outline: "#8c9199"           // Borders
         readonly property string outlineVariant: "#42474e"   // Subtle borders
         
         // Primary accent colors
         readonly property string primary: "#a6c8ff"          // Accent
-        readonly property string onPrimary: "#003062"        // Accent text
+        readonly property string primaryText: "#003062"        // Accent text
         readonly property string primaryContainer: "#004a9c" // Accent container
-        readonly property string onPrimaryContainer: "#d5e3ff" // Accent container text
+        readonly property string primaryContainerText: "#d5e3ff" // Accent container text
         
         // Interactive states
         readonly property string hover: "#2a2f36"            // Hover overlay

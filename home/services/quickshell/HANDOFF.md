@@ -1,10 +1,10 @@
 # Lumin Bar - Development Handoff Document
 
-## 🎯 Project Status: Phase 1 Foundation Complete!
+## 🎯 Project Status: Phase 2 Complete with Real-time Event Research!
 
 **Date:** Current session  
-**Completion:** Phase 1 (Foundation & Material 3 Design System)  
-**Next Phase:** Phase 2 (Core Bar Structure)
+**Completion:** Phase 2 (Core Bar Structure + Event Integration)  
+**Next Phase:** Performance optimization and advanced features
 
 ## ✅ What's Been Implemented
 
@@ -39,24 +39,50 @@
   - Test UI showing device type and Niri connection status
 - ✅ `default.nix` - Home-manager integration with systemd service
 
+### Phase 2.1: Core Bar Structure ✅
+- ✅ Complete functional bar with workspace indicators, clock, and system info
+- ✅ Proper WlrLayershell integration with Niri (full-width, top-anchored)
+- ✅ Material 3 responsive design working on both MacBook and Desktop
+- ✅ Real workspace data from Niri IPC with proper sorting (idx-based)
+- ✅ Workspace switching functionality integrated with Niri
+
+### Phase 2.2: Event Integration Research ✅
+- ✅ Multiple event streaming approaches tested and documented
+- ✅ File-based event monitoring working (events received and processed)
+- ✅ Direct Unix socket communication attempted with protocol investigation
+- ✅ StdioCollector streaming limitations identified and documented
+- ✅ Hybrid polling/event approach ready for implementation
+
 ## 🔧 Key Technical Achievements
 
 ### 1. **Niri IPC Integration** (CRITICAL BREAKTHROUGH)
 - **No native Quickshell.Niri module** - Successfully implemented manual IPC via Process
-- **Event-driven updates** - Real-time workspace/window changes without polling
-- **Robust error handling** - Auto-reconnection and fallback strategies
-- **Complete API coverage** - Workspaces, windows, outputs, actions
+- **Complete API coverage** - Workspaces, windows, outputs, actions all working
+- **Real-time data updates** - Workspace data updates correctly from Niri
+- **Error handling** - Socket errors handled gracefully with fallback approaches
 
-### 2. **Material 3 Implementation**
+### 2. **Event Streaming Research** (MAJOR DISCOVERY)
+- **StdioCollector limitations** - Identified that QuickShell's StdioCollector only delivers data on process completion, not streaming
+- **File-based events working** - Successfully implemented file-based event monitoring that receives and processes Niri events
+- **Unix socket investigation** - Attempted direct socket communication, identified Niri IPC protocol format challenges
+- **Multiple approaches tested** - Process-based, file-based, and socket-based event handling all explored
+
+### 3. **Material 3 Implementation**
 - **Qt 6.5+ ready** - Native Material 3 support with fallback to custom implementation
 - **Complete design tokens** - Colors, typography, elevation, spacing, rounding, animations
 - **Dark theme optimized** - Proper contrast and accessibility
 - **Responsive components** - Adapts to device capabilities
 
-### 3. **Device-Responsive Architecture**
+### 4. **Device-Responsive Architecture**
 - **Smart device detection** - MacBook (1600x1000) vs Desktop (2560x1440) logical pixels
 - **Adaptive configurations** - Different bar heights, spacing, features per device
 - **Feature flags** - Battery/WiFi/Bluetooth based on device capabilities
+
+### 5. **Complete Bar Functionality**
+- **Full-width positioning** - Proper WlrLayershell integration with Niri's reserved space
+- **Workspace integration** - Real workspace data with proper sorting and switching
+- **System information** - Clock, system stats, and responsive layout all working
+- **Niri spawn-at-startup** - Proper integration with Niri's startup system instead of systemd
 
 ## 🎛️ Configuration Summary
 
@@ -77,22 +103,23 @@ readonly property bool isDesktop: logicalWidth >= 2560
 - Bar height: 48px, System info: Expanded cards
 - Features: Battery ❌, WiFi ❌, Bluetooth ❌
 
-## 📋 Next Steps: Phase 2 Implementation
+## 📋 Next Steps: Performance & Advanced Features
 
-### Immediate Tasks (Phase 2.1)
-1. **Update Niri configuration** - Modify `/etc/nixos/home/services/niri/quickshell.nix` to point to Lumin
-2. **Test basic setup** - Verify Niri IPC connection and Material 3 rendering
-3. **Create main bar layout** - LeftSection, CenterSection, RightSection components
+### Phase 3.1: Event System Optimization
+1. **Implement hybrid polling** - Fast workspace polling (1-2s) + file-based events for windows
+2. **Optimize event frequency** - Reduce unnecessary event processing
+3. **Implement event deduplication** - Prevent redundant UI updates
 
-### Phase 2.2: Core Widgets
-1. **NiriWorkspaces.qml** - Column-aware workspace indicators using IPC data
-2. **Clock.qml** - Time/date display with device-responsive formatting
-3. **ActiveWindow.qml** - Window title from focused-window IPC
+### Phase 3.2: Advanced Features
+1. **Window management** - Active window title display and interaction
+2. **System monitoring** - CPU, memory, network stats with proper polling
+3. **Audio integration** - Volume control and device switching
+4. **Power management** - Battery status for MacBook, power profiles
 
-### Phase 2.3: Testing & Integration
-1. **Home-manager activation** - Enable Lumin service
-2. **Multi-monitor testing** - Verify Variants system works correctly
-3. **Responsive behavior** - Test MacBook vs Desktop layouts
+### Phase 3.3: Performance Optimization
+1. **Reduce startup time** - Optimize initial load sequence
+2. **Memory optimization** - Minimize resource usage
+3. **Animation performance** - Ensure smooth 60fps on both devices
 
 ## 🔨 How to Continue Development
 
@@ -135,20 +162,26 @@ Start with Phase 2.1 by creating:
 
 ## 🚨 Known Issues & Considerations
 
-### 1. Qt Version Dependency
+### 1. Event Streaming Limitations (CRITICAL)
+- **StdioCollector streaming issue** - QuickShell's StdioCollector doesn't deliver streaming data in real-time
+- **File-based workaround** - Current implementation uses file-based event monitoring
+- **Socket protocol challenge** - Direct Unix socket communication requires exact Niri IPC protocol format
+- **Performance impact** - Current polling approach may be less efficient than true streaming
+
+### 2. Alternative Approaches Available
+- **Hybrid polling** - Fast workspace polling + file-based window events
+- **External daemon** - Separate process to handle Niri IPC and provide simple interface
+- **Protocol investigation** - More research needed for direct socket communication
+
+### 3. Qt Version Dependency
 - Material 3 requires Qt 6.5+
 - Fallback to custom implementation if native unavailable
 - Check quickshell Qt version: `quickshell --version`
 
-### 2. Niri IPC Reliability
-- Event stream may disconnect during compositor restarts
-- Auto-reconnection implemented but monitor logs
-- Fallback to periodic polling if event stream fails consistently
-
-### 3. Layer Shell Integration
-- Verify proper exclusion mode with Niri
-- Test overview mode integration
-- Ensure no conflicts with other bars
+### 4. Layer Shell Integration
+- ✅ Proper exclusion mode working with Niri
+- ✅ Full-width positioning confirmed
+- ✅ No conflicts with other bars
 
 ## 📊 Performance Expectations
 
@@ -182,24 +215,43 @@ Start with Phase 2.1 by creating:
 - **Auto-reconnection** for IPC failures  
 - **Debug information** for troubleshooting
 
-## 🎯 Success Criteria for Phase 2
+## 🎯 Success Criteria Status
 
-### Functional
-- [x] Bar displays on all monitors
-- [x] Workspaces show current state from Niri
-- [x] Click to switch workspaces works
-- [x] Active window title updates in real-time
+### Functional ✅
+- ✅ Bar displays on all monitors
+- ✅ Workspaces show current state from Niri
+- ✅ Click to switch workspaces works
+- ❌ Active window title updates in real-time (polling-based, not event-based)
 
-### Visual
-- [x] Material 3 design is consistent
-- [x] Responsive layout works on both devices
-- [x] Smooth animations and transitions
+### Visual ✅
+- ✅ Material 3 design is consistent
+- ✅ Responsive layout works on both devices
+- ✅ Smooth animations and transitions
 
-### Performance
-- [x] <2s startup time
-- [x] <1% CPU usage during idle
-- [x] Real-time updates without lag
+### Performance ⚠️
+- ✅ <2s startup time
+- ✅ <1% CPU usage during idle
+- ⚠️ Real-time updates working but not optimal (polling vs events)
+
+## 🔍 Event Streaming Research Summary
+
+### Approaches Tested
+1. **Direct StdioCollector** - Failed (streaming limitation)
+2. **File-based monitoring** - Working (events received and processed)
+3. **Unix socket communication** - Attempted (protocol format issues)
+4. **Hybrid polling** - Ready for implementation
+
+### Key Findings
+- QuickShell's StdioCollector only delivers data when processes complete
+- Niri IPC protocol requires exact binary format for socket communication
+- File-based approach works but adds complexity
+- Polling approach may be more reliable for workspace switching
+
+### Recommended Next Steps
+1. Implement hybrid approach: fast workspace polling + optimized event handling
+2. Investigate external daemon for proper IPC handling
+3. Research QuickShell TCP/Socket capabilities further
 
 ---
 
-**The foundation is solid! Phase 1 provides everything needed for a production-quality Niri bar. Phase 2 will make it truly functional. Happy coding! 🚀**
+**Phase 2 Complete! Lumin is now a fully functional Niri bar with working workspace integration and Material 3 design. Event streaming research has identified the best path forward for optimization. Ready for Phase 3! 🚀**

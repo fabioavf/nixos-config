@@ -1,0 +1,5 @@
+module Lumin
+
+Config 1.0 config/
+Services 1.0 services/
+Base 1.0 components/base/
