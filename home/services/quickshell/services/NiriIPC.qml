@@ -188,25 +188,25 @@ QtObject {
     function handleResponse(response) {
         // Check if this is an event or a query response
         if (response.hasOwnProperty("WorkspacesChanged")) {
-            console.log("Lumin: WorkspacesChanged event received - refreshing workspace data")
+            // WorkspacesChanged event - refresh workspace data
             refreshTimer.addQuery("Workspaces")
         } else if (response.hasOwnProperty("WorkspaceActivated")) {
-            console.log(`Lumin: WorkspaceActivated event: ${JSON.stringify(response.WorkspaceActivated)}`)
+            // WorkspaceActivated event
             refreshTimer.addQuery("Workspaces")
         } else if (response.hasOwnProperty("WindowsChanged")) {
-            console.log("Lumin: WindowsChanged event received - refreshing window data")
+            // WindowsChanged event
             refreshTimer.addQuery("Windows")
         } else if (response.hasOwnProperty("WindowFocusChanged")) {
-            console.log("Lumin: WindowFocusChanged event received - refreshing focus data")
+            // WindowFocusChanged event
             refreshTimer.addQuery("FocusedWindow")
         } else if (response.hasOwnProperty("WindowOpenedOrChanged")) {
-            console.log("Lumin: WindowOpenedOrChanged event received - refreshing window data")
+            // WindowOpenedOrChanged event
             refreshTimer.addQuery("Windows")
         } else if (response.hasOwnProperty("WindowClosed")) {
-            console.log("Lumin: WindowClosed event received - refreshing window data")
+            // WindowClosed event
             refreshTimer.addQuery("Windows")
         } else if (response.hasOwnProperty("WorkspaceActiveWindowChanged")) {
-            console.log("Lumin: WorkspaceActiveWindowChanged event received - refreshing workspace data")
+            // WorkspaceActiveWindowChanged event
             refreshTimer.addQuery("Workspaces")
         } else if (response.hasOwnProperty("Ok")) {
             // Handle successful query responses
@@ -224,17 +224,17 @@ QtObject {
                 root.outputsUpdated(data.Outputs)
             } else if (data.hasOwnProperty("FocusedWindow")) {
                 if (data.FocusedWindow) {
-                    console.log(`Lumin: Received focused window: ${data.FocusedWindow.title}`)
+                    // Received focused window
                     root.focusedWindow = data.FocusedWindow
                     root.focusedWindowUpdated(data.FocusedWindow)
                 } else {
-                    console.log("Lumin: No focused window")
+                    // No focused window
                     root.focusedWindow = null
                     root.focusedWindowUpdated(null)
                 }
             } else if (data === null) {
                 // Null response (e.g., no focused window)
-                console.log("Lumin: Received null response (probably no focused window)")
+                // Received null response
                 root.focusedWindow = null
                 root.focusedWindowUpdated(null)
             } else if (Array.isArray(data)) {
@@ -245,17 +245,17 @@ QtObject {
                     const firstItem = data[0]
                     if (firstItem.hasOwnProperty("id") && firstItem.hasOwnProperty("is_active")) {
                         // Workspace data
-                        console.log(`Lumin: Received ${data.length} workspaces`)
+                        // Received workspaces data
                         root.workspaces = data
                         root.workspacesUpdated(data)
                     } else if (firstItem.hasOwnProperty("id") && firstItem.hasOwnProperty("title")) {
                         // Window data
-                        console.log(`Lumin: Received ${data.length} windows`)
+                        // Received windows data
                         root.windows = data
                         root.windowsUpdated(data)
                     } else if (firstItem.hasOwnProperty("name") && (firstItem.hasOwnProperty("make") || firstItem.hasOwnProperty("logical"))) {
                         // Output data
-                        console.log(`Lumin: Received ${data.length} outputs`)
+                        // Received outputs data
                         root.outputs = data
                         root.outputsUpdated(data)
                     } else {
@@ -264,17 +264,17 @@ QtObject {
                 }
             } else if (typeof data === "object" && data.hasOwnProperty("title")) {
                 // Single window (focused window)
-                console.log(`Lumin: Received focused window: ${data.title}`)
+                // Received focused window
                 root.focusedWindow = data
                 root.focusedWindowUpdated(data)
             } else {
-                console.log(`Lumin: Unknown response data: ${JSON.stringify(data)}`)
+                // Unknown response data
             }
         } else if (response.hasOwnProperty("Err")) {
             console.error(`Lumin: Niri error response: ${JSON.stringify(response.Err)}`)
             root.lastError = `Niri error: ${JSON.stringify(response.Err)}`
         } else {
-            console.log(`Lumin: Unknown response type: ${JSON.stringify(response)}`)
+            // Unknown response type
         }
     }
 
@@ -288,7 +288,7 @@ QtObject {
         repeat: false
         
         onTriggered: {
-            console.log(`Lumin: Initial state step ${step}`)
+            // Initial state step progression
             switch(step) {
                 case 0:
                     // Query windows
@@ -306,7 +306,7 @@ QtObject {
                     break
                 case 2:
                     // Start event stream for real-time updates
-                    console.log("Lumin: Starting event stream for real-time updates...")
+                    // Starting event stream
                     startEventStream()
                     niriSocket.initialQueriesDone = true
                     step = 0  // Reset for next time
@@ -322,7 +322,7 @@ QtObject {
         repeat: false
         onTriggered: {
             if (root.socketPath && !root.socketConnected) {
-                console.log("Lumin: Attempting to reconnect to Niri socket...")
+                // Attempting reconnection
                 connectToSocket()
             }
         }
@@ -330,7 +330,7 @@ QtObject {
 
     function connectToSocket() {
         if (root.socketPath) {
-            console.log(`Lumin: Connecting to socket: ${root.socketPath}`)
+            // Connecting to socket
             // Reset state before connecting
             niriSocket.eventStreamActive = false
             // Set connected to true to initiate connection
@@ -342,7 +342,7 @@ QtObject {
     }
 
     function queryNiri(requestType) {
-        console.log(`Lumin: Querying niri for: ${requestType}`)
+        // Querying niri
         if (root.socketPath) {
             // Create a new connection for each query (niri closes after each response)
             niriSocket.pendingRequest = requestType
@@ -355,7 +355,7 @@ QtObject {
     }
 
     function startEventStream() {
-        console.log("Lumin: Starting persistent event stream connection...")
+        // Starting event stream
         if (root.socketPath) {
             niriSocket.pendingRequest = "EventStream"
             niriSocket.connected = false  // Disconnect first
@@ -372,7 +372,7 @@ QtObject {
         
         onTriggered: {
             if (targetRequest && root.socketPath) {
-                console.log(`Lumin: Reconnecting for query: ${targetRequest}`)
+                // Reconnecting for query
                 niriSocket.pendingRequest = targetRequest
                 niriSocket.connected = true
             }
@@ -386,7 +386,7 @@ QtObject {
         
         onTriggered: {
             if (root.socketPath) {
-                console.log("Lumin: Reconnecting for event stream...")
+                // Reconnecting for event stream
                 niriSocket.pendingRequest = "EventStream"
                 niriSocket.connected = true
             }
@@ -404,7 +404,7 @@ QtObject {
             // Process first pending query
             if (pendingQueries.length > 0) {
                 const query = pendingQueries.shift()  // Remove first item
-                console.log(`Lumin: Processing queued refresh: ${query} (${pendingQueries.length} remaining)`)
+                // Processing queued refresh
                 
                 let command
                 if (query === "FocusedWindow") {
@@ -421,7 +421,7 @@ QtObject {
             // Add to pending queries if not already present
             if (pendingQueries.indexOf(query) === -1) {
                 pendingQueries.push(query)
-                console.log(`Lumin: Added ${query} to refresh batch`)
+                // Added query to batch
             }
             
             // Start/restart timer
@@ -441,13 +441,13 @@ QtObject {
         }
 
         onExited: function(exitCode) {
-            console.log(`Lumin: Refresh process exited with code ${exitCode} for query: ${targetQuery}`)
+            // Refresh process completed
             if (exitCode === 0 && targetQuery) {
                 try {
                     const rawText = refreshCollector.text.trim()
-                    console.log(`Lumin: Raw refresh response: ${rawText}`)
+                    // Raw refresh response received
                     const rawResponse = JSON.parse(rawText)
-                    console.log(`Lumin: Refresh query ${targetQuery} completed`)
+                    // Refresh query completed
                     
                     // Convert raw response to socket format for consistent handling
                     let response
@@ -471,7 +471,7 @@ QtObject {
             
             // Process next query in queue if any
             if (refreshTimer.pendingQueries.length > 0) {
-                console.log(`Lumin: Processing next query in queue (${refreshTimer.pendingQueries.length} remaining)`)
+                // Processing next query
                 refreshTimer.start()
             }
         }
@@ -479,7 +479,7 @@ QtObject {
 
     // Action functions for controlling Niri
     function switchToWorkspace(workspaceId) {
-        console.log(`Lumin: Switching to workspace ${workspaceId}`)
+        // Switching workspace
         const action = {
             "Action": {
                 "FocusWorkspace": {
@@ -493,7 +493,7 @@ QtObject {
     }
 
     function moveToWorkspace(workspaceId) {
-        console.log(`Lumin: Moving window to workspace ${workspaceId}`)
+        // Moving window
         const action = {
             "Action": {
                 "MoveWindowToWorkspace": {
@@ -507,7 +507,7 @@ QtObject {
     }
 
     function closeWindow() {
-        console.log("Lumin: Closing focused window")
+        // Closing window
         const action = {
             "Action": "CloseWindow"
         }
@@ -515,7 +515,7 @@ QtObject {
     }
 
     function focusWindow(windowId) {
-        console.log(`Lumin: Focusing window ${windowId}`)
+        // Focusing window
         const action = {
             "Action": {
                 "FocusWindow": {

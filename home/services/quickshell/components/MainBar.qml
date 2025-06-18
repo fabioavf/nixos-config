@@ -10,6 +10,9 @@ Rectangle {
     property var systemStatsInstance: null
     property var audioService: null
     
+    // Signal for audio popup control
+    signal audioPopupRequested(bool visible)
+    
     anchors.fill: parent
     color: Config.Material.colors.surface
     
@@ -117,6 +120,9 @@ Rectangle {
         
         AudioControlWidget {
             audioSvc: audioService
+            onPopupToggled: function(visible) {
+                mainBar.audioPopupRequested(visible)
+            }
         }
         
         SystemTray {

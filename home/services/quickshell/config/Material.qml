@@ -43,8 +43,8 @@ QtObject {
         readonly property string success: "#4ade80"         // Success green
         readonly property string warning: "#fbbf24"         // Warning amber
         readonly property string error: "#f87171"           // Error red
-        readonly property string errorContainer: "#5f1a13"  // Error container
-        readonly property string errorContainerText: "#fecdc8" // Error container text
+        readonly property string errorContainer: "#5f1a13"  // Error container (v1.4)
+        readonly property string errorContainerText: "#fecdc8" // Error container text (v1.4)
         readonly property string info: "#60a5fa"            // Info blue
         
         // Transparent overlays

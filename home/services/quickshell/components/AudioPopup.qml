@@ -175,11 +175,7 @@ PanelWindow {
                 }
 
                 Text {
-                    text: {
-                        const device = audioService?.currentDevice || "Unknown";
-                        console.log("Lumin: Current device in popup:", device);
-                        return device;
-                    }
+                    text: audioService?.currentDevice || "Unknown"
                     color: Config.Material.colors.surfaceText
                     font.pixelSize: Config.Material.typography.bodySmall.size
                     font.family: Config.Material.typography.fontFamily

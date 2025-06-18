@@ -162,6 +162,11 @@ ShellRoot {
             systemService: systemService
             systemStatsInstance: systemStatsInstance
             audioService: audioService
+            
+            // Connect audio popup signal
+            onAudioPopupRequested: function(visible) {
+                shellRoot.audioPopupVisible = visible
+            }
         }
     }
 

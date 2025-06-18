@@ -64,7 +64,7 @@ Item {
     // Main audio monitoring timer
     Timer {
         id: audioMonitorTimer
-        interval: 100  // 10 FPS for smooth audio level updates
+        interval: 1000  // 1 second - reasonable for status bar
         repeat: true
         running: false
         
@@ -78,7 +78,7 @@ Item {
     // Device monitoring timer (less frequent)
     Timer {
         id: deviceMonitorTimer
-        interval: 2000  // Check devices every 2 seconds
+        interval: 5000  // Check devices every 5 seconds
         repeat: true
         running: false
         
@@ -86,10 +86,8 @@ Item {
     }
     
     function startAudioMonitoring() {
-        console.log("Lumin: Starting audio monitoring timers...")
         audioMonitorTimer.start()
         deviceMonitorTimer.start()
-        console.log("Lumin: Device monitor timer started:", deviceMonitorTimer.running)
         // Trigger initial device detection
         updateDeviceList()
     }
@@ -180,7 +178,6 @@ Item {
             if (exitCode === 0) {
                 try {
                     const output = deviceListCollector.text.trim()
-                    console.log("Lumin: wpctl status output:", output.substring(0, 200) + "...")
                     parseDeviceList(output)
                 } catch (error) {
                     console.error(`Lumin: Device list parsing error: ${error}`)
@@ -197,21 +194,27 @@ Item {
         // Parse wpctl output like "Volume: 0.45 [MUTED]" or "Volume: 0.45"
         try {
             const trimmed = output.trim()
-            console.log(`Lumin: Raw volume output: "${trimmed}"`)
             
             // Match pattern like "Volume: 0.35" or "Volume: 0.35 [MUTED]"
             const volumeMatch = trimmed.match(/Volume:\s*([\d.]+)/)
             if (volumeMatch) {
                 const newVolume = parseFloat(volumeMatch[1])
-                console.log(`Lumin: Parsed volume: ${newVolume}`)
                 
                 if (!isNaN(newVolume)) {
+                    const prevVolume = volume
                     volume = Math.max(0, Math.min(1, newVolume))
+                    // Only log on significant changes
+                    if (Math.abs(prevVolume - volume) > 0.05) {
+                        console.log(`Lumin: Volume changed: ${(volume * 100).toFixed(0)}%`)
+                    }
                 }
             }
             
             const newMuted = trimmed.includes('[MUTED]')
-            muted = newMuted
+            if (newMuted !== muted) {
+                muted = newMuted
+                console.log(`Lumin: Audio ${muted ? 'muted' : 'unmuted'}`)
+            }
         } catch (error) {
             console.error(`Lumin: Volume parsing error: ${error}`)
         }
@@ -247,24 +250,17 @@ Item {
                 
                 if (trimmedLine.includes('Sinks:')) {
                     inSinks = true
-                    console.log("Lumin: Entering Sinks section")
                     continue
                 } else if (trimmedLine.includes('Sources:')) {
                     inSinks = false
-                    console.log("Lumin: Exiting Sinks section")
                     continue
                 }
                 
                 if (inSinks && trimmedLine.includes('*')) {
                     // This is the default sink
-                    console.log("Lumin: Found default sink line:", trimmedLine)
                     const deviceMatch = trimmedLine.match(/\*\s+(\d+)\.\s+(.+?)(?:\s+\[|\s*$)/)
                     if (deviceMatch) {
-                        console.log("Lumin: Matched device:", deviceMatch[2])
                         currentDefaultDevice = prettifyDeviceName(deviceMatch[2])
-                        console.log("Lumin: Prettified device name:", currentDefaultDevice)
-                    } else {
-                        console.log("Lumin: Failed to match regex on line:", trimmedLine)
                     }
                 }
                 
@@ -286,12 +282,9 @@ Item {
             deviceIds = deviceIdList
             
             if (currentDefaultDevice && currentDefaultDevice !== currentDevice) {
-                console.log("Lumin: Setting current device to:", currentDefaultDevice)
+                console.log("Lumin: Audio device changed to:", currentDefaultDevice)
                 currentDevice = currentDefaultDevice
                 currentDeviceType = detectDeviceType(currentDefaultDevice)
-                console.log("Lumin: Device type detected as:", currentDeviceType)
-            } else {
-                console.log("Lumin: No default device found or no change needed. Current:", currentDevice)
             }
             
         } catch (error) {
@@ -333,7 +326,6 @@ Item {
     }
     
     function updateDeviceList() {
-        console.log("Lumin: Updating device list...")
         deviceListProcess.running = true
     }
     
@@ -406,7 +398,7 @@ Item {
         
         onExited: function(exitCode) {
             if (exitCode === 0) {
-                console.log("Lumin: Device switched successfully")
+                console.log("Lumin: Audio device switched successfully")
                 // Update device list after switching
                 Qt.callLater(updateDeviceList)
             } else {

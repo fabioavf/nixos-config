@@ -6,6 +6,9 @@ Item {
     property var audioSvc: null
     property bool showingPopup: false
     
+    // Signal for popup toggle
+    signal popupToggled(bool visible)
+    
     width: compactWidget.width
     height: Config.Device.config.workspaceSize
     
@@ -151,14 +154,7 @@ Item {
     onClicked: function(mouse) {
         if (mouse.button === Qt.LeftButton) {
             showingPopup = !showingPopup
-            // Find the shell root to set popup visibility
-            let root = parent
-            while (root && !root.hasOwnProperty('audioPopupVisible')) {
-                root = root.parent
-            }
-            if (root) {
-                root.audioPopupVisible = showingPopup
-            }
+            popupToggled(showingPopup)
         } else if (mouse.button === Qt.RightButton) {
             if (audioSvc) {
                 audioSvc.toggleMute()
@@ -190,14 +186,7 @@ Item {
         repeat: false
         onTriggered: {
             showingPopup = false
-            // Find the shell root to set popup visibility
-            let root = parent
-            while (root && !root.hasOwnProperty('audioPopupVisible')) {
-                root = root.parent
-            }
-            if (root) {
-                root.audioPopupVisible = false
-            }
+            popupToggled(false)
         }
     }
 }
