@@ -151,8 +151,13 @@ Item {
     onClicked: function(mouse) {
         if (mouse.button === Qt.LeftButton) {
             showingPopup = !showingPopup
-            if (typeof shellRoot !== 'undefined') {
-                shellRoot.audioPopupVisible = showingPopup
+            // Find the shell root to set popup visibility
+            let root = parent
+            while (root && !root.hasOwnProperty('audioPopupVisible')) {
+                root = root.parent
+            }
+            if (root) {
+                root.audioPopupVisible = showingPopup
             }
         } else if (mouse.button === Qt.RightButton) {
             if (audioSvc) {
@@ -185,8 +190,13 @@ Item {
         repeat: false
         onTriggered: {
             showingPopup = false
-            if (typeof shellRoot !== 'undefined') {
-                shellRoot.audioPopupVisible = false
+            // Find the shell root to set popup visibility
+            let root = parent
+            while (root && !root.hasOwnProperty('audioPopupVisible')) {
+                root = root.parent
+            }
+            if (root) {
+                root.audioPopupVisible = false
             }
         }
     }
