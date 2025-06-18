@@ -1,5 +1,0 @@
-module Lumin.Widgets
-
-MiniChart 1.0 MiniChart.qml
-SystemMonitor 1.0 SystemMonitor.qml
-SystemPopover 1.0 SystemPopover.qml

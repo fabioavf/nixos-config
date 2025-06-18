@@ -1,9 +1,14 @@
 import QtQuick
 import Quickshell
+import "../config" as Config
+import "."
 
 Rectangle {
     id: mainBar
     property var niriIPC: null
+    property var systemService: null
+    property var systemStatsInstance: null
+    property var audioService: null
     
     anchors.fill: parent
     color: Config.Material.colors.surface
@@ -111,7 +116,7 @@ Rectangle {
         }
         
         AudioControlWidget {
-            audioService: audioService
+            audioSvc: audioService
         }
         
         SystemTray {

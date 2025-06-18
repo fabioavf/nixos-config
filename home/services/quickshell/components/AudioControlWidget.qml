@@ -1,45 +1,54 @@
 import QtQuick
 import Quickshell
+import "../config" as Config
 
 Item {
-    id: audioControlWidget
-    property var audioService: null
+    property var audioSvc: null
     property bool showingPopup: false
     
     width: compactWidget.width
     height: Config.Device.config.workspaceSize
     
-    // Compact widget (always visible)
     Rectangle {
         id: compactWidget
         width: Config.Device.config.systemCardWidth || 60
         height: Config.Device.config.workspaceSize
         radius: Config.Material.rounding.medium
         
-        // Material 3 background with popup state indication
         color: {
             if (showingPopup) return Config.Material.colors.primaryContainer
             if (mouseArea.containsMouse) return Config.Material.colors.surfaceContainerHigh
             return Config.Material.colors.surfaceContainer
         }
         
-        // Mute state indication
-        border.width: audioService?.muted ? 2 : 0
+        border.width: audioSvc?.muted ? 2 : 0
         border.color: Config.Material.colors.error
+        
+        Behavior on color {
+            ColorAnimation {
+                duration: Config.Material.animation.durationShort4
+                easing.type: Easing.OutCubic
+            }
+        }
+        
+        Behavior on border.width {
+            NumberAnimation {
+                duration: Config.Material.animation.durationShort3
+                easing.type: Easing.OutCubic
+            }
+        }
     
-    // Strikethrough effect when muted
     Rectangle {
         anchors.centerIn: parent
         width: parent.width * 0.8
         height: 2
         color: Config.Material.colors.error
         rotation: -15
-        visible: audioService?.muted || false
+        visible: audioSvc?.muted || false
         opacity: 0.9
         radius: 1
     }
     
-    // Subtle elevation shadow
     Rectangle {
         anchors.centerIn: parent
         width: parent.width + 2
@@ -54,38 +63,34 @@ Item {
         anchors.centerIn: parent
         spacing: Config.Material.spacing.xs
         
-        // Audio icon with device type indication
         Text {
             anchors.verticalCenter: parent.verticalCenter
             text: {
-                if (!audioService) return "󰕿"
-                if (audioService.muted) return "󰸈"
+                if (!audioSvc) return "󰕿"
+                if (audioSvc.muted) return "󰸈"
                 
-                switch (audioService.currentDeviceType) {
+                switch (audioSvc.currentDeviceType) {
                     case "headphone": return "󰋋"
                     case "bluetooth": return "󰂯"
                     case "speaker":
-                    default: return audioService.volume > 0.6 ? "󰕾" : audioService.volume > 0.3 ? "󰖀" : "󰕿"
+                    default: return audioSvc.volume > 0.6 ? "󰕾" : audioSvc.volume > 0.3 ? "󰖀" : "󰕿"
                 }
             }
             color: {
-                if (!audioService) return Config.Material.colors.surfaceVariantText
-                if (audioService.muted) return Config.Material.colors.error
-                if (popup && popup.showing) return Config.Material.colors.primaryContainerText
+                if (!audioSvc) return Config.Material.colors.surfaceVariantText
+                if (audioSvc.muted) return Config.Material.colors.error
                 return Config.Material.colors.surfaceText
             }
             font.pixelSize: Config.Device.config.iconSize || 12
             font.family: Config.Material.typography.monoFamily
         }
         
-        // Volume percentage
         Text {
             anchors.verticalCenter: parent.verticalCenter
-            text: audioService ? `${Math.round(audioService.volume * 100)}%` : "-%"
+            text: audioSvc ? `${Math.round(audioSvc.volume * 100)}%` : "-%"
             color: {
-                if (!audioService) return Config.Material.colors.surfaceVariantText
-                if (audioService.muted) return Config.Material.colors.error
-                if (popup && popup.showing) return Config.Material.colors.primaryContainerText
+                if (!audioSvc) return Config.Material.colors.surfaceVariantText
+                if (audioSvc.muted) return Config.Material.colors.error
                 return Config.Material.colors.surfaceText
             }
             font.pixelSize: Config.Material.typography.labelSmall.size
@@ -93,7 +98,6 @@ Item {
             font.weight: Config.Material.typography.labelSmall.weight
         }
         
-        // Mini audio level indicators (3 small bars)
         Row {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 1
@@ -104,15 +108,15 @@ Item {
                 Rectangle {
                     width: 2
                     height: {
-                        if (!audioService || audioService.muted) return 2
-                        const level = audioService.audioLevel || 0
+                        if (!audioSvc || audioSvc.muted) return 2
+                        const level = audioSvc.audioLevel || 0
                         const barHeight = 2 + (level * (8 - 2)) * (index + 1) / 3
                         return Math.max(2, Math.min(8, barHeight))
                     }
                     radius: 1
                     color: {
-                        if (!audioService || audioService.muted) return Config.Material.colors.outlineVariant
-                        const level = audioService.audioLevel || 0
+                        if (!audioSvc || audioSvc.muted) return Config.Material.colors.outlineVariant
+                        const level = audioSvc.audioLevel || 0
                         const threshold = (index + 1) / 3
                         if (level > threshold) {
                             return index === 2 ? Config.Material.colors.warning : Config.Material.colors.success
@@ -120,7 +124,6 @@ Item {
                         return Config.Material.colors.outlineVariant
                     }
                     
-                    // Smooth height animation
                     Behavior on height {
                         NumberAnimation {
                             duration: Config.Material.animation.durationShort2
@@ -128,7 +131,6 @@ Item {
                         }
                     }
                     
-                    // Smooth color animation
                     Behavior on color {
                         ColorAnimation {
                             duration: Config.Material.animation.durationShort3
@@ -138,108 +140,53 @@ Item {
                 }
             }
         }
-        
-        // Interactive area
-        MouseArea {
-            id: mouseArea
-            anchors.fill: parent
-            hoverEnabled: true
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
-        
-        onClicked: function(mouse) {
-            if (mouse.button === Qt.LeftButton) {
-                // Toggle popup
-                showingPopup = !showingPopup
-            } else if (mouse.button === Qt.RightButton) {
-                // Quick mute toggle
-                if (audioService) {
-                    audioService.toggleMute()
-                }
+    }
+    
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        hoverEnabled: true
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+    
+    onClicked: function(mouse) {
+        if (mouse.button === Qt.LeftButton) {
+            showingPopup = !showingPopup
+            if (typeof shellRoot !== 'undefined') {
+                shellRoot.audioPopupVisible = showingPopup
+            }
+        } else if (mouse.button === Qt.RightButton) {
+            if (audioSvc) {
+                audioSvc.toggleMute()
             }
         }
+    }
+    
+    onWheel: function(wheel) {
+        if (!audioSvc) return
         
-        // Scroll to adjust volume
-        onWheel: function(wheel) {
-            if (!audioService) return
-            
-            const delta = wheel.angleDelta.y / 120 // Standard scroll step
-            const volumeStep = 0.05 // 5% per scroll step
-            const newVolume = Math.max(0, Math.min(1, audioService.volume + (delta * volumeStep)))
-            
-            audioService.setVolume(newVolume)
-        }
+        const delta = wheel.angleDelta.y / 120
+        const volumeStep = 0.05
+        const newVolume = Math.max(0, Math.min(1, audioSvc.volume + (delta * volumeStep)))
         
-        // Keep popup open when hovering over widget
-        onEntered: {
-            if (showingPopup) {
-                hideTimer.restart()
-            }
+        audioSvc.setVolume(newVolume)
+    }
+    
+    onEntered: {
+        if (showingPopup) {
+            hideTimer.restart()
         }
-        }
-        
-        // Material 3 transitions
-        Behavior on color {
-            ColorAnimation {
-                duration: Config.Material.animation.durationShort4
-                easing.type: Easing.OutCubic
-            }
-        }
-        
-        Behavior on border.width {
-            NumberAnimation {
-                duration: Config.Material.animation.durationShort3
-                easing.type: Easing.OutCubic
-            }
-        }
+    }
     }
     }
     
-    // Auto-hide timer
     Timer {
         id: hideTimer
         interval: 3000
         repeat: false
-        onTriggered: showingPopup = false
-    }
-    
-    // Simple popup (positioned below widget)
-    Rectangle {
-        anchors.top: compactWidget.bottom
-        anchors.topMargin: Config.Material.spacing.xs
-        anchors.horizontalCenter: compactWidget.horizontalCenter
-        
-        width: 280
-        height: 120
-        radius: Config.Material.rounding.large
-        
-        visible: showingPopup
-        color: Config.Material.colors.surfaceContainerHigh
-        border.width: 1
-        border.color: Config.Material.colors.outline
-        
-        Text {
-            anchors.centerIn: parent
-            text: "Audio controls popup\n(Simplified for now)"
-            color: Config.Material.colors.surfaceText
-            font.family: Config.Material.typography.fontFamily
-            horizontalAlignment: Text.AlignHCenter
-        }
-        
-        // Smooth show/hide animation
-        opacity: showingPopup ? 1.0 : 0.0
-        scale: showingPopup ? 1.0 : 0.95
-        
-        Behavior on opacity {
-            NumberAnimation {
-                duration: Config.Material.animation.durationMedium2
-                easing.type: Easing.OutCubic
-            }
-        }
-        
-        Behavior on scale {
-            NumberAnimation {
-                duration: Config.Material.animation.durationMedium2
-                easing.type: Easing.OutCubic
+        onTriggered: {
+            showingPopup = false
+            if (typeof shellRoot !== 'undefined') {
+                shellRoot.audioPopupVisible = false
             }
         }
     }

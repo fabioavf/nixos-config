@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import "../config" as Config
 
 Rectangle {
     id: workspaceIndicator

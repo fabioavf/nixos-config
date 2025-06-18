@@ -1,5 +1,8 @@
 import QtQuick
 import Quickshell
+import Quickshell.Services.SystemTray
+import Quickshell.Widgets
+import "../config" as Config
 
 Rectangle {
     id: trayIcon
