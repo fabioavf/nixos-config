@@ -31,6 +31,9 @@ ShellRoot {
         property real networkDownload: 0.0
         property real networkUpload: 0.0
         property bool connected: true
+        property string lastError: ""
+        property int errorCount: 0
+        property bool hasErrors: false
         
         // Internal state for calculations
         property var lastCpuData: null
@@ -38,7 +41,7 @@ ShellRoot {
         
         // System monitoring with Timer
         Timer {
-            interval: 3000
+            interval: 2000  // Improved responsiveness using optimized timing
             repeat: true
             running: true
             
@@ -65,10 +68,22 @@ ShellRoot {
             
             onExited: function(exitCode) {
                 if (exitCode === 0) {
-                    const data = cpuCollector.text.trim()
-                    statsInstance.parseCpuData(data)
-                    // After CPU, update memory
-                    memoryProcess.running = true
+                    try {
+                        const data = cpuCollector.text.trim()
+                        statsInstance.parseCpuData(data)
+                        statsInstance.errorCount = 0  // Reset error count on success
+                        statsInstance.hasErrors = false
+                        // After CPU, update memory
+                        memoryProcess.running = true
+                    } catch (error) {
+                        console.error(`Lumin: CPU parsing error: ${error}`)
+                        statsInstance.handleError("CPU parsing failed", error)
+                        memoryProcess.running = true  // Continue chain despite error
+                    }
+                } else {
+                    console.warn(`Lumin: CPU process failed with exit code: ${exitCode}`)
+                    statsInstance.handleError("CPU process failed", `Exit code: ${exitCode}`)
+                    memoryProcess.running = true  // Continue chain despite error
                 }
             }
         }
@@ -86,10 +101,20 @@ ShellRoot {
             
             onExited: function(exitCode) {
                 if (exitCode === 0) {
-                    const data = memoryCollector.text.trim()
-                    statsInstance.parseMemoryData(data)
-                    // After memory, update disk
-                    diskProcess.running = true
+                    try {
+                        const data = memoryCollector.text.trim()
+                        statsInstance.parseMemoryData(data)
+                        // After memory, update disk
+                        diskProcess.running = true
+                    } catch (error) {
+                        console.error(`Lumin: Memory parsing error: ${error}`)
+                        statsInstance.handleError("Memory parsing failed", error)
+                        diskProcess.running = true  // Continue chain despite error
+                    }
+                } else {
+                    console.warn(`Lumin: Memory process failed with exit code: ${exitCode}`)
+                    statsInstance.handleError("Memory process failed", `Exit code: ${exitCode}`)
+                    diskProcess.running = true  // Continue chain despite error
                 }
             }
         }
@@ -107,10 +132,20 @@ ShellRoot {
             
             onExited: function(exitCode) {
                 if (exitCode === 0) {
-                    const data = diskCollector.text.trim()
-                    statsInstance.parseDiskData(data)
-                    // After disk, update network
-                    networkProcess.running = true
+                    try {
+                        const data = diskCollector.text.trim()
+                        statsInstance.parseDiskData(data)
+                        // After disk, update network
+                        networkProcess.running = true
+                    } catch (error) {
+                        console.error(`Lumin: Disk parsing error: ${error}`)
+                        statsInstance.handleError("Disk parsing failed", error)
+                        networkProcess.running = true  // Continue chain despite error
+                    }
+                } else {
+                    console.warn(`Lumin: Disk process failed with exit code: ${exitCode}`)
+                    statsInstance.handleError("Disk process failed", `Exit code: ${exitCode}`)
+                    networkProcess.running = true  // Continue chain despite error
                 }
             }
         }
@@ -128,8 +163,16 @@ ShellRoot {
             
             onExited: function(exitCode) {
                 if (exitCode === 0) {
-                    const data = networkCollector.text.trim()
-                    statsInstance.parseNetworkData(data)
+                    try {
+                        const data = networkCollector.text.trim()
+                        statsInstance.parseNetworkData(data)
+                    } catch (error) {
+                        console.error(`Lumin: Network parsing error: ${error}`)
+                        statsInstance.handleError("Network parsing failed", error)
+                    }
+                } else {
+                    console.warn(`Lumin: Network process failed with exit code: ${exitCode}`)
+                    statsInstance.handleError("Network process failed", `Exit code: ${exitCode}`)
                 }
             }
         }
@@ -261,6 +304,37 @@ ShellRoot {
                 return kbps.toFixed(1) + " KB/s"
             } else {
                 return (kbps / 1024).toFixed(1) + " MB/s"
+            }
+        }
+        
+        // Error handling with exponential backoff
+        Timer {
+            id: retryTimer
+            repeat: false
+            running: false
+            onTriggered: {
+                console.log("Lumin: Retrying system monitoring after backoff")
+                connected = true
+                hasErrors = false
+                errorCount = Math.max(0, errorCount - 2)  // Reduce error count on retry
+            }
+        }
+        
+        function handleError(context, error) {
+            errorCount++
+            lastError = `${context}: ${error}`
+            hasErrors = true
+            
+            console.warn(`Lumin: System monitoring error [${errorCount}]: ${lastError}`)
+            
+            // Implement exponential backoff for repeated errors
+            if (errorCount > 5) {
+                console.error("Lumin: Too many system monitoring errors, reducing update frequency")
+                connected = false
+                
+                // Start retry timer with exponential backoff
+                retryTimer.interval = Math.min(10000, 1000 * Math.pow(2, Math.min(errorCount - 5, 4)))
+                retryTimer.start()
             }
         }
         
@@ -467,8 +541,9 @@ ShellRoot {
                     value: systemService?.cpuUsage || 0
                     maxValue: 100
                     unit: "%"
-                    metricColor: parent.getColorForUsage(value)
+                    metricColor: systemStatsInstance.hasErrors ? Config.Material.colors.error : parent.getColorForUsage(value)
                     isActive: value > 70
+                    hasError: systemStatsInstance.hasErrors
                 }
                 
                 // Memory Indicator  
@@ -477,8 +552,9 @@ ShellRoot {
                     value: systemService?.memoryUsedGB || 0
                     maxValue: systemService?.memoryTotalGB || 16
                     unit: "GB"
-                    metricColor: parent.getColorForUsage((value / maxValue) * 100)
+                    metricColor: systemStatsInstance.hasErrors ? Config.Material.colors.error : parent.getColorForUsage((value / maxValue) * 100)
                     isActive: (value / maxValue) > 0.8
+                    hasError: systemStatsInstance.hasErrors
                 }
                 
                 // Disk Indicator
@@ -487,9 +563,10 @@ ShellRoot {
                     value: systemService?.diskFreeGB || 0
                     maxValue: systemService?.diskTotalGB || 100
                     unit: "GB"
-                    metricColor: parent.getColorForDiskUsage(systemService?.diskUsage || 0)
+                    metricColor: systemStatsInstance.hasErrors ? Config.Material.colors.error : parent.getColorForDiskUsage(systemService?.diskUsage || 0)
                     isActive: (systemService?.diskUsage || 0) > 80
                     isDiskIndicator: true
+                    hasError: systemStatsInstance.hasErrors
                 }
                 
                 // Network Indicator
@@ -498,8 +575,9 @@ ShellRoot {
                     value: (systemService?.networkDownload || 0) + (systemService?.networkUpload || 0)
                     maxValue: 10240 // 10 MB/s max for scaling
                     unit: "KB/s"
-                    metricColor: parent.getNetworkColor()
+                    metricColor: systemStatsInstance.hasErrors ? Config.Material.colors.error : parent.getNetworkColor()
                     isActive: value > 1024 // Active when > 1MB/s
+                    hasError: systemStatsInstance.hasErrors
                 }
                 
                 // System Tray
@@ -540,33 +618,45 @@ ShellRoot {
             border.width: isFocused ? 2 : 0
             border.color: Config.Material.colors.primary
             
-            // Drop shadow effect for active workspaces
+            // Material 3 elevation shadow for active workspaces
             Rectangle {
                 anchors.centerIn: parent
                 width: parent.width + 2
                 height: parent.height + 2
                 radius: parent.radius + 1
-                color: "#000000"
-                opacity: isActive ? 0.2 : 0
+                color: Config.Material.elevation.shadowColor
+                opacity: isActive ? (Config.Material.elevation.shadowOpacity * 0.7) : 0
                 z: -1
                 visible: opacity > 0
                 
                 Behavior on opacity {
-                    NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                    NumberAnimation { 
+                        duration: Config.Material.animation.durationShort3
+                        easing.type: Easing.OutCubic 
+                    }
                 }
             }
             
-            // Smooth transitions for container
+            // Material 3 motion system transitions for container
             Behavior on color {
-                ColorAnimation { duration: 200; easing.type: Easing.OutCubic }
+                ColorAnimation { 
+                    duration: Config.Material.animation.durationShort4
+                    easing.type: Easing.OutCubic 
+                }
             }
             
             Behavior on width {
-                NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+                NumberAnimation { 
+                    duration: Config.Material.animation.durationMedium1
+                    easing.type: Easing.OutCubic 
+                }
             }
             
             Behavior on border.width {
-                NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                NumberAnimation { 
+                    duration: Config.Material.animation.durationShort3
+                    easing.type: Easing.OutCubic 
+                }
             }
             
             // Window dots container
@@ -588,11 +678,17 @@ ShellRoot {
                     opacity: isActive ? 0.9 : 0.6
                     
                     Behavior on border.color {
-                        ColorAnimation { duration: 150; easing.type: Easing.OutCubic }
+                        ColorAnimation { 
+                            duration: Config.Material.animation.durationShort3
+                            easing.type: Easing.OutCubic 
+                        }
                     }
                     
                     Behavior on opacity {
-                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                        NumberAnimation { 
+                            duration: Config.Material.animation.durationShort3
+                            easing.type: Easing.OutCubic 
+                        }
                     }
                 }
                 
@@ -621,33 +717,33 @@ ShellRoot {
                             // Gradient effect for overflow dot
                             opacity: isOverflowDot ? 0.3 : 1.0
                             
-                            // Smooth transitions
+                            // Material 3 motion system transitions
                             Behavior on color {
                                 ColorAnimation { 
-                                    duration: 200; 
+                                    duration: Config.Material.animation.durationShort4
                                     easing.type: Easing.OutCubic 
                                 }
                             }
                             
                             Behavior on opacity {
                                 NumberAnimation { 
-                                    duration: 200; 
+                                    duration: Config.Material.animation.durationShort4
                                     easing.type: Easing.OutCubic 
                                 }
                             }
                             
-                            // Gentle breathing animation for active workspace only
+                            // Material 3 breathing animation for active workspace only
                             SequentialAnimation on scale {
                                 running: isActive && !isOverflowDot && windowCount > 0
                                 loops: Animation.Infinite
                                 NumberAnimation { 
-                                    to: 1.05; 
-                                    duration: 1200; 
+                                    to: 1.05
+                                    duration: Config.Material.animation.durationLong4 * 2  // 1200ms breathing rhythm
                                     easing.type: Easing.InOutSine 
                                 }
                                 NumberAnimation { 
-                                    to: 1.0; 
-                                    duration: 1200; 
+                                    to: 1.0
+                                    duration: Config.Material.animation.durationLong4 * 2  // 1200ms breathing rhythm
                                     easing.type: Easing.InOutSine 
                                 }
                             }
@@ -677,7 +773,7 @@ ShellRoot {
                     id: elevationAnimation
                     target: parent.parent // target the shadow rectangle
                     property: "opacity"
-                    duration: 150
+                    duration: Config.Material.animation.durationShort3
                     easing.type: Easing.OutCubic
                 }
                 
@@ -688,7 +784,7 @@ ShellRoot {
                     width: 0
                     height: 0
                     radius: width / 2
-                    color: "#a6c8ff" // primary
+                    color: Config.Material.colors.primary
                     opacity: 0
                     
                     ParallelAnimation {
@@ -698,7 +794,7 @@ ShellRoot {
                             properties: "width,height"
                             from: 0
                             to: mouseArea.width * 1.5
-                            duration: 200
+                            duration: Config.Material.animation.durationShort4
                             easing.type: Easing.OutCubic
                         }
                         SequentialAnimation {
@@ -707,14 +803,14 @@ ShellRoot {
                                 property: "opacity"
                                 from: 0
                                 to: 0.3
-                                duration: 50
+                                duration: Config.Material.animation.durationShort1
                             }
                             NumberAnimation {
                                 target: ripple
                                 property: "opacity"
                                 from: 0.3
                                 to: 0
-                                duration: 150
+                                duration: Config.Material.animation.durationShort3
                             }
                         }
                     }
@@ -733,15 +829,16 @@ ShellRoot {
             property color metricColor: Config.Material.colors.primary
             property bool isActive: false
             property bool isDiskIndicator: false
+            property bool hasError: false
             
             width: Config.Device.config.systemCardWidth || 52
-            height: 24
+            height: Config.Device.config.workspaceSize  // Match workspace indicator height
             radius: Config.Material.rounding.medium
             
             // Proper Material 3 background with contrast
             color: Config.Material.colors.surfaceContainer
-            border.width: isActive ? 1 : 0
-            border.color: isActive ? metricColor : "transparent"
+            border.width: (isActive || hasError) ? 1 : 0
+            border.color: hasError ? Config.Material.colors.error : (isActive ? metricColor : "transparent")
             
             // Subtle elevation shadow for depth
             Rectangle {
@@ -756,7 +853,7 @@ ShellRoot {
             
             Row {
                 anchors.centerIn: parent
-                spacing: 3
+                spacing: Config.Material.spacing.sm  // Better spacing between icon and text
                 
                 // Icon text (Nerd Font)
                 Text {
@@ -770,70 +867,75 @@ ShellRoot {
                 // Value text  
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
-                    text: isDiskIndicator ? 
+                    text: hasError ? "!" : (isDiskIndicator ? 
                         value.toFixed(0) + unit : 
-                        value.toFixed(0) + unit
-                    color: Config.Material.colors.surfaceText
+                        value.toFixed(0) + unit)
+                    color: hasError ? Config.Material.colors.error : Config.Material.colors.surfaceText
                     font.pixelSize: Config.Material.typography.labelSmall.size
                     font.family: Config.Material.typography.fontFamily
                     font.weight: Config.Material.typography.labelSmall.weight
                 }
             }
             
-            // Hover effects and animations to match workspace indicators
+            // Interactive hover effects
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
                 
                 onEntered: {
                     parent.scale = 1.05
+                    parent.color = Config.Material.colors.surfaceContainerHigh
                 }
                 
                 onExited: {
                     parent.scale = 1.0
+                    parent.color = Config.Material.colors.surfaceContainer
                 }
             }
             
-            // Hover effects
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                
-                onEntered: {
-                    parent.scale = 1.05
-                }
-                
-                onExited: {
-                    parent.scale = 1.0
-                }
-            }
-            
-            // Smooth transitions
+            // Material 3 motion system transitions
             Behavior on scale {
-                NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                NumberAnimation { 
+                    duration: Config.Material.animation.durationShort3
+                    easing.type: Easing.OutCubic 
+                }
             }
             
             Behavior on color {
-                ColorAnimation { duration: 200; easing.type: Easing.OutCubic }
+                ColorAnimation { 
+                    duration: Config.Material.animation.durationShort4
+                    easing.type: Easing.OutCubic 
+                }
             }
             
             Behavior on border.color {
-                ColorAnimation { duration: 200; easing.type: Easing.OutCubic }
+                ColorAnimation { 
+                    duration: Config.Material.animation.durationShort4
+                    easing.type: Easing.OutCubic 
+                }
             }
             
-            // Subtle breathing animation when active
+            // Material 3 breathing animation when active or error pulsing
             SequentialAnimation on opacity {
-                running: isActive
+                running: isActive || hasError
                 loops: Animation.Infinite
-                NumberAnimation { to: 0.8; duration: 1500; easing.type: Easing.InOutSine }
-                NumberAnimation { to: 1.0; duration: 1500; easing.type: Easing.InOutSine }
+                NumberAnimation { 
+                    to: hasError ? 0.6 : 0.8  // More pronounced pulse for errors
+                    duration: hasError ? Config.Material.animation.durationMedium2 : Config.Material.animation.durationLong4 * 2.5
+                    easing.type: Easing.InOutSine 
+                }
+                NumberAnimation { 
+                    to: 1.0
+                    duration: hasError ? Config.Material.animation.durationMedium2 : Config.Material.animation.durationLong4 * 2.5
+                    easing.type: Easing.InOutSine 
+                }
             }
         }
         
         // Material 3 System Tray Component
         component SystemTray: Rectangle {
             implicitWidth: Math.max(Config.Device.config.systemCardWidth || 60, layout.implicitWidth + Config.Material.spacing.md)
-            height: Config.Device.config.barHeight - 8
+            height: Config.Device.config.workspaceSize  // Match workspace and system monitor height
             radius: Config.Material.rounding.medium
             
             // Material 3 surface container background
