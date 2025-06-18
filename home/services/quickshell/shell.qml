@@ -5,6 +5,8 @@ import QtQuick.Controls.Material
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
+import Quickshell.Widgets
+import Quickshell.Services.SystemTray
 import "./config" as Config
 
 ShellRoot {
@@ -499,6 +501,12 @@ ShellRoot {
                     metricColor: parent.getNetworkColor()
                     isActive: value > 1024 // Active when > 1MB/s
                 }
+                
+                // System Tray
+                SystemTray {
+                    id: systemTray
+                    anchors.verticalCenter: parent.verticalCenter
+                }
             }
         }
         
@@ -819,6 +827,262 @@ ShellRoot {
                 loops: Animation.Infinite
                 NumberAnimation { to: 0.8; duration: 1500; easing.type: Easing.InOutSine }
                 NumberAnimation { to: 1.0; duration: 1500; easing.type: Easing.InOutSine }
+            }
+        }
+        
+        // Material 3 System Tray Component
+        component SystemTray: Rectangle {
+            implicitWidth: Math.max(Config.Device.config.systemCardWidth || 60, layout.implicitWidth + Config.Material.spacing.md)
+            height: Config.Device.config.barHeight - 8
+            radius: Config.Material.rounding.medium
+            
+            // Material 3 surface container background
+            color: Config.Material.colors.surfaceContainer
+            border.width: 0
+            
+            // Only show when tray items are present
+            visible: layout.children.length > 0
+            
+            // Subtle elevation shadow for depth
+            Rectangle {
+                anchors.centerIn: parent
+                width: parent.width + 2
+                height: parent.height + 2
+                radius: parent.radius + 1
+                color: Config.Material.elevation.shadowColor
+                opacity: Config.Material.elevation.shadowOpacity * 0.4
+                z: -1
+            }
+            
+            // Scrollable content area for overflow handling
+            Flickable {
+                id: flickable
+                anchors.fill: parent
+                anchors.margins: Config.Material.spacing.xs
+                contentWidth: layout.implicitWidth
+                contentHeight: height
+                
+                // Horizontal scrolling only
+                boundsBehavior: Flickable.StopAtBounds
+                flickableDirection: Flickable.HorizontalFlick
+                
+                // Smooth scrolling behavior
+                maximumFlickVelocity: 2000
+                flickDeceleration: 1000
+                
+                Row {
+                    id: layout
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 2
+                    
+                    // Smooth addition animation using Material 3 timing
+                    add: Transition {
+                        ParallelAnimation {
+                            NumberAnimation {
+                                properties: "scale"
+                                from: 0
+                                to: 1
+                                duration: Config.Material.animation.durationMedium2
+                                easing.type: Easing.OutCubic
+                            }
+                            NumberAnimation {
+                                properties: "opacity"
+                                from: 0
+                                to: 1
+                                duration: Config.Material.animation.durationMedium2
+                                easing.type: Easing.OutCubic
+                            }
+                        }
+                    }
+                    
+                    Repeater {
+                        model: SystemTray.items
+                        
+                        delegate: TrayIcon {
+                            required property SystemTrayItem modelData
+                            trayItem: modelData
+                        }
+                    }
+                }
+            }
+            
+            // Smooth width animation using Material 3 timing
+            Behavior on implicitWidth {
+                NumberAnimation { 
+                    duration: Config.Material.animation.durationMedium1
+                    easing.type: Easing.OutCubic
+                }
+            }
+            
+            // Container hover effect
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                propagateComposedEvents: true
+                z: -1
+                
+                onEntered: {
+                    parent.color = Config.Material.colors.surfaceContainerHigh
+                }
+                
+                onExited: {
+                    parent.color = Config.Material.colors.surfaceContainer
+                }
+            }
+            
+            // Smooth container color transitions
+            Behavior on color {
+                ColorAnimation { 
+                    duration: Config.Material.animation.durationShort3
+                    easing.type: Easing.OutCubic
+                }
+            }
+        }
+        
+        // Individual System Tray Icon Component
+        component TrayIcon: Rectangle {
+            property SystemTrayItem trayItem: null
+            
+            width: Config.Device.config.iconSize + Config.Material.spacing.xs
+            height: Config.Device.config.iconSize + Config.Material.spacing.xs
+            radius: Config.Material.rounding.small
+            
+            // Material 3 state layer background
+            color: {
+                if (mouseArea.pressed) return Config.Material.colors.pressed
+                if (mouseArea.containsMouse) return Config.Material.colors.hover
+                return "transparent"
+            }
+            
+            // Tray icon image
+            Image {
+                id: trayIconImage
+                anchors.centerIn: parent
+                width: Config.Device.config.iconSize
+                height: Config.Device.config.iconSize
+                
+                // Critical icon path processing (required for QuickShell SystemTray)
+                source: {
+                    if (!trayItem) return ""
+                    let icon = trayItem.icon || ""
+                    if (icon.includes("?path=")) {
+                        const parts = icon.split("?path=")
+                        const name = parts[0]
+                        const path = parts[1]
+                        icon = `file://${path}/${name.slice(name.lastIndexOf("/") + 1)}`
+                    }
+                    return icon
+                }
+                
+                fillMode: Image.PreserveAspectFit
+                smooth: true
+                asynchronous: true
+                
+                // Material 3 interaction feedback
+                opacity: mouseArea.pressed ? 0.8 : 1.0
+                scale: mouseArea.pressed ? 0.95 : 1.0
+                
+                Behavior on opacity {
+                    NumberAnimation { 
+                        duration: Config.Material.animation.durationShort3
+                        easing.type: Easing.OutCubic
+                    }
+                }
+                
+                Behavior on scale {
+                    NumberAnimation { 
+                        duration: Config.Material.animation.durationShort3
+                        easing.type: Easing.OutCubic
+                    }
+                }
+            }
+            
+            // Mouse interaction handling
+            MouseArea {
+                id: mouseArea
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                hoverEnabled: true
+                
+                onClicked: function(mouse) {
+                    if (!trayItem) return
+                    
+                    if (mouse.button === Qt.LeftButton) {
+                        // Primary activation (left click)
+                        trayItem.activate()
+                    } else if (mouse.button === Qt.RightButton) {
+                        // Context menu (right click)
+                        if (trayItem.hasMenu) {
+                            contextMenu.open()
+                        }
+                    }
+                }
+                
+                // Material 3 ripple effect on click
+                onPressed: {
+                    rippleAnimation.start()
+                }
+            }
+            
+            // Material 3 styled context menu
+            QsMenuAnchor {
+                id: contextMenu
+                menu: trayItem?.menu
+                anchor.window: this.QsWindow.window
+                anchor.rect {
+                    x: parent.mapToItem(null, 0, 0).x + parent.width / 2
+                    y: parent.mapToItem(null, 0, 0).y + parent.height + Config.Material.spacing.xs
+                    width: 0
+                    height: 0
+                }
+            }
+            
+            // Click ripple effect
+            Rectangle {
+                id: ripple
+                anchors.centerIn: parent
+                width: 0
+                height: 0
+                radius: width / 2
+                color: Config.Material.colors.primary
+                opacity: 0
+                z: -1
+                
+                ParallelAnimation {
+                    id: rippleAnimation
+                    NumberAnimation {
+                        target: ripple
+                        properties: "width,height"
+                        from: 0
+                        to: parent.width * 1.5
+                        duration: Config.Material.animation.durationShort4
+                        easing.type: Easing.OutCubic
+                    }
+                    SequentialAnimation {
+                        NumberAnimation {
+                            target: ripple
+                            property: "opacity"
+                            from: 0
+                            to: 0.2
+                            duration: Config.Material.animation.durationShort2
+                        }
+                        NumberAnimation {
+                            target: ripple
+                            property: "opacity"
+                            from: 0.2
+                            to: 0
+                            duration: Config.Material.animation.durationShort3
+                        }
+                    }
+                }
+            }
+            
+            // Smooth state layer transitions
+            Behavior on color {
+                ColorAnimation { 
+                    duration: Config.Material.animation.durationShort3
+                    easing.type: Easing.OutCubic
+                }
             }
         }
     }
