@@ -1,9 +1,9 @@
 # 🌟 Lumin Bar - Final Handoff Document
 
 **Project:** Lumin - Material 3 Quickshell Bar for Niri  
-**Status:** ✅ **PRODUCTION READY** - Core functionality complete with enhanced system monitoring  
-**Date:** June 17, 2025  
-**Version:** v1.2 - Enhanced System Monitoring & Design Token Integration
+**Status:** ✅ **PRODUCTION READY** - Core functionality complete with enhanced system monitoring & audio controls  
+**Date:** June 18, 2025  
+**Version:** v1.3 - Audio Control Widget Integration
 
 ## 🎯 **What We've Built**
 
@@ -11,6 +11,7 @@
 - **Smart dot matrix workspace indicators** with real-time window count visualization
 - **Perfect center-aligned clock** that never moves regardless of workspace changes
 - **Comprehensive system monitoring** with CPU, Memory, Disk, and Network indicators
+- **🎵 Advanced Audio Control Widget** with expandable popup, device detection, and mini level indicators
 - **Material 3 design system** with beautiful animations and design tokens
 - **Custom Niri IPC integration** providing real-time workspace and window data
 - **Device-responsive design** that adapts between MacBook and Desktop displays
@@ -22,11 +23,12 @@
 
 ```
 /etc/nixos/home/services/quickshell/
-├── shell.qml                    # 🏠 Main entry point with integrated system monitoring
+├── shell.qml                    # 🏠 Main entry point with integrated system monitoring & audio controls
 ├── default.nix                  # 📦 NixOS/Home Manager integration
 ├── services/
 │   ├── NiriIPC.qml             # 🔌 Complete Niri IPC service
 │   ├── SystemStats.qml         # 📊 System monitoring service (legacy)
+│   ├── AudioService.qml        # 🎵 PipeWire/wpctl audio control service
 │   └── qmldir                  # Service module definitions  
 ├── config/                     # 🎨 **DESIGN TOKEN SYSTEM** 
 │   ├── Material.qml            # 🎨 Material 3 design tokens (MUST USE)
@@ -180,6 +182,25 @@ Config.Device.config.iconSize           // 20px MacBook, 24px Desktop
 - **Event streaming**: Persistent connection with automatic reconnection
 - **Sequential processing**: Queue-based system prevents flickering
 - **Error resilience**: Graceful handling of Niri restarts and connection failures
+
+### **6. Advanced Audio Control Widget** 🎵
+- **🎧 Smart Device Detection**: Automatic detection of speakers, headphones, Bluetooth devices
+- **📊 Mini Audio Level Indicators**: 3 animated bars showing real-time audio levels (the "SICK" feature!)
+- **🎚️ Interactive Volume Control**: Scroll wheel volume adjustment directly on widget
+- **🔇 Quick Mute Toggle**: Right-click for instant mute/unmute
+- **🖱️ Expandable Popup**: Left-click opens rich LayerShell popup with full controls
+- **🎛️ Volume Slider**: Click-to-set volume control in popup
+- **🔊 Device Information**: Shows current audio device (e.g., "HDMI Audio", "Headphones")
+- **🎨 Material 3 Styling**: Beautiful animations, proper color coding, design token compliance
+- **⌨️ Multiple Close Methods**: Escape key, click outside, auto-hide timer
+- **🔧 PipeWire Integration**: Modern audio system support via wpctl commands
+
+**Audio Widget Features:**
+- **Compact Mode**: Volume %, device icon, animated level bars
+- **Popup Mode**: Full audio controls in separate LayerShell window
+- **Device Types**: Speaker 󰕾, Headphone 󰋋, Bluetooth 󰂯 icons
+- **Mute Indication**: Red border and strikethrough effect when muted
+- **Position**: Located after network indicator in system monitoring section
 
 ---
 
@@ -582,19 +603,19 @@ systemCardWidth: 64  // Was 80px
 
 ---
 
-**🎉 Lumin v1.2 - Enhanced with System Monitoring & Design Token Integration!**
+**🎉 Lumin v1.3 - Enhanced with Advanced Audio Control Widget!**
 
-**The bar is beautiful, functional, and uses a professional design token system!** 🌟
+**The bar is beautiful, functional, and now includes professional audio controls with PipeWire integration!** 🌟
 
 ### **🌟 Current Visual Experience**
 
 ```
-[●●●●] [●●] [○] [●●●●●]        🕐 14:23        󰻠 15%  󰍛 8GB  󰋊 45GB  󰛳 89KB/s
+[●●●●] [●●] [○] [●●●●●]        🕐 14:23        󰻠 15%  󰍛 8GB  󰋊 45GB  󰛳 89KB/s  󰕾 20% |||
 ```
 
 - **Left**: Smart workspace indicators with Material 3 styling
-- **Center**: Perfect centered clock with design token typography
-- **Right**: Comprehensive system monitoring with Nerd Font icons
+- **Center**: Perfect centered clock with design token typography  
+- **Right**: Comprehensive system monitoring + **Audio widget with mini level bars** and Nerd Font icons
 
 ### **🎯 Key Achievements**
 

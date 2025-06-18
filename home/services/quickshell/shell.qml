@@ -8,13 +8,27 @@ import Quickshell.Io
 import Quickshell.Widgets
 import Quickshell.Services.SystemTray
 import "./config" as Config
+import "./services" as Services
 
 ShellRoot {
     id: shellRoot
+    
+    // Global audio popup state
+    property bool audioPopupVisible: false
 
     // Configure Material 3 globally
     Material.theme: Material.Dark
     Material.accent: Material.Blue
+
+    // Create AudioService instance directly
+    Services.AudioService {
+        id: audioService
+        
+        Component.onCompleted: {
+            console.log("Lumin: AudioService loaded directly")
+        }
+    }
+    
 
     // Create SystemStats instance directly
     Item {
@@ -437,6 +451,12 @@ ShellRoot {
         }
     }
 
+
+
+
+
+
+
     // Simple bar window
     PanelWindow {
         id: panelWindow
@@ -460,15 +480,13 @@ ShellRoot {
             anchors.fill: parent
             niriIPC: niriService
         }
-
-        // Component definition
+        
         component MainBar: Rectangle {
             property var niriIPC: null
             
             anchors.fill: parent
-            color: Config.Material.colors.surface // Use Material 3 surface color
+            color: Config.Material.colors.surface
             
-            // Left section - Workspaces (absolute positioning)
             Row {
                 id: leftSection
                 anchors.left: parent.left
@@ -482,7 +500,6 @@ ShellRoot {
                     WorkspaceIndicator {
                         workspace: modelData
                         workspaceWindows: {
-                            // Filter windows that belong to this workspace
                             if (!niriIPC?.windows || !modelData) return []
                             return niriIPC.windows.filter(window => 
                                 window.workspace_id === modelData.id
@@ -499,7 +516,6 @@ ShellRoot {
                 }
             }
             
-            // Center section - Clock (absolutely centered, ignores side content)
             Text {
                 anchors.centerIn: parent
                 text: Qt.formatDateTime(niriIPC?.currentTime || new Date(), "hh:mm")
@@ -509,7 +525,6 @@ ShellRoot {
                 font.family: Config.Material.typography.fontFamily
             }
             
-            // Right section - System monitoring (absolute positioning)
             Row {
                 id: systemMonitor
                 anchors.right: parent.right
@@ -517,7 +532,6 @@ ShellRoot {
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: Config.Material.spacing.sm
                 
-                // Helper functions for dynamic colors
                 function getColorForUsage(usage) {
                     if (usage > 80) return Config.Material.colors.error
                     if (usage > 60) return Config.Material.colors.warning
@@ -525,7 +539,6 @@ ShellRoot {
                 }
                 
                 function getColorForDiskUsage(usage) {
-                    // For disk, we want to show free space, so invert the logic
                     if (usage > 90) return Config.Material.colors.error
                     if (usage > 75) return Config.Material.colors.warning
                     return Config.Material.colors.success
@@ -535,9 +548,8 @@ ShellRoot {
                     return Config.Material.colors.info
                 }
                 
-                // CPU Indicator
                 SystemMetric {
-                    label: "󰻠" // Nerd Font CPU icon
+                    label: "󰻠"
                     value: systemService?.cpuUsage || 0
                     maxValue: 100
                     unit: "%"
@@ -546,9 +558,8 @@ ShellRoot {
                     hasError: systemStatsInstance.hasErrors
                 }
                 
-                // Memory Indicator  
                 SystemMetric {
-                    label: "󰍛" // Nerd Font Memory icon
+                    label: "󰍛"
                     value: systemService?.memoryUsedGB || 0
                     maxValue: systemService?.memoryTotalGB || 16
                     unit: "GB"
@@ -557,9 +568,8 @@ ShellRoot {
                     hasError: systemStatsInstance.hasErrors
                 }
                 
-                // Disk Indicator
                 SystemMetric {
-                    label: "󰋊" // Nerd Font Disk icon
+                    label: "󰋊"
                     value: systemService?.diskFreeGB || 0
                     maxValue: systemService?.diskTotalGB || 100
                     unit: "GB"
@@ -569,18 +579,20 @@ ShellRoot {
                     hasError: systemStatsInstance.hasErrors
                 }
                 
-                // Network Indicator
                 SystemMetric {
-                    label: "󰛳" // Nerd Font Network icon
+                    label: "󰛳"
                     value: (systemService?.networkDownload || 0) + (systemService?.networkUpload || 0)
-                    maxValue: 10240 // 10 MB/s max for scaling
+                    maxValue: 10240
                     unit: "KB/s"
                     metricColor: systemStatsInstance.hasErrors ? Config.Material.colors.error : parent.getNetworkColor()
-                    isActive: value > 1024 // Active when > 1MB/s
+                    isActive: value > 1024
                     hasError: systemStatsInstance.hasErrors
                 }
                 
-                // System Tray
+                AudioControlWidget {
+                    audioSvc: audioService
+                }
+                
                 SystemTray {
                     id: systemTray
                     anchors.verticalCenter: parent.verticalCenter
@@ -588,7 +600,6 @@ ShellRoot {
             }
         }
         
-        // Clean Dot Matrix Workspace Indicator - Window Count Only
         component WorkspaceIndicator: Rectangle {
             property var workspace: null
             property bool isActive: workspace?.is_active || false
@@ -597,7 +608,6 @@ ShellRoot {
             
             signal clicked()
             
-            // Dynamic sizing based on window count
             readonly property int windowCount: workspaceWindows.length
             readonly property int maxVisibleDots: 5
             readonly property int visibleDots: Math.min(windowCount, maxVisibleDots)
@@ -607,18 +617,15 @@ ShellRoot {
             height: Config.Device.config.workspaceSize
             radius: Config.Material.rounding.medium
             
-            // Beautiful Material 3 colors
             color: {
                 if (isActive) return Config.Material.colors.primaryContainer
                 if (mouseArea.containsMouse) return Config.Material.colors.surfaceContainerHigh  
                 return Config.Material.colors.surfaceContainer
             }
             
-            // Focus border
             border.width: isFocused ? 2 : 0
             border.color: Config.Material.colors.primary
             
-            // Material 3 elevation shadow for active workspaces
             Rectangle {
                 anchors.centerIn: parent
                 width: parent.width + 2
@@ -637,7 +644,6 @@ ShellRoot {
                 }
             }
             
-            // Material 3 motion system transitions for container
             Behavior on color {
                 ColorAnimation { 
                     duration: Config.Material.animation.durationShort4
@@ -659,13 +665,11 @@ ShellRoot {
                 }
             }
             
-            // Window dots container
             Item {
                 anchors.centerIn: parent
                 width: parent.width - 8
                 height: parent.height
                 
-                // Empty state - hollow circle
                 Rectangle {
                     anchors.centerIn: parent
                     width: 5
@@ -692,7 +696,6 @@ ShellRoot {
                     }
                 }
                 
-                // Window dots
                 Row {
                     anchors.centerIn: parent
                     spacing: 2
@@ -714,10 +717,8 @@ ShellRoot {
                                 return Config.Material.colors.outline
                             }
                             
-                            // Gradient effect for overflow dot
                             opacity: isOverflowDot ? 0.3 : 1.0
                             
-                            // Material 3 motion system transitions
                             Behavior on color {
                                 ColorAnimation { 
                                     duration: Config.Material.animation.durationShort4
@@ -732,18 +733,17 @@ ShellRoot {
                                 }
                             }
                             
-                            // Material 3 breathing animation for active workspace only
                             SequentialAnimation on scale {
                                 running: isActive && !isOverflowDot && windowCount > 0
                                 loops: Animation.Infinite
                                 NumberAnimation { 
                                     to: 1.05
-                                    duration: Config.Material.animation.durationLong4 * 2  // 1200ms breathing rhythm
+                                    duration: Config.Material.animation.durationLong4 * 2
                                     easing.type: Easing.InOutSine 
                                 }
                                 NumberAnimation { 
                                     to: 1.0
-                                    duration: Config.Material.animation.durationLong4 * 2  // 1200ms breathing rhythm
+                                    duration: Config.Material.animation.durationLong4 * 2
                                     easing.type: Easing.InOutSine 
                                 }
                             }
@@ -752,75 +752,14 @@ ShellRoot {
                 }
             }
             
-            // Interactive area
             MouseArea {
                 id: mouseArea
                 anchors.fill: parent
                 hoverEnabled: true
                 onClicked: parent.clicked()
-                
-                // Hover elevation effect
-                onEntered: {
-                    elevationAnimation.to = 4
-                    elevationAnimation.start()
-                }
-                onExited: {
-                    elevationAnimation.to = isActive ? 2 : 1
-                    elevationAnimation.start()
-                }
-                
-                NumberAnimation {
-                    id: elevationAnimation
-                    target: parent.parent // target the shadow rectangle
-                    property: "opacity"
-                    duration: Config.Material.animation.durationShort3
-                    easing.type: Easing.OutCubic
-                }
-                
-                // Click ripple effect
-                Rectangle {
-                    id: ripple
-                    anchors.centerIn: parent
-                    width: 0
-                    height: 0
-                    radius: width / 2
-                    color: Config.Material.colors.primary
-                    opacity: 0
-                    
-                    ParallelAnimation {
-                        id: rippleAnimation
-                        NumberAnimation {
-                            target: ripple
-                            properties: "width,height"
-                            from: 0
-                            to: mouseArea.width * 1.5
-                            duration: Config.Material.animation.durationShort4
-                            easing.type: Easing.OutCubic
-                        }
-                        SequentialAnimation {
-                            NumberAnimation {
-                                target: ripple
-                                property: "opacity"
-                                from: 0
-                                to: 0.3
-                                duration: Config.Material.animation.durationShort1
-                            }
-                            NumberAnimation {
-                                target: ripple
-                                property: "opacity"
-                                from: 0.3
-                                to: 0
-                                duration: Config.Material.animation.durationShort3
-                            }
-                        }
-                    }
-                }
-                
-                onPressed: rippleAnimation.start()
             }
         }
         
-        // Component for individual system metrics
         component SystemMetric: Rectangle {
             property string label: ""
             property real value: 0
@@ -832,15 +771,13 @@ ShellRoot {
             property bool hasError: false
             
             width: Config.Device.config.systemCardWidth || 52
-            height: Config.Device.config.workspaceSize  // Match workspace indicator height
+            height: Config.Device.config.workspaceSize
             radius: Config.Material.rounding.medium
             
-            // Proper Material 3 background with contrast
             color: Config.Material.colors.surfaceContainer
             border.width: (isActive || hasError) ? 1 : 0
             border.color: hasError ? Config.Material.colors.error : (isActive ? metricColor : "transparent")
             
-            // Subtle elevation shadow for depth
             Rectangle {
                 anchors.centerIn: parent
                 width: parent.width + 2
@@ -853,9 +790,8 @@ ShellRoot {
             
             Row {
                 anchors.centerIn: parent
-                spacing: Config.Material.spacing.sm  // Better spacing between icon and text
+                spacing: Config.Material.spacing.sm
                 
-                // Icon text (Nerd Font)
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: label
@@ -864,7 +800,6 @@ ShellRoot {
                     font.family: Config.Material.typography.monoFamily
                 }
                 
-                // Value text  
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: hasError ? "!" : (isDiskIndicator ? 
@@ -877,7 +812,6 @@ ShellRoot {
                 }
             }
             
-            // Interactive hover effects
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
@@ -893,7 +827,6 @@ ShellRoot {
                 }
             }
             
-            // Material 3 motion system transitions
             Behavior on scale {
                 NumberAnimation { 
                     duration: Config.Material.animation.durationShort3
@@ -907,45 +840,18 @@ ShellRoot {
                     easing.type: Easing.OutCubic 
                 }
             }
-            
-            Behavior on border.color {
-                ColorAnimation { 
-                    duration: Config.Material.animation.durationShort4
-                    easing.type: Easing.OutCubic 
-                }
-            }
-            
-            // Material 3 breathing animation when active or error pulsing
-            SequentialAnimation on opacity {
-                running: isActive || hasError
-                loops: Animation.Infinite
-                NumberAnimation { 
-                    to: hasError ? 0.6 : 0.8  // More pronounced pulse for errors
-                    duration: hasError ? Config.Material.animation.durationMedium2 : Config.Material.animation.durationLong4 * 2.5
-                    easing.type: Easing.InOutSine 
-                }
-                NumberAnimation { 
-                    to: 1.0
-                    duration: hasError ? Config.Material.animation.durationMedium2 : Config.Material.animation.durationLong4 * 2.5
-                    easing.type: Easing.InOutSine 
-                }
-            }
         }
         
-        // Material 3 System Tray Component
         component SystemTray: Rectangle {
             implicitWidth: Math.max(Config.Device.config.systemCardWidth || 60, layout.implicitWidth + Config.Material.spacing.md)
-            height: Config.Device.config.workspaceSize  // Match workspace and system monitor height
+            height: Config.Device.config.workspaceSize
             radius: Config.Material.rounding.medium
             
-            // Material 3 surface container background
             color: Config.Material.colors.surfaceContainer
             border.width: 0
             
-            // Only show when tray items are present
             visible: layout.children.length > 0
             
-            // Subtle elevation shadow for depth
             Rectangle {
                 anchors.centerIn: parent
                 width: parent.width + 2
@@ -956,7 +862,6 @@ ShellRoot {
                 z: -1
             }
             
-            // Scrollable content area for overflow handling
             Flickable {
                 id: flickable
                 anchors.fill: parent
@@ -964,11 +869,9 @@ ShellRoot {
                 contentWidth: layout.implicitWidth
                 contentHeight: height
                 
-                // Horizontal scrolling only
                 boundsBehavior: Flickable.StopAtBounds
                 flickableDirection: Flickable.HorizontalFlick
                 
-                // Smooth scrolling behavior
                 maximumFlickVelocity: 2000
                 flickDeceleration: 1000
                 
@@ -977,7 +880,6 @@ ShellRoot {
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 2
                     
-                    // Smooth addition animation using Material 3 timing
                     add: Transition {
                         ParallelAnimation {
                             NumberAnimation {
@@ -1008,40 +910,14 @@ ShellRoot {
                 }
             }
             
-            // Smooth width animation using Material 3 timing
             Behavior on implicitWidth {
                 NumberAnimation { 
                     duration: Config.Material.animation.durationMedium1
                     easing.type: Easing.OutCubic
                 }
             }
-            
-            // Container hover effect
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                propagateComposedEvents: true
-                z: -1
-                
-                onEntered: {
-                    parent.color = Config.Material.colors.surfaceContainerHigh
-                }
-                
-                onExited: {
-                    parent.color = Config.Material.colors.surfaceContainer
-                }
-            }
-            
-            // Smooth container color transitions
-            Behavior on color {
-                ColorAnimation { 
-                    duration: Config.Material.animation.durationShort3
-                    easing.type: Easing.OutCubic
-                }
-            }
         }
         
-        // Individual System Tray Icon Component
         component TrayIcon: Rectangle {
             property SystemTrayItem trayItem: null
             
@@ -1049,21 +925,18 @@ ShellRoot {
             height: Config.Device.config.iconSize + Config.Material.spacing.xs
             radius: Config.Material.rounding.small
             
-            // Material 3 state layer background
             color: {
                 if (mouseArea.pressed) return Config.Material.colors.pressed
                 if (mouseArea.containsMouse) return Config.Material.colors.hover
                 return "transparent"
             }
             
-            // Tray icon image
             Image {
                 id: trayIconImage
                 anchors.centerIn: parent
                 width: Config.Device.config.iconSize
                 height: Config.Device.config.iconSize
                 
-                // Critical icon path processing (required for QuickShell SystemTray)
                 source: {
                     if (!trayItem) return ""
                     let icon = trayItem.icon || ""
@@ -1080,7 +953,6 @@ ShellRoot {
                 smooth: true
                 asynchronous: true
                 
-                // Material 3 interaction feedback
                 opacity: mouseArea.pressed ? 0.8 : 1.0
                 scale: mouseArea.pressed ? 0.95 : 1.0
                 
@@ -1099,7 +971,6 @@ ShellRoot {
                 }
             }
             
-            // Mouse interaction handling
             MouseArea {
                 id: mouseArea
                 anchors.fill: parent
@@ -1110,23 +981,15 @@ ShellRoot {
                     if (!trayItem) return
                     
                     if (mouse.button === Qt.LeftButton) {
-                        // Primary activation (left click)
                         trayItem.activate()
                     } else if (mouse.button === Qt.RightButton) {
-                        // Context menu (right click)
                         if (trayItem.hasMenu) {
                             contextMenu.open()
                         }
                     }
                 }
-                
-                // Material 3 ripple effect on click
-                onPressed: {
-                    rippleAnimation.start()
-                }
             }
             
-            // Material 3 styled context menu
             QsMenuAnchor {
                 id: contextMenu
                 menu: trayItem?.menu
@@ -1139,51 +1002,415 @@ ShellRoot {
                 }
             }
             
-            // Click ripple effect
+            Behavior on color {
+                ColorAnimation { 
+                    duration: Config.Material.animation.durationShort3
+                    easing.type: Easing.OutCubic
+                }
+            }
+        }
+        
+        component AudioControlWidget: Item {
+            property var audioSvc: null
+            property bool showingPopup: false
+            
+            width: compactWidget.width
+            height: Config.Device.config.workspaceSize
+            
             Rectangle {
-                id: ripple
-                anchors.centerIn: parent
-                width: 0
-                height: 0
-                radius: width / 2
-                color: Config.Material.colors.primary
-                opacity: 0
-                z: -1
+                id: compactWidget
+                width: Config.Device.config.systemCardWidth || 60
+                height: Config.Device.config.workspaceSize
+                radius: Config.Material.rounding.medium
                 
-                ParallelAnimation {
-                    id: rippleAnimation
-                    NumberAnimation {
-                        target: ripple
-                        properties: "width,height"
-                        from: 0
-                        to: parent.width * 1.5
+                color: {
+                    if (showingPopup) return Config.Material.colors.primaryContainer
+                    if (mouseArea.containsMouse) return Config.Material.colors.surfaceContainerHigh
+                    return Config.Material.colors.surfaceContainer
+                }
+                
+                border.width: audioSvc?.muted ? 2 : 0
+                border.color: Config.Material.colors.error
+                
+                Behavior on color {
+                    ColorAnimation {
                         duration: Config.Material.animation.durationShort4
                         easing.type: Easing.OutCubic
                     }
-                    SequentialAnimation {
-                        NumberAnimation {
-                            target: ripple
-                            property: "opacity"
-                            from: 0
-                            to: 0.2
-                            duration: Config.Material.animation.durationShort2
+                }
+                
+                Behavior on border.width {
+                    NumberAnimation {
+                        duration: Config.Material.animation.durationShort3
+                        easing.type: Easing.OutCubic
+                    }
+                }
+            
+            Rectangle {
+                anchors.centerIn: parent
+                width: parent.width * 0.8
+                height: 2
+                color: Config.Material.colors.error
+                rotation: -15
+                visible: audioSvc?.muted || false
+                opacity: 0.9
+                radius: 1
+            }
+            
+            Rectangle {
+                anchors.centerIn: parent
+                width: parent.width + 2
+                height: parent.height + 2
+                radius: parent.radius + 1
+                color: Config.Material.elevation.shadowColor
+                opacity: Config.Material.elevation.shadowOpacity * 0.5
+                z: -1
+            }
+            
+            Row {
+                anchors.centerIn: parent
+                spacing: Config.Material.spacing.xs
+                
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: {
+                        if (!audioSvc) return "󰕿"
+                        if (audioSvc.muted) return "󰸈"
+                        
+                        switch (audioSvc.currentDeviceType) {
+                            case "headphone": return "󰋋"
+                            case "bluetooth": return "󰂯"
+                            case "speaker":
+                            default: return audioSvc.volume > 0.6 ? "󰕾" : audioSvc.volume > 0.3 ? "󰖀" : "󰕿"
                         }
-                        NumberAnimation {
-                            target: ripple
-                            property: "opacity"
-                            from: 0.2
-                            to: 0
-                            duration: Config.Material.animation.durationShort3
+                    }
+                    color: {
+                        if (!audioSvc) return Config.Material.colors.surfaceVariantText
+                        if (audioSvc.muted) return Config.Material.colors.error
+                        return Config.Material.colors.surfaceText
+                    }
+                    font.pixelSize: Config.Device.config.iconSize || 12
+                    font.family: Config.Material.typography.monoFamily
+                }
+                
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: audioSvc ? `${Math.round(audioSvc.volume * 100)}%` : "-%"
+                    color: {
+                        if (!audioSvc) return Config.Material.colors.surfaceVariantText
+                        if (audioSvc.muted) return Config.Material.colors.error
+                        return Config.Material.colors.surfaceText
+                    }
+                    font.pixelSize: Config.Material.typography.labelSmall.size
+                    font.family: Config.Material.typography.fontFamily
+                    font.weight: Config.Material.typography.labelSmall.weight
+                }
+                
+                Row {
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 1
+                    
+                    Repeater {
+                        model: 3
+                        
+                        Rectangle {
+                            width: 2
+                            height: {
+                                if (!audioSvc || audioSvc.muted) return 2
+                                const level = audioSvc.audioLevel || 0
+                                const barHeight = 2 + (level * (8 - 2)) * (index + 1) / 3
+                                return Math.max(2, Math.min(8, barHeight))
+                            }
+                            radius: 1
+                            color: {
+                                if (!audioSvc || audioSvc.muted) return Config.Material.colors.outlineVariant
+                                const level = audioSvc.audioLevel || 0
+                                const threshold = (index + 1) / 3
+                                if (level > threshold) {
+                                    return index === 2 ? Config.Material.colors.warning : Config.Material.colors.success
+                                }
+                                return Config.Material.colors.outlineVariant
+                            }
+                            
+                            Behavior on height {
+                                NumberAnimation {
+                                    duration: Config.Material.animation.durationShort2
+                                    easing.type: Easing.OutCubic
+                                }
+                            }
+                            
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: Config.Material.animation.durationShort3
+                                    easing.type: Easing.OutCubic
+                                }
+                            }
                         }
                     }
                 }
             }
             
-            // Smooth state layer transitions
-            Behavior on color {
-                ColorAnimation { 
-                    duration: Config.Material.animation.durationShort3
-                    easing.type: Easing.OutCubic
+            MouseArea {
+                id: mouseArea
+                anchors.fill: parent
+                hoverEnabled: true
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+            
+            onClicked: function(mouse) {
+                if (mouse.button === Qt.LeftButton) {
+                    showingPopup = !showingPopup
+                    shellRoot.audioPopupVisible = showingPopup
+                } else if (mouse.button === Qt.RightButton) {
+                    if (audioSvc) {
+                        audioSvc.toggleMute()
+                    }
+                }
+            }
+            
+            onWheel: function(wheel) {
+                if (!audioSvc) return
+                
+                const delta = wheel.angleDelta.y / 120
+                const volumeStep = 0.05
+                const newVolume = Math.max(0, Math.min(1, audioSvc.volume + (delta * volumeStep)))
+                
+                audioSvc.setVolume(newVolume)
+            }
+            
+            onEntered: {
+                if (showingPopup) {
+                    hideTimer.restart()
+                }
+            }
+            }
+            }
+            
+            Timer {
+                id: hideTimer
+                interval: 3000
+                repeat: false
+                onTriggered: {
+                    showingPopup = false
+                    shellRoot.audioPopupVisible = false
+                }
+            }
+            
+        }
+    }
+
+    // Audio Control Popup Window
+    PanelWindow {
+        id: audioPopupWindow
+        
+        screen: Quickshell.screens.length > 0 ? Quickshell.screens[0] : null
+        
+        WlrLayershell.anchors.top: true
+        WlrLayershell.anchors.right: true
+        WlrLayershell.exclusiveZone: 0
+        WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+        WlrLayershell.margins.top: Config.Device.config.barHeight
+        WlrLayershell.margins.right: 20
+        
+        visible: shellRoot.audioPopupVisible
+        
+        // Handle escape key to close popup
+        Keys.onEscapePressed: {
+            console.log("Lumin: Escape pressed - closing popup")
+            shellRoot.audioPopupVisible = false
+        }
+        
+        implicitWidth: 300
+        implicitHeight: 220
+        
+        color: "transparent"
+        
+        // Close popup when clicking outside
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+            hoverEnabled: true
+            propagateComposedEvents: false
+            
+            onClicked: function(mouse) {
+                console.log("Lumin: Clicked outside popup - closing")
+                shellRoot.audioPopupVisible = false
+                mouse.accepted = true
+            }
+            
+            onPressed: function(mouse) {
+                console.log("Lumin: Pressed outside popup - closing")
+                shellRoot.audioPopupVisible = false
+                mouse.accepted = true
+            }
+        }
+        
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: Config.Material.spacing.sm
+            
+            radius: Config.Material.rounding.large
+            color: Config.Material.colors.surfaceContainerHigh
+            border.width: 1
+            border.color: Config.Material.colors.outline
+            
+            // Prevent clicks from propagating to close the popup
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: function(mouse) {
+                    // Do nothing - prevent propagation
+                    mouse.accepted = true
+                }
+            }
+            
+            // Drop shadow
+            Rectangle {
+                anchors.centerIn: parent
+                width: parent.width + 4
+                height: parent.height + 4
+                radius: parent.radius + 2
+                color: Config.Material.elevation.shadowColor
+                opacity: Config.Material.elevation.shadowOpacity * 0.8
+                z: -1
+            }
+            
+            Column {
+                anchors.fill: parent
+                anchors.margins: Config.Material.spacing.lg
+                spacing: Config.Material.spacing.md
+                
+                // Header
+                Row {
+                    width: parent.width
+                    spacing: Config.Material.spacing.md
+                    
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "󰕾"
+                        color: Config.Material.colors.primary
+                        font.pixelSize: 24
+                        font.family: Config.Material.typography.monoFamily
+                    }
+                    
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "Audio Controls"
+                        color: Config.Material.colors.surfaceText
+                        font.pixelSize: Config.Material.typography.titleMedium.size
+                        font.weight: Config.Material.typography.titleMedium.weight
+                        font.family: Config.Material.typography.fontFamily
+                    }
+                }
+                
+                // Volume Slider
+                Row {
+                    width: parent.width
+                    spacing: Config.Material.spacing.md
+                    
+                    Text {
+                        text: "󰕿"
+                        color: Config.Material.colors.surfaceText
+                        font.pixelSize: 16
+                        font.family: Config.Material.typography.monoFamily
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    
+                    Rectangle {
+                        width: parent.width - 60
+                        height: 6
+                        radius: 3
+                        color: Config.Material.colors.outline
+                        anchors.verticalCenter: parent.verticalCenter
+                        
+                        Rectangle {
+                            width: parent.width * (audioService?.volume || 0)
+                            height: parent.height
+                            radius: parent.radius
+                            color: Config.Material.colors.primary
+                            
+                            Behavior on width {
+                                NumberAnimation {
+                                    duration: Config.Material.animation.durationShort3
+                                    easing.type: Easing.OutCubic
+                                }
+                            }
+                        }
+                        
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: function(mouse) {
+                                if (audioService) {
+                                    const newVolume = mouse.x / width
+                                    audioService.setVolume(Math.max(0, Math.min(1, newVolume)))
+                                }
+                            }
+                        }
+                    }
+                    
+                    Text {
+                        text: "󰕾"
+                        color: Config.Material.colors.surfaceText
+                        font.pixelSize: 16
+                        font.family: Config.Material.typography.monoFamily
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+                
+                // Device Selection
+                Row {
+                    width: parent.width
+                    spacing: Config.Material.spacing.sm
+                    
+                    Text {
+                        text: "Device:"
+                        color: Config.Material.colors.surfaceVariantText
+                        font.pixelSize: Config.Material.typography.bodySmall.size
+                        font.family: Config.Material.typography.fontFamily
+                    }
+                    
+                    Text {
+                        text: {
+                            const device = audioService?.currentDevice || "Unknown"
+                            console.log("Lumin: Current device in popup:", device)
+                            return device
+                        }
+                        color: Config.Material.colors.surfaceText
+                        font.pixelSize: Config.Material.typography.bodySmall.size
+                        font.family: Config.Material.typography.fontFamily
+                        font.weight: Font.Medium
+                    }
+                }
+                
+                // Mute Button
+                Rectangle {
+                    width: parent.width
+                    height: 40
+                    radius: Config.Material.rounding.medium
+                    color: audioService?.muted ? Config.Material.colors.errorContainer : Config.Material.colors.primaryContainer
+                    
+                    Text {
+                        anchors.centerIn: parent
+                        text: audioService?.muted ? "󰸈 Unmute" : "󰕾 Mute"
+                        color: audioService?.muted ? Config.Material.colors.errorContainerText : Config.Material.colors.primaryContainerText
+                        font.pixelSize: Config.Material.typography.labelLarge.size
+                        font.family: Config.Material.typography.fontFamily
+                    }
+                    
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            if (audioService) {
+                                audioService.toggleMute()
+                            }
+                        }
+                    }
+                    
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: Config.Material.animation.durationShort3
+                            easing.type: Easing.OutCubic
+                        }
+                    }
                 }
             }
         }

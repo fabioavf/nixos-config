@@ -2,3 +2,4 @@ module Lumin.Services
 
 NiriIPC 1.0 NiriIPC.qml
 SystemStats 1.0 SystemStats.qml
+AudioService 1.0 AudioService.qml
