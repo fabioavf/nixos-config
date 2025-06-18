@@ -12,31 +12,32 @@
     # ========================================
     # Editors and Terminal (User Preference)
     # ========================================
-    zed-editor              # Modern editor
-    neovim                  # Terminal editor
-    vscode                  # GUI editor
+    zed-editor # Modern editor
+    neovim # Terminal editor
+    vscode # GUI editor
+    code-cursor
     ghostty
     # alacritty             # Now managed by Home Manager in alacritty.nix
 
     # ========================================
     # File Management (Terminal)
     # ========================================
-    ranger                  # Terminal file manager
-    fd                      # Better find
-    ripgrep                 # Better grep
+    ranger # Terminal file manager
+    fd # Better find
+    ripgrep # Better grep
 
     # ========================================
     # Network and Download Tools (User-level)
     # ========================================
-    aria2                   # Multi-connection downloader
-    sshfs                   # Mount remote filesystems
+    aria2 # Multi-connection downloader
+    sshfs # Mount remote filesystems
 
     # ========================================
     # Development Tools (User-specific)
     # ========================================
     # Version control
-    git-lfs                 # Large file support
-    glab                    # GitLab CLI
+    git-lfs # Large file support
+    glab # GitLab CLI
 
     # JavaScript/TypeScript
     nodejs

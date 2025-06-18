@@ -1,7 +1,13 @@
 # /etc/nixos/home/profiles/fabio.nix
 # Home Manager configuration for user fabio
 
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
   imports = [
@@ -69,7 +75,7 @@
         nixedit = "sudo chown -R $USER /etc/nixos && zeditor /etc/nixos";
         nixdone = "sudo chown -R root /etc/nixos";
         nixopen = "zeditor /etc/nixos";
-        
+
         # Wallpaper shortcuts
         wp = "set-wallpaper";
         wpr = "set-wallpaper random";
@@ -80,7 +86,7 @@
       initContent = ''
         # Auto-start Niri on TTY1
         if [ -z "$WAYLAND_DISPLAY" ] && [ "$XDG_VTNR" -eq 1 ]; then
-          exec niri
+          exec niri-session
         fi
 
         # Set wallpaper if in Wayland session
@@ -177,8 +183,8 @@
   # User packages (alternatives to system packages)
   home.packages = with pkgs; [
     # These are now user-specific
-    pay-respects      # Command correction
-    zsh-completions   # Additional completions
+    pay-respects # Command correction
+    zsh-completions # Additional completions
   ];
 
   # Let Home Manager manage itself

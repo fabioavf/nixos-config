@@ -1,7 +1,12 @@
 # /etc/nixos/system/programs/default.nix
 # System-wide program configurations
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   imports = [
@@ -26,8 +31,12 @@
     };
   };
 
+  environment.systemPackages = with pkgs; [
+    xwayland-satellite
+  ];
+
   # Set zsh as default shell
   users.defaultUserShell = pkgs.zsh;
 
-  services.udev.packages = [pkgs.android-udev-rules];
+  services.udev.packages = [ pkgs.android-udev-rules ];
 }

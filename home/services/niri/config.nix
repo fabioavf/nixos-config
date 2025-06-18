@@ -5,7 +5,7 @@
 
 let
   makeCommand = command: {
-    command = [command];
+    command = [ command ];
   };
 in
 {
@@ -21,18 +21,30 @@ in
       "GDK_BACKEND" = "wayland";
       "MOZ_ENABLE_WAYLAND" = "1";
       "SDL_VIDEODRIVER" = "wayland";
+      "DISPLAY" = ":0";
     };
 
     # Startup programs
     spawn-at-startup = [
       # Removed swww-daemon - will be handled by wallpaper service
       # Lumin Bar - Material 3 Quickshell Bar
-      { command = ["quickshell" "-c" "lumin"]; }
+      {
+        command = [
+          "quickshell"
+          "-c"
+          "lumin"
+        ];
+      }
+      {
+        command = [
+          "xwayland-satellite"
+        ];
+      }
     ];
 
     # Hotkey overlay
     hotkey-overlay.skip-at-startup = true;
-    
+
     # Cursor configuration
     cursor = {
       size = 20;
