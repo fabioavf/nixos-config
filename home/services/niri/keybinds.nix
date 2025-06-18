@@ -13,6 +13,11 @@
     "Mod+Shift+E".action = quit;
     "Mod+B".action = spawn "app.zen_browser.zen";
 
+    "Mod+Comma".action = consume-window-into-column;
+    "Mod+Period".action = expel-window-from-column;
+    "Mod+Tab".action = switch-focus-between-floating-and-tiling;
+    "Mod+P".action = toggle-window-floating;
+
     # Focus navigation (arrow keys)
     "Mod+Left".action = focus-column-left;
     "Mod+Right".action = focus-column-right;

@@ -9,5 +9,6 @@
     firefox
     chromium
     vesktop
+    moonlight-qt
   ];
 }

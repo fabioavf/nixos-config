@@ -15,9 +15,6 @@
     zed-editor # Modern editor
     neovim # Terminal editor
     vscode # GUI editor
-    code-cursor
-    ghostty
-    # alacritty             # Now managed by Home Manager in alacritty.nix
 
     # ========================================
     # File Management (Terminal)
@@ -25,6 +22,8 @@
     ranger # Terminal file manager
     fd # Better find
     ripgrep # Better grep
+    gtop
+    gotop
 
     # ========================================
     # Network and Download Tools (User-level)

@@ -15,6 +15,7 @@
     swaylock                # Screen locker (niri compatible)
     swaybg                  # Simple wallpaper tool (replacing swww)
     fuzzel                  # App launcher (niri default)
+    anyrun
 
     # ========================================
     # System Control and Utilities

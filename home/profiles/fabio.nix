@@ -13,9 +13,9 @@
   imports = [
     ../services/niri
     ../services/quickshell
-    ../terminal/default.nix
-    ../software/default.nix
-    ../media/default.nix
+    ../terminal
+    ../software
+    ../media
   ];
 
   # Home Manager needs to know about the user
