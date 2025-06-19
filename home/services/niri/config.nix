@@ -3,11 +3,6 @@
 
 { ... }:
 
-let
-  makeCommand = command: {
-    command = [ command ];
-  };
-in
 {
   programs.niri.settings = {
     # Environment variables
@@ -38,6 +33,16 @@ in
       {
         command = [
           "xwayland-satellite"
+        ];
+      }
+      {
+        command = [
+          "qbittorrent"
+        ];
+      }
+      {
+        command = [
+          "sunshine"
         ];
       }
     ];

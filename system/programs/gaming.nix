@@ -11,7 +11,7 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
     remotePlay.openFirewall = true;
     dedicatedServer.openFirewall = true;
     localNetworkGameTransfers.openFirewall = true;
-    
+
     # Compatibility layers
     extraCompatPackages = with pkgs; [
       proton-ge-bin  # Enhanced Proton
@@ -28,14 +28,14 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
         inhibit_screensaver = 1;
         softrealtime = "auto";
       };
-      
+
       # GPU optimizations for AMD
       gpu = {
         apply_gpu_optimisations = "accept-responsibility";
         gpu_device = 0;
         amd_performance_level = "high";
       };
-      
+
       # CPU optimizations
       cpu = {
         park_cores = "no";
@@ -49,15 +49,18 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
     # Game launchers and stores
     bottles                # Wine prefix manager
     umu-launcher          # Unified Wine launcher for Proton/Wine
-  
+
+    # Emulators
+    ryubing
+
     # Game streaming
     sunshine              # NVIDIA GameStream alternative
-    
+
     # Performance and monitoring
     mangohud              # Performance overlay
     gamemode              # Performance optimizations
     gamescope             # Wayland compositor for games
-    
+
     # Wine and compatibility
     wineWowPackages.staging  # 64-bit Wine with 32-bit support
     winetricks           # Wine helper scripts
@@ -68,10 +71,10 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
     jstest-gtk           # Controller testing GUI
     linuxConsoleTools    # Includes jstest for testing controllers
     evtest               # Event testing tool
-    
+
     # System tools for gaming
     nvtopPackages.amd    # AMD GPU monitoring
-    
+
     # Archive tools for game files
     unrar
     p7zip
@@ -95,21 +98,21 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
     udev.packages = with pkgs; [
       game-devices-udev-rules  # Controller recognition
     ];
-    
+
     # Additional udev rules for 8BitDo controllers
     udev.extraRules = ''
       # 8BitDo Ultimate 2C Controller
       SUBSYSTEM=="input", ATTRS{idVendor}=="2dc8", ATTRS{idProduct}=="310a", MODE="0666", TAG+="uaccess"
       SUBSYSTEM=="usb", ATTRS{idVendor}=="2dc8", ATTRS{idProduct}=="310a", MODE="0666", TAG+="uaccess"
-      
+
       # 8BitDo controllers (general)
       SUBSYSTEM=="input", ATTRS{idVendor}=="2dc8", MODE="0666", TAG+="uaccess"
       SUBSYSTEM=="usb", ATTRS{idVendor}=="2dc8", MODE="0666", TAG+="uaccess"
-      
+
       # Ensure joystick devices are accessible
       KERNEL=="js[0-9]*", MODE="0664", GROUP="input"
       SUBSYSTEM=="input", GROUP="input", MODE="0664"
-      
+
       # Additional gamepad permissions for browsers
       SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="*Controller*", MODE="0664", GROUP="input", TAG+="uaccess"
       SUBSYSTEM=="input", KERNEL=="js*", MODE="0664", GROUP="input", TAG+="uaccess"
@@ -134,15 +137,15 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
     # Wine/Proton optimizations (non-AMD specific)
     WINEPREFIX = "$HOME/.wine-games";
   };
-  
+
   # AMD GPU environment variables moved to system/hardware/amd.nix
 
   # Add gaming group for permissions
   users.groups.gamemode = {};
   users.users.fabio.extraGroups = [ "gamemode" ];
-  
+
   # Note: render group for AMD GPU access is handled in system/hardware/amd.nix
-  
+
   # FIXED: PipeWire 32-bit support (instead of PulseAudio)
   # Since you use PipeWire, enable 32-bit ALSA support for Steam
   services.pipewire.alsa.support32Bit = true;

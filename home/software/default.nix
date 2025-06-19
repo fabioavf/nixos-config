@@ -10,5 +10,6 @@
     chromium
     vesktop
     moonlight-qt
+    telegram-desktop
   ];
 }
