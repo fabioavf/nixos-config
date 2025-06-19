@@ -49,6 +49,7 @@ let
   laptop = common ++ [
     # MacBook hardware
     ./hardware/macbook-audio.nix
+    ./programs/bluetooth.nix
     ./hardware/intel-graphics.nix
     
     # No gaming, desktop-heavy apps, filesystem mounts, or DuckDNS for laptop
