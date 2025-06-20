@@ -45,6 +45,11 @@
           "sunshine"
         ];
       }
+      {
+        command = [
+          "corectrl"
+        ];
+      }
     ];
 
     # Hotkey overlay

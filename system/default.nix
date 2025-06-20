@@ -14,6 +14,7 @@ let
     ./core/performance.nix
     ./core/secrets.nix
     ./core/home-manager.nix
+    ./core/xkb-cedilla.nix
 
     # Network (common to all)
     ./network/default.nix

@@ -49,6 +49,7 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
     # Game launchers and stores
     bottles                # Wine prefix manager
     umu-launcher          # Unified Wine launcher for Proton/Wine
+    modrinth-app
 
     # Emulators
     ryubing

@@ -38,6 +38,15 @@ ShellRoot {
             console.log("Lumin: SystemStatsService loaded")
         }
     }
+    
+    // Create KeyboardLayoutService instance
+    Services.KeyboardLayoutService {
+        id: keyboardLayoutService
+        
+        Component.onCompleted: {
+            console.log("Lumin: KeyboardLayoutService loaded")
+        }
+    }
 
     property var niriIPCInstance: niriIPCLoader.item
     property alias niriIPC: niriService
@@ -135,6 +144,33 @@ ShellRoot {
                 niriService.currentTime = new Date()
             }
         }
+        
+        // Expose NiriIPC functions through the service wrapper
+        function switchToWorkspace(workspaceId) {
+            if (niriIPCLoader.item && niriIPCLoader.item.switchToWorkspace) {
+                niriIPCLoader.item.switchToWorkspace(workspaceId)
+            } else {
+                console.warn("Lumin: NiriIPC not loaded or switchToWorkspace not available")
+            }
+        }
+        
+        function moveToWorkspace(workspaceId) {
+            if (niriIPCLoader.item && niriIPCLoader.item.moveToWorkspace) {
+                niriIPCLoader.item.moveToWorkspace(workspaceId)
+            }
+        }
+        
+        function closeWindow() {
+            if (niriIPCLoader.item && niriIPCLoader.item.closeWindow) {
+                niriIPCLoader.item.closeWindow()
+            }
+        }
+        
+        function focusWindow(windowId) {
+            if (niriIPCLoader.item && niriIPCLoader.item.focusWindow) {
+                niriIPCLoader.item.focusWindow(windowId)
+            }
+        }
     }
 
     // Simple bar window
@@ -162,6 +198,7 @@ ShellRoot {
             systemService: systemService
             systemStatsInstance: systemStatsInstance
             audioService: audioService
+            keyboardLayoutService: keyboardLayoutService
             
             // Connect audio popup signal
             onAudioPopupRequested: function(visible) {

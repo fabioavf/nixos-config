@@ -8,3 +8,4 @@ SystemTray 1.0 SystemTray.qml
 TrayIcon 1.0 TrayIcon.qml
 AudioControlWidget 1.0 AudioControlWidget.qml
 AudioPopup 1.0 AudioPopup.qml
+KeyboardLayoutWidget 1.0 KeyboardLayoutWidget.qml

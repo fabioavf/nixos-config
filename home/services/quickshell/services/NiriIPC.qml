@@ -20,17 +20,17 @@ QtObject {
 
     // Signals for real-time updates
     signal workspacesUpdated(var workspaces)
-    signal windowsUpdated(var windows) 
+    signal windowsUpdated(var windows)
     signal outputsUpdated(var outputs)
     signal focusedWindowUpdated(var window)
     signal connectionStateUpdated(bool connected)
 
     // Component.onCompleted handler
     Component.onCompleted: {
-        console.log("Lumin: Initializing Niri IPC connection...")
-        
+        console.log("Lumin: Initializing Niri IPC connection...");
+
         // Get socket path from environment
-        getSocketPath.running = true
+        getSocketPath.running = true;
     }
 
     // Process objects as properties
@@ -42,22 +42,22 @@ QtObject {
             id: socketPathCollector
         }
 
-        onExited: function(exitCode) {
+        onExited: function (exitCode) {
             if (exitCode === 0) {
-                const path = socketPathCollector.text.trim()
+                const path = socketPathCollector.text.trim();
                 if (path) {
-                    root.socketPath = path
-                    console.log(`Lumin: Found Niri socket: ${path}`)
-                    connectToSocket()
+                    root.socketPath = path;
+                    console.log(`Lumin: Found Niri socket: ${path}`);
+                    connectToSocket();
                 } else {
-                    console.error("Lumin: NIRI_SOCKET environment variable not set")
-                    root.lastError = "NIRI_SOCKET not found"
+                    console.error("Lumin: NIRI_SOCKET environment variable not set");
+                    root.lastError = "NIRI_SOCKET not found";
                     // Try to find socket automatically
-                    findSocketFallback.running = true
+                    findSocketFallback.running = true;
                 }
             } else {
-                console.error(`Lumin: Failed to get NIRI_SOCKET, exit code: ${exitCode}`)
-                findSocketFallback.running = true
+                console.error(`Lumin: Failed to get NIRI_SOCKET, exit code: ${exitCode}`);
+                findSocketFallback.running = true;
             }
         }
     }
@@ -70,20 +70,20 @@ QtObject {
             id: socketFallbackCollector
         }
 
-        onExited: function(exitCode) {
+        onExited: function (exitCode) {
             if (exitCode === 0) {
-                const path = socketFallbackCollector.text.trim()
+                const path = socketFallbackCollector.text.trim();
                 if (path) {
-                    root.socketPath = path
-                    console.log(`Lumin: Using fallback socket: ${path}`)
-                    connectToSocket()
+                    root.socketPath = path;
+                    console.log(`Lumin: Using fallback socket: ${path}`);
+                    connectToSocket();
                 } else {
-                    console.error("Lumin: No niri socket found")
-                    root.lastError = "No niri socket found"
+                    console.error("Lumin: No niri socket found");
+                    root.lastError = "No niri socket found";
                 }
             } else {
-                console.error("Lumin: Failed to find niri socket")
-                root.lastError = "Socket search failed"
+                console.error("Lumin: Failed to find niri socket");
+                root.lastError = "Socket search failed";
             }
         }
     }
@@ -100,52 +100,52 @@ QtObject {
         property bool initialQueriesDone: false
 
         onConnectedChanged: {
-            root.socketConnected = connected
-            root.connected = connected
-            root.connectionStateUpdated(connected)
-            
+            root.socketConnected = connected;
+            root.connected = connected;
+            root.connectionStateUpdated(connected);
+
             if (connected) {
                 if (pendingRequest === "EventStream") {
-                    sendRequest("EventStream")
-                    eventStreamActive = true
+                    sendRequest("EventStream");
+                    eventStreamActive = true;
                 } else if (pendingRequest) {
-                    sendRequest(pendingRequest)
-                    pendingRequest = ""
+                    sendRequest(pendingRequest);
+                    pendingRequest = "";
                 } else {
                     // Initial connection - start with workspace query
-                    sendRequest("Workspaces")
+                    sendRequest("Workspaces");
                 }
             } else {
                 if (eventStreamActive) {
-                    eventStreamActive = false
-                    reconnectTimer.start()
+                    eventStreamActive = false;
+                    reconnectTimer.start();
                 } else {
                     // Query completed normally, continue with next queries
                     if (!initialQueriesDone) {
-                        initialStateTimer.start()
+                        initialStateTimer.start();
                     }
                 }
             }
         }
 
-        onError: function(error) {
-            console.error(`Lumin: Socket error: ${error}`)
-            root.lastError = `Socket error: ${error}`
+        onError: function (error) {
+            console.error(`Lumin: Socket error: ${error}`);
+            root.lastError = `Socket error: ${error}`;
         }
 
         parser: SplitParser {
             splitMarker: "\n"
-            
-            onRead: function(data) {
-                const line = data.trim()
+
+            onRead: function (data) {
+                const line = data.trim();
                 if (line) {
                     try {
-                        const response = JSON.parse(line)
-                        root.handleResponse(response)
+                        const response = JSON.parse(line);
+                        root.handleResponse(response);
                     } catch (e) {
-                        console.error(`Lumin: Failed to parse response: ${line}`)
-                        console.error(`Lumin: Parse error: ${e}`)
-                        root.lastError = `Parse error: ${e}`
+                        console.error(`Lumin: Failed to parse response: ${line}`);
+                        console.error(`Lumin: Parse error: ${e}`);
+                        root.lastError = `Parse error: ${e}`;
                     }
                 }
             }
@@ -153,35 +153,35 @@ QtObject {
 
         function sendRequest(request) {
             if (!connected) {
-                return
+                return;
             }
 
-            let jsonRequest
-            
+            let jsonRequest;
+
             // Handle different request types properly
             if (typeof request === "string") {
                 // Simple string requests like "Workspaces", "Windows", etc.
                 // Send as JSON string (quoted string)
-                jsonRequest = JSON.stringify(request)
+                jsonRequest = JSON.stringify(request);
             } else {
                 // Complex requests (actions) - send as JSON object
-                jsonRequest = JSON.stringify(request)
+                jsonRequest = JSON.stringify(request);
             }
-            
+
             try {
-                write(jsonRequest + "\n")
-                flush()
+                write(jsonRequest + "\n");
+                flush();
             } catch (e) {
-                console.error(`Lumin: Failed to send request: ${e}`)
-                root.lastError = `Send error: ${e}`
+                console.error(`Lumin: Failed to send request: ${e}`);
+                root.lastError = `Send error: ${e}`;
             }
         }
     }
 
     function executeRefreshQuery(query, command) {
-        refreshProcess.targetQuery = query
-        refreshProcess.command = command
-        refreshProcess.running = true
+        refreshProcess.targetQuery = query;
+        refreshProcess.command = command;
+        refreshProcess.running = true;
     }
 
     // Response handler (moved outside Socket for proper scoping)
@@ -189,128 +189,128 @@ QtObject {
         // Check if this is an event or a query response
         if (response.hasOwnProperty("WorkspacesChanged")) {
             // WorkspacesChanged event - refresh workspace data
-            refreshTimer.addQuery("Workspaces")
+            refreshTimer.addQuery("Workspaces");
         } else if (response.hasOwnProperty("WorkspaceActivated")) {
             // WorkspaceActivated event
-            refreshTimer.addQuery("Workspaces")
+            refreshTimer.addQuery("Workspaces");
         } else if (response.hasOwnProperty("WindowsChanged")) {
             // WindowsChanged event
-            refreshTimer.addQuery("Windows")
+            refreshTimer.addQuery("Windows");
         } else if (response.hasOwnProperty("WindowFocusChanged")) {
             // WindowFocusChanged event
-            refreshTimer.addQuery("FocusedWindow")
+            refreshTimer.addQuery("FocusedWindow");
         } else if (response.hasOwnProperty("WindowOpenedOrChanged")) {
             // WindowOpenedOrChanged event
-            refreshTimer.addQuery("Windows")
+            refreshTimer.addQuery("Windows");
         } else if (response.hasOwnProperty("WindowClosed")) {
             // WindowClosed event
-            refreshTimer.addQuery("Windows")
+            refreshTimer.addQuery("Windows");
         } else if (response.hasOwnProperty("WorkspaceActiveWindowChanged")) {
             // WorkspaceActiveWindowChanged event
-            refreshTimer.addQuery("Workspaces")
+            refreshTimer.addQuery("Workspaces");
         } else if (response.hasOwnProperty("Ok")) {
             // Handle successful query responses
-            const data = response.Ok
-            
+            const data = response.Ok;
+
             // Check if this is a nested response (e.g., {"Ok": {"Workspaces": [...]}})
             if (data.hasOwnProperty("Workspaces")) {
-                root.workspaces = data.Workspaces
-                root.workspacesUpdated(data.Workspaces)
+                root.workspaces = data.Workspaces;
+                root.workspacesUpdated(data.Workspaces);
             } else if (data.hasOwnProperty("Windows")) {
-                root.windows = data.Windows
-                root.windowsUpdated(data.Windows)
+                root.windows = data.Windows;
+                root.windowsUpdated(data.Windows);
             } else if (data.hasOwnProperty("Outputs")) {
-                root.outputs = data.Outputs
-                root.outputsUpdated(data.Outputs)
+                root.outputs = data.Outputs;
+                root.outputsUpdated(data.Outputs);
             } else if (data.hasOwnProperty("FocusedWindow")) {
                 if (data.FocusedWindow) {
                     // Received focused window
-                    root.focusedWindow = data.FocusedWindow
-                    root.focusedWindowUpdated(data.FocusedWindow)
+                    root.focusedWindow = data.FocusedWindow;
+                    root.focusedWindowUpdated(data.FocusedWindow);
                 } else {
                     // No focused window
-                    root.focusedWindow = null
-                    root.focusedWindowUpdated(null)
+                    root.focusedWindow = null;
+                    root.focusedWindowUpdated(null);
                 }
             } else if (data === null) {
                 // Null response (e.g., no focused window)
                 // Received null response
-                root.focusedWindow = null
-                root.focusedWindowUpdated(null)
+                root.focusedWindow = null;
+                root.focusedWindowUpdated(null);
             } else if (Array.isArray(data)) {
                 if (data.length === 0) {
-                    console.log("Lumin: Received empty array response")
+                    console.log("Lumin: Received empty array response");
                 } else {
                     // Determine data type by examining first item
-                    const firstItem = data[0]
+                    const firstItem = data[0];
                     if (firstItem.hasOwnProperty("id") && firstItem.hasOwnProperty("is_active")) {
                         // Workspace data
                         // Received workspaces data
-                        root.workspaces = data
-                        root.workspacesUpdated(data)
+                        root.workspaces = data;
+                        root.workspacesUpdated(data);
                     } else if (firstItem.hasOwnProperty("id") && firstItem.hasOwnProperty("title")) {
                         // Window data
                         // Received windows data
-                        root.windows = data
-                        root.windowsUpdated(data)
+                        root.windows = data;
+                        root.windowsUpdated(data);
                     } else if (firstItem.hasOwnProperty("name") && (firstItem.hasOwnProperty("make") || firstItem.hasOwnProperty("logical"))) {
                         // Output data
                         // Received outputs data
-                        root.outputs = data
-                        root.outputsUpdated(data)
+                        root.outputs = data;
+                        root.outputsUpdated(data);
                     } else {
-                        console.log(`Lumin: Unknown array data type: ${JSON.stringify(firstItem)}`)
+                        console.log(`Lumin: Unknown array data type: ${JSON.stringify(firstItem)}`);
                     }
                 }
             } else if (typeof data === "object" && data.hasOwnProperty("title")) {
                 // Single window (focused window)
                 // Received focused window
-                root.focusedWindow = data
-                root.focusedWindowUpdated(data)
-            } else {
-                // Unknown response data
-            }
+                root.focusedWindow = data;
+                root.focusedWindowUpdated(data);
+            } else
+            // Unknown response data
+            {}
         } else if (response.hasOwnProperty("Err")) {
-            console.error(`Lumin: Niri error response: ${JSON.stringify(response.Err)}`)
-            root.lastError = `Niri error: ${JSON.stringify(response.Err)}`
-        } else {
-            // Unknown response type
-        }
+            console.error(`Lumin: Niri error response: ${JSON.stringify(response.Err)}`);
+            root.lastError = `Niri error: ${JSON.stringify(response.Err)}`;
+        } else
+        // Unknown response type
+        {}
     }
 
     // Timers for connection management
     property var initialStateTimer: Timer {
         id: initialStateTimer
-        
+
         property int step: 0
-        
+
         interval: 500  // Give time between queries
         repeat: false
-        
+
         onTriggered: {
             // Initial state step progression
-            switch(step) {
-                case 0:
-                    // Query windows
-                    queryNiri("Windows")
-                    step++
-                    interval = 500
-                    start()
-                    break
-                case 1:
-                    // Query focused window
-                    queryNiri("FocusedWindow")
-                    step++
-                    interval = 500
-                    start()
-                    break
-                case 2:
-                    // Start event stream for real-time updates
-                    // Starting event stream
-                    startEventStream()
-                    niriSocket.initialQueriesDone = true
-                    step = 0  // Reset for next time
-                    break
+            switch (step) {
+            case 0:
+                // Query windows
+                queryNiri("Windows");
+                step++;
+                interval = 500;
+                start();
+                break;
+            case 1:
+                // Query focused window
+                queryNiri("FocusedWindow");
+                step++;
+                interval = 500;
+                start();
+                break;
+            case 2:
+                // Start event stream for real-time updates
+                // Starting event stream
+                startEventStream();
+                niriSocket.initialQueriesDone = true;
+                step = 0;  // Reset for next time
+                break;
             }
         }
     }
@@ -323,7 +323,7 @@ QtObject {
         onTriggered: {
             if (root.socketPath && !root.socketConnected) {
                 // Attempting reconnection
-                connectToSocket()
+                connectToSocket();
             }
         }
     }
@@ -332,12 +332,12 @@ QtObject {
         if (root.socketPath) {
             // Connecting to socket
             // Reset state before connecting
-            niriSocket.eventStreamActive = false
+            niriSocket.eventStreamActive = false;
             // Set connected to true to initiate connection
-            niriSocket.connected = true
+            niriSocket.connected = true;
         } else {
-            console.error("Lumin: No socket path available for connection")
-            root.lastError = "No socket path available"
+            console.error("Lumin: No socket path available for connection");
+            root.lastError = "No socket path available";
         }
     }
 
@@ -345,23 +345,23 @@ QtObject {
         // Querying niri
         if (root.socketPath) {
             // Create a new connection for each query (niri closes after each response)
-            niriSocket.pendingRequest = requestType
-            niriSocket.connected = false  // Disconnect first
-            
+            niriSocket.pendingRequest = requestType;
+            niriSocket.connected = false;  // Disconnect first
+
             // Use timer to reconnect and send request
-            queryTimer.targetRequest = requestType
-            queryTimer.start()
+            queryTimer.targetRequest = requestType;
+            queryTimer.start();
         }
     }
 
     function startEventStream() {
         // Starting event stream
         if (root.socketPath) {
-            niriSocket.pendingRequest = "EventStream"
-            niriSocket.connected = false  // Disconnect first
-            
+            niriSocket.pendingRequest = "EventStream";
+            niriSocket.connected = false;  // Disconnect first
+
             // Use timer to reconnect for event stream
-            eventStreamTimer.start()
+            eventStreamTimer.start();
         }
     }
 
@@ -369,12 +369,12 @@ QtObject {
         interval: 100
         repeat: false
         property string targetRequest: ""
-        
+
         onTriggered: {
             if (targetRequest && root.socketPath) {
                 // Reconnecting for query
-                niriSocket.pendingRequest = targetRequest
-                niriSocket.connected = true
+                niriSocket.pendingRequest = targetRequest;
+                niriSocket.connected = true;
             }
         }
     }
@@ -383,12 +383,12 @@ QtObject {
         id: eventStreamTimer
         interval: 100
         repeat: false
-        
+
         onTriggered: {
             if (root.socketPath) {
                 // Reconnecting for event stream
-                niriSocket.pendingRequest = "EventStream"
-                niriSocket.connected = true
+                niriSocket.pendingRequest = "EventStream";
+                niriSocket.connected = true;
             }
         }
     }
@@ -399,34 +399,34 @@ QtObject {
         repeat: false
         property string targetQuery: ""
         property var pendingQueries: []
-        
+
         onTriggered: {
             // Process first pending query
             if (pendingQueries.length > 0) {
-                const query = pendingQueries.shift()  // Remove first item
+                const query = pendingQueries.shift();  // Remove first item
                 // Processing queued refresh
-                
-                let command
+
+                let command;
                 if (query === "FocusedWindow") {
-                    command = ["niri", "msg", "--json", "focused-window"]
+                    command = ["niri", "msg", "--json", "focused-window"];
                 } else {
-                    command = ["niri", "msg", "--json", query.toLowerCase()]
+                    command = ["niri", "msg", "--json", query.toLowerCase()];
                 }
-                
-                executeRefreshQuery(query, command)
+
+                executeRefreshQuery(query, command);
             }
         }
-        
+
         function addQuery(query) {
             // Add to pending queries if not already present
             if (pendingQueries.indexOf(query) === -1) {
-                pendingQueries.push(query)
+                pendingQueries.push(query);
                 // Added query to batch
             }
-            
+
             // Start/restart timer
-            targetQuery = query  // Keep last query for compatibility
-            restart()
+            targetQuery = query;  // Keep last query for compatibility
+            restart();
         }
     }
 
@@ -440,146 +440,188 @@ QtObject {
             id: refreshCollector
         }
 
-        onExited: function(exitCode) {
+        onExited: function (exitCode) {
             // Refresh process completed
             if (exitCode === 0 && targetQuery) {
                 try {
-                    const rawText = refreshCollector.text.trim()
+                    const rawText = refreshCollector.text.trim();
                     // Raw refresh response received
-                    const rawResponse = JSON.parse(rawText)
+                    const rawResponse = JSON.parse(rawText);
                     // Refresh query completed
-                    
+
                     // Convert raw response to socket format for consistent handling
-                    let response
+                    let response;
                     if (targetQuery === "Workspaces") {
-                        response = {"Ok": {"Workspaces": rawResponse}}
+                        response = {
+                            "Ok": {
+                                "Workspaces": rawResponse
+                            }
+                        };
                     } else if (targetQuery === "Windows") {
-                        response = {"Ok": {"Windows": rawResponse}}
+                        response = {
+                            "Ok": {
+                                "Windows": rawResponse
+                            }
+                        };
                     } else if (targetQuery === "FocusedWindow") {
-                        response = {"Ok": {"FocusedWindow": rawResponse}}
+                        response = {
+                            "Ok": {
+                                "FocusedWindow": rawResponse
+                            }
+                        };
                     } else {
-                        response = {"Ok": rawResponse}
+                        response = {
+                            "Ok": rawResponse
+                        };
                     }
-                    
-                    handleResponse(response)
+
+                    handleResponse(response);
                 } catch (e) {
-                    console.error(`Lumin: Failed to parse refresh response: ${e}`)
-                    console.error(`Lumin: Raw text was: "${refreshCollector.text}"`)
+                    console.error(`Lumin: Failed to parse refresh response: ${e}`);
+                    console.error(`Lumin: Raw text was: "${refreshCollector.text}"`);
                 }
             }
-            targetQuery = ""
-            
+            targetQuery = "";
+
             // Process next query in queue if any
             if (refreshTimer.pendingQueries.length > 0) {
                 // Processing next query
-                refreshTimer.start()
+                refreshTimer.start();
+            }
+        }
+    }
+
+    // Process for executing niri actions
+    property var actionProcess: Process {
+        command: ["echo", ""]  // Default empty command
+        running: false
+
+        stdout: StdioCollector {
+            id: actionCollector
+        }
+
+        stderr: StdioCollector {
+            id: actionErrorCollector
+        }
+
+        onExited: function (exitCode) {
+            if (exitCode === 0) {
+                console.log("Lumin: Action executed successfully");
+                // Trigger a workspace refresh to update UI
+                refreshTimer.addQuery("Workspaces");
+            } else {
+                console.error(`Lumin: Action failed with exit code: ${exitCode}`);
+                const errorOutput = actionErrorCollector.text.trim();
+                if (errorOutput) {
+                    console.error(`Lumin: Action error: ${errorOutput}`);
+                }
             }
         }
     }
 
     // Action functions for controlling Niri
     function switchToWorkspace(workspaceId) {
-        // Switching workspace
-        const action = {
-            "Action": {
-                "FocusWorkspace": {
-                    "reference": {
-                        "Id": workspaceId
-                    }
-                }
-            }
+        console.log(`Lumin: switchToWorkspace called with ID: ${workspaceId}`);
+        
+        // Find the workspace object to get its idx (Niri expects idx, not id)
+        const workspace = workspaces.find(ws => ws.id === workspaceId);
+        if (workspace) {
+            console.log(`Lumin: Switching to workspace idx: ${workspace.idx} (id: ${workspace.id})`);
+            
+            // Use niri msg command with idx instead of id
+            const action = ["niri", "msg", "action", "focus-workspace", workspace.idx.toString()];
+            actionProcess.command = action;
+            actionProcess.running = true;
+            
+            console.log(`Lumin: Executing command: ${action.join(" ")}`);
+        } else {
+            console.error(`Lumin: Workspace with ID ${workspaceId} not found`);
         }
-        niriSocket.sendRequest(action)
     }
 
     function moveToWorkspace(workspaceId) {
-        // Moving window
-        const action = {
-            "Action": {
-                "MoveWindowToWorkspace": {
-                    "reference": {
-                        "Id": workspaceId
-                    }
-                }
-            }
+        console.log(`Lumin: moveToWorkspace called with ID: ${workspaceId}`);
+        
+        // Find the workspace object to get its idx (Niri expects idx, not id)
+        const workspace = workspaces.find(ws => ws.id === workspaceId);
+        if (workspace) {
+            console.log(`Lumin: Moving window to workspace idx: ${workspace.idx} (id: ${workspace.id})`);
+            const action = ["niri", "msg", "action", "move-window-to-workspace", workspace.idx.toString()];
+            actionProcess.command = action;
+            actionProcess.running = true;
+        } else {
+            console.error(`Lumin: Workspace with ID ${workspaceId} not found`);
         }
-        niriSocket.sendRequest(action)
     }
 
     function closeWindow() {
-        // Closing window
-        const action = {
-            "Action": "CloseWindow"
-        }
-        niriSocket.sendRequest(action)
+        console.log("Lumin: closeWindow called");
+        const action = ["niri", "msg", "action", "close-window"];
+        actionProcess.command = action;
+        actionProcess.running = true;
     }
 
     function focusWindow(windowId) {
-        // Focusing window
-        const action = {
-            "Action": {
-                "FocusWindow": {
-                    "id": windowId
-                }
-            }
-        }
-        niriSocket.sendRequest(action)
+        console.log(`Lumin: focusWindow called with ID: ${windowId}`);
+        const action = ["niri", "msg", "action", "focus-window", "--id", windowId.toString()];
+        actionProcess.command = action;
+        actionProcess.running = true;
     }
 
     // Utility functions
     function getWorkspaceById(id) {
-        return workspaces.find(ws => ws.id === id) || null
+        return workspaces.find(ws => ws.id === id) || null;
     }
 
     function getWindowById(id) {
-        return windows.find(win => win.id === id) || null
+        return windows.find(win => win.id === id) || null;
     }
 
     function getOutputByName(name) {
-        return outputs.find(output => output.name === name) || null
+        return outputs.find(output => output.name === name) || null;
     }
 
     function getActiveWorkspace() {
-        return workspaces.find(ws => ws.is_active) || null
+        return workspaces.find(ws => ws.is_active) || null;
     }
 
     function getVisibleWorkspaces() {
-        return workspaces.filter(ws => ws.is_visible) || []
+        return workspaces.filter(ws => ws.is_visible) || [];
     }
 
     // Refresh functions for manual state updates
     function refreshWorkspaces() {
         if (niriSocket.connected) {
-            niriSocket.sendRequest("Workspaces")
+            niriSocket.sendRequest("Workspaces");
         }
     }
 
     function refreshWindows() {
         if (niriSocket.connected) {
-            niriSocket.sendRequest("Windows")
+            niriSocket.sendRequest("Windows");
         }
     }
 
     function refreshAll() {
         if (niriSocket.connected) {
-            niriSocket.sendRequest("Workspaces")
-            niriSocket.sendRequest("Windows")
-            niriSocket.sendRequest("FocusedWindow")
+            niriSocket.sendRequest("Workspaces");
+            niriSocket.sendRequest("Windows");
+            niriSocket.sendRequest("FocusedWindow");
         }
     }
 
     // Debug information
     readonly property var debugInfo: ({
-        connected: connected,
-        socketConnected: socketConnected,
-        socketPath: socketPath,
-        lastError: lastError,
-        workspaceCount: workspaces.length,
-        windowCount: windows.length,
-        outputCount: outputs.length,
-        hasFocusedWindow: focusedWindow !== null,
-        focusedWindowTitle: focusedWindow?.title || "none",
-        eventStreamActive: niriSocket.eventStreamActive,
-        initializing: niriSocket.initializing
-    })
+            connected: connected,
+            socketConnected: socketConnected,
+            socketPath: socketPath,
+            lastError: lastError,
+            workspaceCount: workspaces.length,
+            windowCount: windows.length,
+            outputCount: outputs.length,
+            hasFocusedWindow: focusedWindow !== null,
+            focusedWindowTitle: focusedWindow?.title || "none",
+            eventStreamActive: niriSocket.eventStreamActive,
+            initializing: niriSocket.initializing
+        })
 }
