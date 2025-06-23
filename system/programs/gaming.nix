@@ -150,4 +150,14 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
   # FIXED: PipeWire 32-bit support (instead of PulseAudio)
   # Since you use PipeWire, enable 32-bit ALSA support for Steam
   services.pipewire.alsa.support32Bit = true;
+
+  # Ensure GameMode library is properly linked
+  systemd.user.services.gamemode-fix = {
+    description = "Fix GameMode library paths";
+    wantedBy = [ "default.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.coreutils}/bin/ln -sf ${pkgs.gamemode}/lib/libgamemode.so /home/fabio/.local/lib/libgamemode.so || true";
+    };
+  };
 }
