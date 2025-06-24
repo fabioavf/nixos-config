@@ -12,7 +12,7 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
   fileSystems."/data" = {
     device = "/dev/nvme0n1p3";
     fsType = "ext4";
-    options = [ "defaults" "user" "rw" ];
+    options = [ "defaults" "user" "rw" "exec" ];
   };
   
   # Mount sdb1 drive with UUID (more reliable than device path)
