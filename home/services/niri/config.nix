@@ -21,13 +21,32 @@
 
     # Startup programs
     spawn-at-startup = [
-      # Removed swww-daemon - will be handled by wallpaper service
-      # Lumin Bar - Material 3 Quickshell Bar
+      # Notification daemon
       {
         command = [
-          "quickshell"
-          "-c"
-          "lumin"
+          "mako"
+        ];
+      }
+      # Lumin Bar - Material 3 Quickshell Bar
+      # {
+      #   command = [
+      #     "quickshell"
+      #     "-c"
+      #     "lumin"
+      #   ];
+      # }
+      {
+        command = [
+          "swaybg"
+          "-i"
+          "/home/fabio/Pictures/Wallpapers/wallpaper.jpg"
+          "-m"
+          "fill"
+        ];
+      }
+      {
+        command = [
+          "waybar"
         ];
       }
       {

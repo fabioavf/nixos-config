@@ -76,20 +76,21 @@
     # System shortcuts
     "Mod+Shift+M".action = quit;
 
-    # Media keys
+    # Media keys (using swayosd for visual feedback)
     "XF86AudioRaiseVolume".action = spawn [
-      "pamixer"
-      "--increase"
-      "5"
+      "swayosd-client"
+      "--output-volume"
+      "raise"
     ];
     "XF86AudioLowerVolume".action = spawn [
-      "pamixer"
-      "--decrease"
-      "5"
+      "swayosd-client"
+      "--output-volume"
+      "lower"
     ];
     "XF86AudioMute".action = spawn [
-      "pamixer"
-      "--toggle-mute"
+      "swayosd-client"
+      "--output-volume"
+      "mute-toggle"
     ];
     "XF86AudioPlay".action = spawn [
       "playerctl"
@@ -104,16 +105,16 @@
       "previous"
     ];
 
-    # Brightness controls (especially useful for MacBook)
+    # Brightness controls (using swayosd for visual feedback)
     "XF86MonBrightnessUp".action = spawn [
-      "brightnessctl"
-      "set"
-      "5%+"
+      "swayosd-client"
+      "--brightness"
+      "raise"
     ];
     "XF86MonBrightnessDown".action = spawn [
-      "brightnessctl"
-      "set"
-      "5%-"
+      "swayosd-client"
+      "--brightness"
+      "lower"
     ];
 
     # Wallpaper controls

@@ -13,6 +13,9 @@
   imports = [
     ../services/niri
     ../services/quickshell
+    ../services/mako.nix
+    ../services/swayosd.nix
+    ../services/waybar.nix
     ../terminal
     ../software
     ../media
