@@ -14,13 +14,13 @@
       mainBar = {
         layer = "top";
         position = "top";
-        height = 34;
-        spacing = 4;
+        height = 48;
+        spacing = 0;
         
         # Module layout
         modules-left = [ "niri/workspaces" "niri/window" ];
         modules-center = [ "clock" ];
-        modules-right = [ "tray" "pulseaudio" "network" "battery" "custom/power" ];
+        modules-right = [ "tray" "pulseaudio" "network" "battery" ];
         
         # Workspaces module
         "niri/workspaces" = {
@@ -111,154 +111,119 @@
           on-click = "gnome-power-statistics";
         };
         
-        # Power menu
-        "custom/power" = {
-          format = "󰐥";
-          tooltip = "Power Menu";
-          on-click = "niri msg action power-off-screen";
-          on-click-right = "systemctl suspend";
-        };
       };
     };
     
-    # Waybar styling
+    # Material 3 Waybar styling
     style = ''
       * {
         border: none;
-        font-family: "JetBrains Mono", sans-serif;
+        font-family: "Roboto", "JetBrains Mono", sans-serif;
         font-size: 13px;
+        font-weight: 500;
         min-height: 0;
-      }
-      
-      window#waybar {
-        background-color: rgba(30, 30, 46, 0.9);
-        color: #cdd6f4;
-        transition-property: background-color;
-        transition-duration: 0.5s;
-        border-bottom: 2px solid rgba(137, 180, 250, 0.3);
-      }
-      
-      button {
-        box-shadow: inset 0 -3px transparent;
-        border: none;
         border-radius: 0;
       }
       
-      button:hover {
-        background: inherit;
-        box-shadow: inset 0 -3px #89b4fa;
+      /* Main bar with solid Material 3 background */
+      window#waybar {
+        background: #1C1B1F;
+        color: #E6E0E9;
+        padding: 8px 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+      
+      /* Material 3 elevated surface cards */
+      .modules-left,
+      .modules-center,
+      .modules-right {
+        background: transparent;
+      }
+      
+      /* Workspace buttons as Material 3 chips */
+      #workspaces {
+        background: #2B2930;
+        border-radius: 20px;
+        padding: 2px 4px;
+        margin: 4px 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
       }
       
       #workspaces button {
-        padding: 0 8px;
-        background-color: transparent;
-        color: #6c7086;
+        background: transparent;
+        color: #CAC4D0;
+        border-radius: 16px;
+        padding: 4px 12px;
+        margin: 2px;
+        min-width: 32px;
+        transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
       }
       
       #workspaces button:hover {
-        background: rgba(137, 180, 250, 0.2);
-        color: #cdd6f4;
+        background: rgba(208, 188, 255, 0.08);
+        color: #E6E0E9;
       }
       
       #workspaces button.active {
-        background-color: #89b4fa;
-        color: #1e1e2e;
+        background: #D0BCFF;
+        color: #1C1B1F;
+        font-weight: 600;
       }
       
       #workspaces button.urgent {
-        background-color: #f38ba8;
-        color: #1e1e2e;
+        background: #F2B8B5;
+        color: #1C1B1F;
+        font-weight: 600;
       }
       
-      #mode {
-        background-color: #64727d;
-        border-bottom: 3px solid #cdd6f4;
+      /* Window title in elevated card */
+      #window {
+        background: #2B2930;
+        color: #E6E0E9;
+        border-radius: 12px;
+        padding: 6px 16px;
+        margin: 4px 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        font-weight: 400;
       }
       
-      #clock,
-      #battery,
-      #cpu,
-      #memory,
-      #disk,
-      #temperature,
-      #backlight,
-      #network,
-      #pulseaudio,
-      #custom-media,
-      #tray,
-      #mode,
-      #idle_inhibitor,
-      #custom-power {
-        padding: 0 10px;
-        color: #cdd6f4;
-      }
-      
-      #window,
-      #workspaces {
-        margin: 0 4px;
-      }
-      
-      .modules-left > widget:first-child > #workspaces {
-        margin-left: 0;
-      }
-      
-      .modules-right > widget:last-child > #workspaces {
-        margin-right: 0;
-      }
-      
+      /* Clock as prominent center card */
       #clock {
-        background-color: rgba(137, 180, 250, 0.2);
+        background: #381E72;
+        color: #E8DEF8;
+        border-radius: 16px;
+        padding: 8px 20px;
+        margin: 4px 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        font-weight: 600;
+        font-size: 14px;
       }
       
+      /* Right side widgets as Material 3 cards */
+      #tray,
+      #pulseaudio,
+      #network,
       #battery {
-        background-color: rgba(166, 227, 161, 0.2);
+        background: #2B2930;
+        color: #E6E0E9;
+        border-radius: 12px;
+        padding: 6px 12px;
+        margin: 4px 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
       }
       
-      #battery.charging, #battery.plugged {
-        color: #a6e3a1;
-        background-color: rgba(166, 227, 161, 0.2);
+      /* Hover effects for interactive cards */
+      #pulseaudio:hover,
+      #network:hover,
+      #battery:hover {
+        background: #36343B;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
       }
       
-      @keyframes blink {
-        to {
-          background-color: rgba(243, 139, 168, 0.8);
-          color: #1e1e2e;
-        }
-      }
-      
-      #battery.critical:not(.charging) {
-        background-color: #f38ba8;
-        color: #1e1e2e;
-        animation-name: blink;
-        animation-duration: 0.5s;
-        animation-timing-function: linear;
-        animation-iteration-count: infinite;
-        animation-direction: alternate;
-      }
-      
-      label:focus {
-        background-color: #1e1e2e;
-      }
-      
-      #network {
-        background-color: rgba(250, 179, 135, 0.2);
-      }
-      
-      #network.disconnected {
-        background-color: rgba(243, 139, 168, 0.2);
-      }
-      
-      #pulseaudio {
-        background-color: rgba(245, 194, 231, 0.2);
-      }
-      
-      #pulseaudio.muted {
-        background-color: rgba(108, 112, 134, 0.2);
-        color: #6c7086;
-      }
-      
+      /* System tray special styling */
       #tray {
-        background-color: rgba(166, 227, 161, 0.2);
+        padding: 4px 8px;
       }
       
       #tray > .passive {
@@ -267,16 +232,65 @@
       
       #tray > .needs-attention {
         -gtk-icon-effect: highlight;
-        background-color: #f38ba8;
+        background: #F2B8B5;
+        color: #1C1B1F;
       }
       
-      #custom-power {
-        background-color: rgba(243, 139, 168, 0.2);
-        color: #f38ba8;
+      /* Audio widget states */
+      #pulseaudio.muted {
+        background: #49454F;
+        color: #938F99;
       }
       
-      #custom-power:hover {
-        background-color: rgba(243, 139, 168, 0.4);
+      /* Network states */
+      #network.disconnected {
+        background: #49454F;
+        color: #938F99;
+      }
+      
+      /* Battery widget with status colors */
+      #battery {
+        background: #1E4B3B;
+        color: #A8F5C7;
+      }
+      
+      #battery.charging,
+      #battery.plugged {
+        background: #1E4B3B;
+        color: #A8F5C7;
+      }
+      
+      @keyframes battery-critical {
+        0% {
+          background: #49191C;
+          color: #FFB4AB;
+        }
+        50% {
+          background: #F2B8B5;
+          color: #1C1B1F;
+        }
+        100% {
+          background: #49191C;
+          color: #FFB4AB;
+        }
+      }
+      
+      #battery.critical {
+        animation: battery-critical 1s ease-in-out infinite;
+      }
+      
+      
+      /* Tooltip styling */
+      tooltip {
+        background: #322F37;
+        color: #E6E0E9;
+        border-radius: 8px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      }
+      
+      tooltip label {
+        padding: 6px 12px;
       }
     '';
   };

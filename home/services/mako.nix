@@ -9,19 +9,19 @@
     enable = true;
     
     settings = {
-      # Appearance
-      background-color = "#1e1e2e";
-      text-color = "#cdd6f4";
-      border-color = "#89b4fa";
-      progress-color = "#313244";
+      # Material 3 appearance matching waybar
+      background-color = "#2B2930";
+      text-color = "#E6E0E9";
+      border-color = "#49454F";
+      progress-color = "#D0BCFF";
       
-      # Geometry
+      # Geometry with Material 3 elevation
       width = 400;
-      height = 150;
-      margin = "10";
-      padding = "15";
-      border-size = 2;
-      border-radius = 8;
+      height = 120;
+      margin = "12";
+      padding = "16";
+      border-size = 1;
+      border-radius = 12;
       
       # Behavior
       default-timeout = 5000;
@@ -32,8 +32,8 @@
       # Position
       anchor = "top-right";
       
-      # Font
-      font = "Sans 11";
+      # Material 3 typography
+      font = "Roboto 12";
       
       # Icon settings
       icon-path = "${pkgs.adwaita-icon-theme}/share/icons/Adwaita";
@@ -43,19 +43,23 @@
       group-by = "app-name";
     };
     
-    # Extra configuration for different urgency levels
+    # Extra configuration for different urgency levels with Material 3 colors
     extraConfig = ''
       [urgency=low]
-      border-color=#6c7086
+      border-color=#938F99
+      background-color=#36343B
       default-timeout=3000
       
       [urgency=normal]
-      border-color=#89b4fa
+      border-color=#D0BCFF
+      background-color=#381E72
+      text-color=#E8DEF8
       default-timeout=5000
       
       [urgency=critical]
-      border-color=#f38ba8
-      text-color=#f38ba8
+      border-color=#F2B8B5
+      background-color=#49191C
+      text-color=#FFB4AB
       default-timeout=0
       
       [app-name="Firefox"]

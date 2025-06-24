@@ -24,32 +24,32 @@
       anchor = top-center
       margin-top = 50
       
-      # Appearance
-      background-color = rgba(30, 30, 46, 0.9)
-      text-color = rgba(205, 214, 244, 1.0)
-      border-color = rgba(137, 180, 250, 0.8)
-      border-width = 2
+      # Material 3 appearance matching waybar
+      background-color = rgba(43, 41, 48, 0.95)
+      text-color = rgba(230, 224, 233, 1.0)
+      border-color = rgba(73, 69, 79, 0.6)
+      border-width = 1
       border-radius = 12
       
       # Size
-      width = 400
-      height = 80
-      padding = 20
+      width = 380
+      height = 72
+      padding = 16
       
-      # Font
-      font-family = Sans
-      font-size = 14
+      # Material 3 typography
+      font-family = Roboto
+      font-size = 13
       
-      # Animation
+      # Smooth Material animations
       fade-in-duration = 200
-      fade-out-duration = 500
+      fade-out-duration = 400
       timeout = 2000
       
-      # Progress bar settings
-      progress-bar-height = 6
-      progress-bar-background-color = rgba(49, 50, 68, 1.0)
-      progress-bar-color = rgba(137, 180, 250, 1.0)
-      progress-bar-border-radius = 3
+      # Material 3 progress bar
+      progress-bar-height = 4
+      progress-bar-background-color = rgba(73, 69, 79, 1.0)
+      progress-bar-color = rgba(208, 188, 255, 1.0)
+      progress-bar-border-radius = 2
       
       # Icons
       icon-size = 32
