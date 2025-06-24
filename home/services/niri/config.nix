@@ -17,6 +17,7 @@
       "MOZ_ENABLE_WAYLAND" = "1";
       "SDL_VIDEODRIVER" = "wayland";
       "DISPLAY" = ":0";
+      "BROWSER" = "app.zen_browser.zen";
     };
 
     # Startup programs
