@@ -49,7 +49,34 @@ let
         { app-id = "chromium-browser"; }
         { app-id = "edge"; }
       ];
-      open-maximized = true;
+
+      default-column-width = {
+        proportion = 0.9;
+      };
+    }
+    {
+      matches = [
+        {
+          app-id = "zed";
+        }
+      ];
+
+      default-column-width = {
+        proportion = 0.7;
+      };
+    }
+    {
+      matches = [
+        {
+          app-id = "alacritty";
+        }
+      ];
+
+      default-column-width = {
+        proportion = 0.3;
+      };
+
+      opacity = 0.9;
     }
     {
       matches = [
@@ -210,33 +237,8 @@ let
       open-floating = true;
     }
     {
-      matches = [ { app-id = "spotify"; } ];
-      border = {
-        active.color = "#00000000"; # Transparent border (hides title bar)
-        inactive.color = "#00000000"; # Transparent border (hides title bar)
-      };
-    }
-    {
-      matches = [ { title = "Spotify Premium"; } ];
-      border = {
-        active.color = "#00000000"; # Transparent border (hides title bar)
-        inactive.color = "#00000000"; # Transparent border (hides title bar)
-      };
-    }
-    {
-      matches = [ { title = "Spotify"; } ];
-      border = {
-        active.color = "#00000000"; # Transparent border (hides title bar)
-        inactive.color = "#00000000"; # Transparent border (hides title bar)
-      };
-    }
-    {
       matches = [ { is-active = false; } ];
       opacity = 0.95; # Make inactive windows slightly transparent
-    }
-    {
-      matches = [ { app-id = "alacritty"; } ];
-      opacity = 0.9; # Make terminal slightly transparent
     }
   ];
 in
