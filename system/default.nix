@@ -34,6 +34,9 @@ let
 
   # Desktop-specific modules (fabio-nixos)
   desktop = common ++ [
+    # No RGB
+    ./core/no-rgb.nix
+
     # Desktop hardware
     ./hardware/amd.nix
 
@@ -52,7 +55,7 @@ let
     ./hardware/macbook-audio.nix
     ./programs/bluetooth.nix
     ./hardware/intel-graphics.nix
-    
+
     # No gaming, desktop-heavy apps, filesystem mounts, or DuckDNS for laptop
   ];
 in {
