@@ -64,14 +64,7 @@
 
     # Screenshots
     "Print".action = screenshot;
-    "Mod+Ctrl+Shift+4".action = spawn [
-      "grim"
-      "-g"
-      "\"$(slurp)\""
-      "-"
-      "|"
-      "wl-copy"
-    ];
+    "Mod+Ctrl+Shift+4".action = screenshot;
 
     # System shortcuts
     "Mod+Shift+M".action = quit;
