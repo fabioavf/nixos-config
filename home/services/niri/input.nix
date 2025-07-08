@@ -11,9 +11,9 @@ in
   programs.niri.settings.input = {
     keyboard = {
       xkb = {
-        layout = "us,us-cedilla";
-        variant = ",intl-cedilla";
-        options = "";
+        layout = "us,us";
+        variant = ",intl";
+        options = "grp:alt_shift_toggle";
       };
       repeat-delay = 600;
       repeat-rate = 25;

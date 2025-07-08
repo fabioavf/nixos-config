@@ -20,7 +20,7 @@
         # Module layout
         modules-left = [ "niri/workspaces" "niri/window" ];
         modules-center = [ "clock" ];
-        modules-right = [ "cpu" "memory" "disk" "network" "pulseaudio" "tray" "battery" ];
+        modules-right = [ "custom/keyboard-layout" "cpu" "memory" "disk" "network" "pulseaudio" "tray" "battery" ];
 
         # Workspaces module
         "niri/workspaces" = {
@@ -307,7 +307,6 @@
         animation: battery-critical 1s ease-in-out infinite;
       }
 
-
       /* Tooltip styling */
       tooltip {
         background: #322F37;
@@ -332,5 +331,8 @@
     pavucontrol
     # For power statistics (if on laptop)
     gnome-power-manager
+    # For keyboard layout detection
+    xorg.setxkbmap
+    jq
   ];
 }

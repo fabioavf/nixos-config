@@ -68,6 +68,9 @@
 
     # System shortcuts
     "Mod+Shift+M".action = quit;
+    
+    # Keyboard layout switching
+    "Mod+Shift+Space".action = spawn [ "niri" "msg" "action" "switch-layout" "next" ];
 
     # Media keys (using swayosd for visual feedback)
     "XF86AudioRaiseVolume".action = spawn [
