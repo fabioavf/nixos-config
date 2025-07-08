@@ -9,7 +9,7 @@
     isNormalUser = true;
     description = "Fabio";
     shell = pkgs.zsh;
-    extraGroups = [ "networkmanager" "wheel" "audio" "video" "corectrl" "input" "render" ];
+    extraGroups = [ "networkmanager" "wheel" "audio" "video" "corectrl" "input" "render" "docker"];
     packages = with pkgs; [
       # Basic user utilities
       git

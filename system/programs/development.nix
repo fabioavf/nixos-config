@@ -10,7 +10,7 @@
     # ========================================
     gcc                     # C/C++ compiler (system dependency)
     openssl                 # Cryptographic library (system dependency)
-    
+
     # ========================================
     # System-level Network Tools
     # ========================================
@@ -19,11 +19,13 @@
     rsync                   # File synchronization
 
     gh                      # GitHub CLI
-    
+
     # ========================================
     # Container Runtime (System Service)
     # ========================================
     docker                  # Container runtime
     docker-compose          # Container orchestration
   ];
+
+  virtualisation.docker.enable = true;
 }
