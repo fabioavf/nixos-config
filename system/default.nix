@@ -58,6 +58,15 @@ let
 
     # No gaming, desktop-heavy apps, filesystem mounts, or DuckDNS for laptop
   ];
+
+  # Vivobook-specific modules (fabio-vivobook) 
+  vivobook = common ++ [
+    # Vivobook hardware (AMD laptop)
+    ./hardware/amd-laptop.nix
+    ./programs/bluetooth.nix
+    
+    # Development laptop - no gaming, desktop-heavy apps, filesystem mounts, or DuckDNS
+  ];
 in {
-  inherit desktop laptop;
+  inherit desktop laptop vivobook;
 }

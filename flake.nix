@@ -56,8 +56,8 @@
 
       flake =
         let
-          # Get desktop and laptop module arrays from system/default.nix
-          inherit (import ./system) desktop laptop;
+          # Get desktop, laptop, and vivobook module arrays from system/default.nix
+          inherit (import ./system) desktop laptop vivobook;
 
           # Special args to pass to modules
           specialArgs = { inherit inputs; };
@@ -69,6 +69,10 @@
             ];
 
             fabio-macbook = [
+              ./home/profiles/fabio.nix
+            ];
+
+            fabio-vivobook = [
               ./home/profiles/fabio.nix
             ];
           };
@@ -110,6 +114,26 @@
                     useUserPackages = true;
                     backupFileExtension = "backup";
                     users.fabio.imports = homeImports.fabio-macbook;
+                    extraSpecialArgs = specialArgs;
+                  };
+                }
+              ];
+            };
+
+            # Vivobook configuration (AMD laptop)
+            fabio-vivobook = inputs.nixpkgs.lib.nixosSystem {
+              system = "x86_64-linux";
+              inherit specialArgs;
+              modules = vivobook ++ [
+                ./hosts/fabio-vivobook/configuration.nix
+                inputs.sops-nix.nixosModules.sops
+                inputs.home-manager.nixosModules.home-manager
+                {
+                  home-manager = {
+                    useGlobalPkgs = true;
+                    useUserPackages = true;
+                    backupFileExtension = "backup";
+                    users.fabio.imports = homeImports.fabio-vivobook;
                     extraSpecialArgs = specialArgs;
                   };
                 }
