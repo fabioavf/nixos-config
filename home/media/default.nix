@@ -15,10 +15,11 @@
           --add-flags "--force-device-scale-factor=1.5"
       '';
     }))
-    
+    youtube-music
+
     # Media player control
     playerctl               # Media player control
-    
+
     # Audio control
     pavucontrol            # Audio control GUI
   ];
