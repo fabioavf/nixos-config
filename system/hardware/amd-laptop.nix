@@ -36,7 +36,7 @@ lib.mkIf (config.networking.hostName == "fabio-vivobook") {
       amdvlk
       # VAAPI support for hardware video acceleration
       libva
-      mesa.drivers
+      mesa
     ];
 
     extraPackages32 = with pkgs.driversi686Linux; [
@@ -69,7 +69,6 @@ lib.mkIf (config.networking.hostName == "fabio-vivobook") {
   # ========================================
   services.thermald.enable = true;  # Thermal management
   services.auto-cpufreq.enable = true;  # Automatic CPU frequency scaling
-  services.power-profiles-daemon.enable = true;  # Power profiles
 
   # ========================================
   # AMD Laptop Performance Tuning

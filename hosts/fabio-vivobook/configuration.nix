@@ -16,8 +16,7 @@
   environment.systemPackages = with pkgs; [
     git
     # Flake packages (Vivobook)
-    inputs.quickshell.packages.x86_64-linux.default
-    inputs.claude-desktop.packages.x86_64-linux.default
+    # inputs.claude-desktop.packages.x86_64-linux.default
     # Custom packages (claude-code available on laptop)
     inputs.self.packages.x86_64-linux.claude-code
   ];
