@@ -5,11 +5,22 @@
 
 let
   # Machine detection
+  isVivobook = osConfig.networking.hostName == "fabio-vivobook";
   isMacBook = osConfig.networking.hostName == "fabio-macbook";
   isDesktop = osConfig.networking.hostName == "fabio-nixos";
 in
 {
   programs.niri.settings.outputs = lib.mkMerge [
+    (lib.mkIf isVivobook {
+      "eDP-1" = {
+        mode = {
+          width = 1920;
+          height = 1080;
+          refresh = 60.0;
+        };
+        scale = 1.0;
+      };
+    })
     (lib.mkIf isMacBook {
       "eDP-1" = {
         mode = {
