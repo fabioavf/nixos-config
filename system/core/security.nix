@@ -4,8 +4,16 @@
   # Enable firewall with comprehensive port configuration
   networking.firewall = {
     enable = true;
-    # Allow SSH
-    allowedTCPPorts = [ 22 ];
+    # Allow SSH and media services ports
+    allowedTCPPorts = [ 22 ] ++ (lib.optionals (config.networking.hostName == "fabio-nixos") [
+      8096      # Jellyfin HTTP
+      8920      # Jellyfin HTTPS
+      8989      # Sonarr
+      7878      # Radarr
+      9696      # Prowlarr
+      8080      # qBittorrent
+      6767      # Bazarr
+    ]);
     # Gaming and streaming ports
     allowedTCPPortRanges = [
       # Steam

@@ -8,5 +8,6 @@
     ./openssh.nix
     ./filesystems.nix
     ./duckdns.nix
+    ./media.nix
   ];
 }

@@ -51,6 +51,7 @@
     # ========================================
     obsidian # Note-taking
     qbittorrent # Torrenting
+    barrier
 
     # ========================================
     # Qt/GTK Support (Common)

@@ -47,6 +47,7 @@ let
     # Desktop-specific services
     ./services/filesystems.nix
     ./services/duckdns.nix
+    ./services/media.nix
   ];
 
   # Laptop-specific modules (fabio-macbook)
