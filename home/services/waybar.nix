@@ -133,191 +133,357 @@
           on-click = "gnome-power-statistics";
         };
 
+        # Custom keyboard layout module
+        "custom/keyboard-layout" = {
+          exec = "swaymsg -t get_inputs | jq -r '.[] | select(.type==\"keyboard\") | .xkb_active_layout_name' | head -1";
+          interval = 1;
+          format = " {}";
+          tooltip = false;
+        };
       };
     };
 
-    # Material 3 Waybar styling
+    # Metallic gradient Waybar styling
     style = ''
       * {
         border: none;
-        font-family: "Roboto", "JetBrains Mono", sans-serif;
+        font-family: "Inter", "SF Pro Display", "Roboto", sans-serif;
         font-size: 13px;
         font-weight: 500;
         min-height: 0;
         border-radius: 0;
+        /* Smooth all transitions */
+        transition-property: background-color, background-image, color, box-shadow, opacity;
+        transition-duration: 0.3s;
+        transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
       }
 
-      /* Main bar with solid Material 3 background */
+      /* Main bar with metallic gradient */
       window#waybar {
-        background: #1C1B1F;
-        color: #E6E0E9;
-        padding: 8px 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        background-image: linear-gradient(
+          to bottom,
+          #0A0A0C 0%,
+          #141416 50%,
+          #0A0A0C 100%
+        );
+        color: #E8EAED;
+        padding: 6px 8px;
+        box-shadow: 
+          0 2px 10px rgba(0, 0, 0, 0.8),
+          inset 0 1px 0 rgba(148, 152, 161, 0.1),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.5);
       }
 
-      /* Material 3 elevated surface cards */
+      /* Module sections */
       .modules-left,
       .modules-center,
       .modules-right {
         background: transparent;
       }
 
-      /* Workspace buttons as Material 3 chips */
+      /* Workspace container with fluid shape */
       #workspaces {
-        background: #2B2930;
-        border-radius: 20px;
-        padding: 2px 4px;
-        margin: 4px 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        background-image: linear-gradient(
+          135deg,
+          #1C1E22 0%,
+          #2A2D33 50%,
+          #1C1E22 100%
+        );
+        border-radius: 24px;
+        padding: 3px 6px;
+        margin: 2px 12px 2px 4px;
+        box-shadow: 
+          0 4px 8px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(148, 152, 161, 0.08),
+          inset 0 -1px 2px rgba(0, 0, 0, 0.3);
       }
 
       #workspaces button {
         background: transparent;
-        color: #CAC4D0;
-        border-radius: 16px;
-        padding: 4px 12px;
-        margin: 2px;
-        min-width: 32px;
-        transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+        color: #9AA0A6;
+        border-radius: 18px;
+        padding: 5px 14px;
+        margin: 1px 2px;
+        min-width: 36px;
+        transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
       }
 
       #workspaces button:hover {
-        background: rgba(208, 188, 255, 0.08);
-        color: #E6E0E9;
+        background-image: linear-gradient(
+          135deg,
+          rgba(148, 152, 161, 0.15),
+          rgba(148, 152, 161, 0.05)
+        );
+        color: #E8EAED;
+        box-shadow: 
+          0 2px 4px rgba(0, 0, 0, 0.2),
+          inset 0 1px 0 rgba(148, 152, 161, 0.1);
       }
 
       #workspaces button.active {
-        background: #D0BCFF;
-        color: #1C1B1F;
+        background-image: linear-gradient(
+          135deg,
+          #44474F 0%,
+          #5A5E67 50%,
+          #44474F 100%
+        );
+        color: #FFFFFF;
         font-weight: 600;
+        box-shadow: 
+          0 2px 6px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(148, 152, 161, 0.2),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.2);
       }
 
       #workspaces button.urgent {
-        background: #F2B8B5;
-        color: #1C1B1F;
+        background-image: linear-gradient(
+          135deg,
+          #6B4445 0%,
+          #8A5556 100%
+        );
+        color: #FFFFFF;
         font-weight: 600;
       }
 
-      /* Window title in elevated card */
+      /* Window title with metallic surface */
       #window {
-        background: #2B2930;
-        color: #E6E0E9;
-        border-radius: 12px;
-        padding: 6px 16px;
-        margin: 4px 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        background-image: linear-gradient(
+          135deg,
+          #1C1E22 0%,
+          #26282D 100%
+        );
+        color: #9AA0A6;
+        border-radius: 20px;
+        padding: 6px 18px;
+        margin: 2px 8px;
+        box-shadow: 
+          0 3px 6px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(148, 152, 161, 0.05);
         font-weight: 400;
       }
 
-      /* Clock as prominent center card */
+      /* Clock with metallic shine */
       #clock {
-        background: #381E72;
-        color: #E8DEF8;
-        border-radius: 16px;
-        padding: 8px 20px;
-        margin: 4px 12px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        background-image: linear-gradient(
+          135deg,
+          #2A2D33 0%,
+          #383C44 50%,
+          #2A2D33 100%
+        );
+        color: #FFFFFF;
+        border-radius: 20px;
+        padding: 7px 22px;
+        margin: 2px 12px;
+        box-shadow: 
+          0 4px 10px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(148, 152, 161, 0.15),
+          inset 0 -1px 2px rgba(0, 0, 0, 0.3);
         font-weight: 600;
         font-size: 14px;
+        letter-spacing: 0.5px;
       }
 
-      /* Right side widgets as Material 3 cards */
+      /* System modules with liquid metal appearance */
       #tray,
       #pulseaudio,
       #network,
       #battery,
       #cpu,
       #memory,
-      #disk {
-        background: #2B2930;
-        color: #E6E0E9;
-        border-radius: 12px;
-        padding: 6px 12px;
-        margin: 4px 4px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+      #disk,
+      #custom-keyboard-layout {
+        background-image: linear-gradient(
+          135deg,
+          #1C1E22 0%,
+          #26282D 100%
+        );
+        color: #E8EAED;
+        border-radius: 18px;
+        padding: 6px 14px;
+        margin: 2px 3px;
+        box-shadow: 
+          0 3px 6px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(148, 152, 161, 0.06);
+        transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
       }
 
-      /* Hover effects for interactive cards */
+      /* Hover effects with metallic glow */
       #pulseaudio:hover,
       #network:hover,
       #battery:hover,
       #cpu:hover,
       #memory:hover,
-      #disk:hover {
-        background: #36343B;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      #disk:hover,
+      #custom-keyboard-layout:hover {
+        background-image: linear-gradient(
+          135deg,
+          #2A2D33 0%,
+          #34373E 100%
+        );
+        box-shadow: 
+          0 4px 10px rgba(0, 0, 0, 0.4),
+          0 0 20px rgba(148, 152, 161, 0.1),
+          inset 0 1px 0 rgba(148, 152, 161, 0.1);
       }
 
-      /* System tray special styling */
+      /* System tray with subtle styling */
       #tray {
-        padding: 4px 8px;
+        padding: 4px 10px;
+        background-image: linear-gradient(
+          135deg,
+          rgba(28, 30, 34, 0.8),
+          rgba(38, 40, 45, 0.8)
+        );
       }
 
       #tray > .passive {
         -gtk-icon-effect: dim;
+        opacity: 0.6;
       }
 
       #tray > .needs-attention {
         -gtk-icon-effect: highlight;
-        background: #F2B8B5;
-        color: #1C1B1F;
+        background-image: linear-gradient(
+          135deg,
+          #6B4445 0%,
+          #8A5556 100%
+        );
       }
 
-      /* Audio widget states */
+      /* Audio widget muted state */
       #pulseaudio.muted {
-        background: #49454F;
-        color: #938F99;
+        background-image: linear-gradient(
+          135deg,
+          #1A1A1C 0%,
+          #202022 100%
+        );
+        color: #5A5E67;
+        opacity: 0.7;
       }
 
-      /* Network states */
+      /* Network disconnected state */
       #network.disconnected {
-        background: #49454F;
-        color: #938F99;
+        background-image: linear-gradient(
+          135deg,
+          #1A1A1C 0%,
+          #202022 100%
+        );
+        color: #5A5E67;
+        opacity: 0.7;
       }
 
-      /* Battery widget with status colors */
+      /* Battery with metallic green */
       #battery {
-        background: #1E4B3B;
+        background-image: linear-gradient(
+          135deg,
+          #1C2622 0%,
+          #263330 100%
+        );
         color: #A8F5C7;
       }
 
       #battery.charging,
       #battery.plugged {
-        background: #1E4B3B;
+        background-image: linear-gradient(
+          135deg,
+          #1E3A2F 0%,
+          #2A4A3E 100%
+        );
         color: #A8F5C7;
+        box-shadow: 
+          0 3px 8px rgba(0, 0, 0, 0.3),
+          0 0 15px rgba(168, 245, 199, 0.15),
+          inset 0 1px 0 rgba(168, 245, 199, 0.1);
       }
 
       @keyframes battery-critical {
         0% {
-          background: #49191C;
+          background-image: linear-gradient(
+            135deg,
+            #3A1A1C 0%,
+            #4A2022 100%
+          );
           color: #FFB4AB;
         }
         50% {
-          background: #F2B8B5;
-          color: #1C1B1F;
+          background-image: linear-gradient(
+            135deg,
+            #6B4445 0%,
+            #8A5556 100%
+          );
+          color: #FFFFFF;
+          box-shadow: 
+            0 3px 10px rgba(255, 180, 171, 0.3),
+            0 0 20px rgba(255, 180, 171, 0.2);
         }
         100% {
-          background: #49191C;
+          background-image: linear-gradient(
+            135deg,
+            #3A1A1C 0%,
+            #4A2022 100%
+          );
           color: #FFB4AB;
         }
       }
 
       #battery.critical {
-        animation: battery-critical 1s ease-in-out infinite;
+        animation: battery-critical 1.5s ease-in-out infinite;
       }
 
-      /* Tooltip styling */
+      #battery.warning {
+        background-image: linear-gradient(
+          135deg,
+          #3A3A1C 0%,
+          #4A4A22 100%
+        );
+        color: #FFE082;
+      }
+
+      /* CPU with subtle animation potential */
+      #cpu {
+        background-image: linear-gradient(
+          135deg,
+          #1C1E22 0%,
+          #26282D 100%
+        );
+      }
+
+      /* Memory with blue tint */
+      #memory {
+        background-image: linear-gradient(
+          135deg,
+          #1C1E26 0%,
+          #262833 100%
+        );
+      }
+
+      /* Disk with purple tint */
+      #disk {
+        background-image: linear-gradient(
+          135deg,
+          #201C26 0%,
+          #2A2633 100%
+        );
+      }
+
+      /* Tooltip with metallic styling */
       tooltip {
-        background: #322F37;
-        color: #E6E0E9;
-        border-radius: 8px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        background-image: linear-gradient(
+          135deg,
+          #2A2D33 0%,
+          #34373E 100%
+        );
+        color: #E8EAED;
+        border-radius: 12px;
+        border: 1px solid rgba(148, 152, 161, 0.1);
+        box-shadow: 
+          0 8px 20px rgba(0, 0, 0, 0.6),
+          inset 0 1px 0 rgba(148, 152, 161, 0.1);
       }
 
       tooltip label {
-        padding: 6px 12px;
+        padding: 8px 14px;
+        font-size: 12px;
       }
     '';
   };
