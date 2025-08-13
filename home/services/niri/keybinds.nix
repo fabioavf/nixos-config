@@ -58,6 +58,10 @@
     "Mod+Shift+8".action.move-column-to-workspace = 8;
     "Mod+Shift+9".action.move-column-to-workspace = 9;
 
+    # Move windows between monitors
+    "Mod+Ctrl+Left".action = move-window-to-monitor-left;
+    "Mod+Ctrl+Right".action = move-window-to-monitor-right;
+
     # Window management
     "Mod+Shift+F".action = fullscreen-window;
     "Mod+F".action = maximize-column;
@@ -68,7 +72,7 @@
 
     # System shortcuts
     "Mod+Shift+M".action = quit;
-    
+
     # Keyboard layout switching
     "Mod+Shift+Space".action = spawn [ "niri" "msg" "action" "switch-layout" "next" ];
 

@@ -45,6 +45,7 @@
     # ========================================
     vlc # Media player (efficient)
     playerctl # Media player control
+    obs-studio              # Screen recording/streaming
 
     # ========================================
     # Productivity (Common)
