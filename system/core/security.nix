@@ -11,7 +11,7 @@
       8989      # Sonarr
       7878      # Radarr
       9696      # Prowlarr
-      8080      # qBittorrent
+      8181      # qBittorrent
       6767      # Bazarr
     ]);
     # Gaming and streaming ports
@@ -34,19 +34,19 @@
     # Allow ping
     allowPing = true;
   };
-  
+
   # Additional firewall management tools
   environment.systemPackages = with pkgs; [
     iptables   # Direct iptables management
   ];
-  
+
   # Fail2ban for SSH protection
   services.fail2ban = {
     enable = true;
     bantime = "24h";
     bantime-increment.enable = true;
   };
-  
+
   # Sunshine streaming service permissions
   services.udev.extraRules = ''
     # Allow access to DRM devices for video capture
