@@ -59,7 +59,5 @@
     # Qt support
     kdePackages.qtdeclarative
 
-    # Custom packages
-    inputs.self.packages.x86_64-linux.claude-code
   ];
 }

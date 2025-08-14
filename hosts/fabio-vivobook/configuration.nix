@@ -17,8 +17,6 @@
     git
     # Flake packages (Vivobook)
     # inputs.claude-desktop.packages.x86_64-linux.default
-    # Custom packages (claude-code available on laptop)
-    inputs.self.packages.x86_64-linux.claude-code
   ];
 
   # System state version

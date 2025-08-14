@@ -1,5 +1,0 @@
-module Lumin.Config
-
-singleton Material 1.0 Material.qml
-singleton Device 1.0 Device.qml
-singleton Layout 1.0 Layout.qml

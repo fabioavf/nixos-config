@@ -270,7 +270,6 @@ modules/
 - **nixpkgs**: NixOS unstable branch
 - **sops-nix**: Secrets management with age encryption
 - **home-manager**: User environment and dotfiles management
-- **quickshell**: Custom shell/bar (git.outfoxxed.me)
 - **niri**: Niri window manager (github:sodiboo/niri-flake)
 - **claude-desktop**: Claude AI desktop app (github:k3d3/claude-desktop-linux-flake)
 

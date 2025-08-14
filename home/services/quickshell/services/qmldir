@@ -1,7 +1,0 @@
-module Lumin.Services
-
-NiriIPC 1.0 NiriIPC.qml
-SystemStats 1.0 SystemStats.qml
-SystemStatsService 1.0 SystemStatsService.qml
-AudioService 1.0 AudioService.qml
-KeyboardLayoutService 1.0 KeyboardLayoutService.qml

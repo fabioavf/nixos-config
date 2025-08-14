@@ -20,6 +20,9 @@
 
     gh                      # GitHub CLI
 
+    # Claude Code
+    claude-code
+
     # ========================================
     # Container Runtime (System Service)
     # ========================================

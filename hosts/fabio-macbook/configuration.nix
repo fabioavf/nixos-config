@@ -16,10 +16,7 @@
   environment.systemPackages = with pkgs; [
     git
     # Flake packages (MacBook)
-    inputs.quickshell.packages.x86_64-linux.default
     inputs.claude-desktop.packages.x86_64-linux.default
-    # Custom packages (claude-code available on laptop too)
-    inputs.self.packages.x86_64-linux.claude-code
     # MacBook audio driver
     inputs.self.packages.x86_64-linux.snd-hda-macbookpro
   ];
