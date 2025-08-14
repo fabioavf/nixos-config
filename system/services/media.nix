@@ -20,13 +20,13 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
 
   # Media directory structure
   systemd.tmpfiles.rules = [
-    "d /mnt/hd/media 0755 media media -"
-    "d /mnt/hd/media/tv 0755 media media -"
-    "d /mnt/hd/media/movies 0755 media media -"
-    "d /mnt/hd/media/downloads 0755 media media -"
-    "d /mnt/hd/media/downloads/complete 0755 media media -"
-    "d /mnt/hd/media/downloads/incomplete 0755 media media -"
-    "d /mnt/hd/media/torrents 0755 media media -"
+    "d /mnt/hd/media 0775 fabio media -"
+    "d /mnt/hd/media/tv 0775 fabio media -"
+    "d /mnt/hd/media/movies 0775 fabio media -"
+    "d /mnt/hd/media/downloads 0775 fabio media -"
+    "d /mnt/hd/media/downloads/complete 0775 fabio media -"
+    "d /mnt/hd/media/downloads/incomplete 0775 fabio media -"
+    "d /mnt/hd/media/torrents 0775 fabio media -"
     "d /var/lib/jellyfin 0755 media media -"
     "d /var/lib/sonarr 0755 media media -"
     "d /var/lib/radarr 0755 media media -"
