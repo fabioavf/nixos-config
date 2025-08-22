@@ -1,24 +1,32 @@
 # /etc/nixos/system/programs/development.nix
 # System-wide development tools and dependencies
 
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
   environment.systemPackages = with pkgs; [
     # ========================================
     # System-wide Development Dependencies
     # ========================================
-    gcc                     # C/C++ compiler (system dependency)
-    openssl                 # Cryptographic library (system dependency)
+    gcc # C/C++ compiler (system dependency)
+    openssl # Cryptographic library (system dependency)
+    uv
+    yarn
 
     # ========================================
     # System-level Network Tools
     # ========================================
-    wget                    # Basic download tool
-    curl                    # HTTP client
-    rsync                   # File synchronization
+    wget # Basic download tool
+    curl # HTTP client
+    rsync # File synchronization
 
-    gh                      # GitHub CLI
+    gh # GitHub CLI
 
     # Claude Code
     claude-code
@@ -26,9 +34,13 @@
     # ========================================
     # Container Runtime (System Service)
     # ========================================
-    docker                  # Container runtime
-    docker-compose          # Container orchestration
+    docker # Container runtime
+    docker-compose # Container orchestration
   ];
+
+  programs.nix-ld = {
+    enable = true;
+  };
 
   virtualisation.docker.enable = true;
 }

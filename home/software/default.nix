@@ -12,5 +12,6 @@
     moonlight-qt
     telegram-desktop
     fusee-nano
+    marktext
   ];
 }

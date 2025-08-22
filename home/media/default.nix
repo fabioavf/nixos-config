@@ -1,7 +1,12 @@
 # /etc/nixos/home/media/default.nix
 # Media applications and tools
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   # Media packages for all devices
@@ -9,18 +14,19 @@
     # ========================================
     # Music and Audio
     # ========================================
-    (spotify.overrideAttrs (oldAttrs: {
-      postFixup = (oldAttrs.postFixup or "") + ''
-        wrapProgram $out/bin/spotify \
-          --add-flags "--force-device-scale-factor=1.5"
-      '';
-    }))
+    # (spotify.overrideAttrs (oldAttrs: {
+    #   postFixup = (oldAttrs.postFixup or "") + ''
+    #     wrapProgram $out/bin/spotify \
+    #       --add-flags "--force-device-scale-factor=1.5"
+    #   '';
+    # }))
+    spotifywm
     youtube-music
 
     # Media player control
-    playerctl               # Media player control
+    playerctl # Media player control
 
     # Audio control
-    pavucontrol            # Audio control GUI
+    pavucontrol # Audio control GUI
   ];
 }

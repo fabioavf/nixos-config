@@ -20,6 +20,14 @@ in
         };
         scale = 1.0;
       };
+      "HDMI-A-1" = {
+        mode = {
+          width = 2560;
+          height = 1440;
+          refresh = 75.0;
+        };
+        scale = 1.0;
+      };
     })
     (lib.mkIf isMacBook {
       "eDP-1" = {
