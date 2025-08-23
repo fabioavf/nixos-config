@@ -20,6 +20,8 @@
     rustup
     rustc
     pkg-config
+    uv
+    yarn
 
     # ========================================
     # System-level Network Tools
@@ -40,6 +42,10 @@
     docker # Container runtime
     docker-compose # Container orchestration
   ];
+
+  programs.nix-ld = {
+    enable = true;
+  };
 
   virtualisation.docker.enable = true;
 }

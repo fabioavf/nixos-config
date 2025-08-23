@@ -1,7 +1,13 @@
 # /etc/nixos/hosts/fabio-vivobook/configuration.nix
 # Vivobook configuration - AMD Ryzen development laptop
 
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
   imports = [
@@ -15,8 +21,9 @@
   # Install git globally for root user and custom packages
   environment.systemPackages = with pkgs; [
     git
+
     # Flake packages (Vivobook)
-    # inputs.claude-desktop.packages.x86_64-linux.default
+    # inputs.claude-desktop.packages.x86_64-linux.claude-desktop-with-fhs
   ];
 
   # System state version
