@@ -70,11 +70,14 @@
     "Print".action = screenshot;
     "Mod+Ctrl+Shift+4".action = screenshot;
 
-    # System shortcuts
-    "Mod+Shift+M".action = quit;
-
     # Keyboard layout switching
-    "Mod+Shift+Space".action = spawn [ "niri" "msg" "action" "switch-layout" "next" ];
+    "Mod+Shift+Space".action = spawn [
+      "niri"
+      "msg"
+      "action"
+      "switch-layout"
+      "next"
+    ];
 
     # Media keys (using swayosd for visual feedback)
     "XF86AudioRaiseVolume".action = spawn [
@@ -116,13 +119,6 @@
       "--brightness"
       "lower"
     ];
-
-    # Wallpaper controls
-    "Mod+Shift+W".action = spawn [
-      "set-wallpaper"
-      "random"
-    ];
-    "Mod+Ctrl+W".action = spawn [ "set-wallpaper" ];
 
     # Scroll wheel bindings
     "Mod+WheelScrollDown".action = focus-workspace-down;

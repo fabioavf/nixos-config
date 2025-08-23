@@ -39,6 +39,7 @@ in
           refresh = 60.0;
         };
         scale = 1.5;
+        variable-refresh-rate = true;
       };
     })
   ];

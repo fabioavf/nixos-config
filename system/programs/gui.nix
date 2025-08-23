@@ -15,6 +15,8 @@
     # File Management (Common)
     # ========================================
     nautilus # GNOME file manager
+    gnome-icon-theme # Default GNOME icons
+    hicolor-icon-theme # Icon theme fallback
     gdu # Disk usage analyzer
 
     # ========================================
@@ -23,6 +25,10 @@
     evince # PDF viewer
     eog # Image viewer
     gnome-disk-utility # Disk management
+
+    # GNOME session support for theming
+    gnome-settings-daemon # Essential for GTK theming
+    gsettings-desktop-schemas # Desktop schemas
 
     # ========================================
     # Archive and Compression (Common)
@@ -45,7 +51,7 @@
     # ========================================
     vlc # Media player (efficient)
     playerctl # Media player control
-    obs-studio              # Screen recording/streaming
+    obs-studio # Screen recording/streaming
 
     # ========================================
     # Productivity (Common)
@@ -53,6 +59,7 @@
     obsidian # Note-taking
     qbittorrent # Torrenting
     barrier
+    numbat
 
     # ========================================
     # Qt/GTK Support (Common)
@@ -102,6 +109,10 @@
     # Set Zen browser as default (installed via Flatpak)
     BROWSER = "zen-browser";
     DEFAULT_BROWSER = "zen-browser";
+
+    # Ensure proper icon theme fallback
+    XDG_CURRENT_DESKTOP = "GNOME";
+    DESKTOP_SESSION = "gnome";
   };
 
   # ========================================
@@ -121,4 +132,9 @@
   # Auto-mount Removable Media (Common)
   # ========================================
   services.udisks2.enable = true;
+
+  # ========================================
+  # GNOME Services for Proper Theming
+  # ========================================
+  services.gnome.gnome-settings-daemon.enable = true;
 }
