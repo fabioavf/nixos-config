@@ -24,7 +24,7 @@ in
       tap = false;
       dwt = true;
       middle-emulation = true;
-      accel-speed = if isMacBook then 0.2 else 0.0;
+      accel-speed = 0.2;
       accel-profile = "adaptive";
       scroll-method = "two-finger";
       click-method = "clickfinger";

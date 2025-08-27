@@ -57,7 +57,7 @@ let
     {
       matches = [
         {
-          app-id = "zed";
+          app-id = "dev.zed.Zed";
         }
       ];
 
@@ -68,7 +68,7 @@ let
     {
       matches = [
         {
-          app-id = "alacritty";
+          app-id = "Alacritty";
         }
       ];
 

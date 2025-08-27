@@ -78,6 +78,11 @@
     # Cursor configuration
     cursor = {
       size = 20;
+      theme = "adwaita";
+    };
+
+    clipboard = {
+      disable-primary = true;
     };
   };
 }

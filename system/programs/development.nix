@@ -16,6 +16,10 @@
     # ========================================
     gcc # C/C++ compiler (system dependency)
     openssl # Cryptographic library (system dependency)
+    cargo
+    rustup
+    rustc
+    pkg-config
     uv
     yarn
 
@@ -25,6 +29,7 @@
     wget # Basic download tool
     curl # HTTP client
     rsync # File synchronization
+    nmap
 
     gh # GitHub CLI
 
