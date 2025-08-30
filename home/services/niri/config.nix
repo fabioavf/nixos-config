@@ -72,6 +72,8 @@
       }
     ];
 
+    prefer-no-csd = true;
+
     # Hotkey overlay
     hotkey-overlay.skip-at-startup = true;
 

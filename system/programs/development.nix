@@ -22,6 +22,7 @@
     pkg-config
     uv
     yarn
+    openjdk
 
     # ========================================
     # System-level Network Tools
@@ -30,6 +31,8 @@
     curl # HTTP client
     rsync # File synchronization
     nmap
+    simple-mtpfs
+    libmtp
 
     gh # GitHub CLI
 

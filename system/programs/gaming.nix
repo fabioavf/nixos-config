@@ -2,7 +2,12 @@
 # Gaming setup with Steam, optimizations, and Faugus Launcher
 # Desktop-only configuration (fabio-nixos)
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 lib.mkIf (config.networking.hostName == "fabio-nixos") {
   # Enable Steam and gaming features
@@ -14,7 +19,7 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
 
     # Compatibility layers
     extraCompatPackages = with pkgs; [
-      proton-ge-bin  # Enhanced Proton
+      proton-ge-bin # Enhanced Proton
     ];
   };
 
@@ -47,34 +52,34 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
   # Gaming-related packages
   environment.systemPackages = with pkgs; [
     # Game launchers and stores
-    bottles                # Wine prefix manager
-    umu-launcher          # Unified Wine launcher for Proton/Wine
+    bottles # Wine prefix manager
+    umu-launcher # Unified Wine launcher for Proton/Wine
     modrinth-app
 
     # Emulators
     ryubing
 
     # Game streaming
-    sunshine              # NVIDIA GameStream alternative
+    sunshine # NVIDIA GameStream alternative
 
     # Performance and monitoring
-    mangohud              # Performance overlay
-    gamemode              # Performance optimizations
-    gamescope             # Wayland compositor for games
+    mangohud # Performance overlay
+    gamemode # Performance optimizations
+    gamescope # Wayland compositor for games
 
     # Wine and compatibility
-    wineWowPackages.staging  # 64-bit Wine with 32-bit support
-    winetricks           # Wine helper scripts
-    dxvk                 # DirectX to Vulkan
+    wineWowPackages.staging # 64-bit Wine with 32-bit support
+    winetricks # Wine helper scripts
+    dxvk # DirectX to Vulkan
 
     # Controllers and input
-    antimicrox           # Controller mapping
-    jstest-gtk           # Controller testing GUI
-    linuxConsoleTools    # Includes jstest for testing controllers
-    evtest               # Event testing tool
+    antimicrox # Controller mapping
+    jstest-gtk # Controller testing GUI
+    linuxConsoleTools # Includes jstest for testing controllers
+    evtest # Event testing tool
 
     # System tools for gaming
-    nvtopPackages.amd    # AMD GPU monitoring
+    nvtopPackages.amd # AMD GPU monitoring
 
     # Archive tools for game files
     unrar
@@ -89,15 +94,15 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
   # FIXED: Additional sysctl settings (merged with existing)
   boot.kernel.sysctl = {
     # Gaming-specific memory optimizations
-    "vm.max_map_count" = 2147483642;   # Increased for some games
-    "fs.file-max" = 2097152;           # Increase file descriptor limit
+    "vm.max_map_count" = 2147483642; # Increased for some games
+    "fs.file-max" = 2097152; # Increase file descriptor limit
   };
 
   # Services for gaming
   services = {
     # udev rules for controllers
     udev.packages = with pkgs; [
-      game-devices-udev-rules  # Controller recognition
+      game-devices-udev-rules # Controller recognition
     ];
 
     # Additional udev rules for 8BitDo controllers
@@ -142,7 +147,7 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
   # AMD GPU environment variables moved to system/hardware/amd.nix
 
   # Add gaming group for permissions
-  users.groups.gamemode = {};
+  users.groups.gamemode = { };
   users.users.fabio.extraGroups = [ "gamemode" ];
 
   # Note: render group for AMD GPU access is handled in system/hardware/amd.nix
