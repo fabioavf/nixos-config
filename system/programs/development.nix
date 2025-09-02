@@ -23,6 +23,7 @@
     uv
     yarn
     openjdk
+    nixd
 
     # ========================================
     # System-level Network Tools

@@ -14,5 +14,6 @@
     fusee-nano
     yt-dlp
     marktext
+    filezilla
   ];
 }

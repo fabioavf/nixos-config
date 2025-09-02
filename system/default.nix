@@ -39,6 +39,9 @@ let
 
     # Desktop hardware
     ./hardware/amd.nix
+    
+    # Desktop-specific security
+    ./core/security-desktop.nix
 
     # Desktop-specific programs
     ./programs/gaming.nix
@@ -48,6 +51,7 @@ let
     ./services/filesystems.nix
     ./services/duckdns.nix
     ./services/media.nix
+    ./services/ftp.nix  # FTP server for Switch game transfers (DBI)
   ];
 
   # Laptop-specific modules (fabio-macbook)
