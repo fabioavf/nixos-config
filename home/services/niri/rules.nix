@@ -68,7 +68,7 @@ let
     {
       matches = [
         {
-          app-id = "Alacritty";
+          app-id = "com.mitchellh.ghostty";
         }
       ];
 
