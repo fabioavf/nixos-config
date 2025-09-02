@@ -1,7 +1,12 @@
 # /etc/nixos/home/terminal/alacritty.nix
 # Alacritty terminal emulator configuration
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   programs.alacritty = {

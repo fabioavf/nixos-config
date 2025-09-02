@@ -6,6 +6,7 @@
 {
   imports = [
     ./alacritty.nix
+    ./ghostty.nix
   ];
   # Terminal and development packages for user-level management
   home.packages = with pkgs; [
