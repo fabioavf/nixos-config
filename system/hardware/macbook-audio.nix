@@ -1,21 +1,28 @@
 # /etc/nixos/system/hardware/macbook-audio.nix
 # MacBook-specific audio hardware configuration
 
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
   # Configure the audio driver as an extra module
   boot.extraModulePackages = [ inputs.self.packages.x86_64-linux.snd-hda-macbookpro ];
 
   # Determine module to load based on kernel version
-  boot.kernelModules = let
-    kernelVersion = config.boot.kernelPackages.kernel.version;
-    kernelVersionParts = builtins.splitVersion kernelVersion;
-    major = lib.strings.toInt (builtins.elemAt kernelVersionParts 0);
-    minor = lib.strings.toInt (builtins.elemAt kernelVersionParts 1);
-  in
+  boot.kernelModules =
+    let
+      kernelVersion = config.boot.kernelPackages.kernel.version;
+      kernelVersionParts = builtins.splitVersion kernelVersion;
+      major = lib.strings.toInt (builtins.elemAt kernelVersionParts 0);
+      minor = lib.strings.toInt (builtins.elemAt kernelVersionParts 1);
+    in
     if (major >= 6) || (major == 5 && minor >= 13) then
-      [ "snd_hda_codec_cs8409" ]  # Use underscores for module names
+      [ "snd_hda_codec_cs8409" ] # Use underscores for module names
     else
       [ "snd_hda_codec_cirrus" ];
 
@@ -30,7 +37,7 @@
 
   # Only blacklist generic driver, let our custom driver load
   boot.blacklistedKernelModules = [
-    "snd_hda_codec_generic"  # Block generic fallback driver
+    "snd_hda_codec_generic" # Block generic fallback driver
   ];
 
   # Activation script to ensure proper module loading

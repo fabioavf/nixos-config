@@ -2,9 +2,6 @@
 # Networking configuration
 
 {
-  config,
-  lib,
-  pkgs,
   ...
 }:
 

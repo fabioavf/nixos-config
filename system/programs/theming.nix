@@ -1,21 +1,24 @@
 # /etc/nixos/system/programs/theming.nix
 # GTK and Qt theming configuration
 
-{ config, lib, pkgs, ... }:
+{
+  pkgs,
+  ...
+}:
 
 {
   # GTK Configuration
   programs.dconf.enable = true;
-  
+
   # Set dark theme system-wide
   environment.variables = {
     # GTK themes
     GTK_THEME = "Adwaita:dark";
-    
+
     # Qt themes
     QT_QPA_PLATFORMTHEME = "gtk3";
     QT_STYLE_OVERRIDE = "adwaita-dark";
-    
+
     # Force dark mode for applications
     GTK_USE_DARK_THEME = "1";
     QT_QPA_PLATFORM = "wayland";
@@ -27,23 +30,23 @@
     adwaita-icon-theme
     gnome-themes-extra
     gtk-engine-murrine
-    
+
     # Qt themes
     adwaita-qt
     adwaita-qt6
     libsForQt5.qtstyleplugins
-    
+
     # Icon themes
     papirus-icon-theme
     numix-icon-theme
-    
+
     # Additional theming tools
-    lxappearance    # GTK theme configurator
+    lxappearance # GTK theme configurator
     libsForQt5.qt5ct
-    qt6ct          # Qt6 configuration tool
+    qt6ct # Qt6 configuration tool
     libsForQt5.qt5ct
     kdePackages.qt6ct
-    
+
     # Cursor themes
     bibata-cursors
     vanilla-dmz
@@ -57,7 +60,7 @@
       gtk-cursor-theme-name = "Adwaita"
       gtk-font-name = "Sans 10"
     '';
-    
+
     "gtk-3.0/settings.ini".text = ''
       [Settings]
       gtk-application-prefer-dark-theme = true
@@ -69,7 +72,7 @@
       gtk-enable-animations = true
       gtk-primary-button-warps-slider = false
     '';
-    
+
     "gtk-4.0/settings.ini".text = ''
       [Settings]
       gtk-application-prefer-dark-theme = true
@@ -154,7 +157,7 @@
           color-scheme = "prefer-dark";
           font-name = "Sans 10";
         };
-        
+
         "org/gnome/desktop/wm/preferences" = {
           theme = "Adwaita-dark";
           button-layout = "appmenu:minimize,maximize,close";

@@ -1,7 +1,9 @@
 # /etc/nixos/system/services/default.nix
 # System services configuration
 
-{ config, lib, pkgs, ... }:
+{
+  ...
+}:
 
 {
   imports = [

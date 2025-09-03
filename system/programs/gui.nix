@@ -2,8 +2,6 @@
 # GUI applications and Flatpak configuration
 
 {
-  config,
-  lib,
   pkgs,
   ...
 }:

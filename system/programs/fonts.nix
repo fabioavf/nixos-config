@@ -1,7 +1,7 @@
 # /etc/nixos/system/programs/fonts.nix
 # Font configuration
 
-{ config, lib, pkgs, ... }:
+{ pkgs, ... }:
 
 {
   # Enable fontconfig and install fonts properly
@@ -13,7 +13,7 @@
       noto-fonts-cjk-sans
       noto-fonts-emoji
       liberation_ttf
-      
+
       # Programming fonts - Popular Nerd Fonts
       nerd-fonts.fira-code
       nerd-fonts.jetbrains-mono
@@ -23,10 +23,10 @@
       nerd-fonts.dejavu-sans-mono
       nerd-fonts.inconsolata
       nerd-fonts.roboto-mono
-      
+
       # UI fonts for quickshell
-      ibm-plex                    # IBM Plex Sans
-      material-symbols            # Material Symbols Rounded
+      ibm-plex # IBM Plex Sans
+      material-symbols # Material Symbols Rounded
     ];
   };
 }

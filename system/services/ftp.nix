@@ -1,8 +1,6 @@
 # /etc/nixos/system/services/ftp.nix
 # FTP server for transferring Switch games to CFW Switch running DBI
 {
-  config,
-  lib,
   pkgs,
   ...
 }:

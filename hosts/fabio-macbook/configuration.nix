@@ -1,7 +1,11 @@
 # /etc/nixos/hosts/fabio-macbook/configuration.nix
 # MacBook configuration - Intel laptop
 
-{ config, lib, pkgs, inputs, ... }:
+{
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
   imports = [

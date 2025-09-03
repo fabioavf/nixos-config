@@ -1,7 +1,10 @@
 # /etc/nixos/system/core/users.nix
 # User account configuration
 
-{ config, lib, pkgs, ... }:
+{
+  pkgs,
+  ...
+}:
 
 {
   # Define user account
@@ -9,7 +12,16 @@
     isNormalUser = true;
     description = "Fabio";
     shell = pkgs.zsh;
-    extraGroups = [ "networkmanager" "wheel" "audio" "video" "corectrl" "input" "render" "docker"];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "audio"
+      "video"
+      "corectrl"
+      "input"
+      "render"
+      "docker"
+    ];
     packages = with pkgs; [
       # Basic user utilities
       git

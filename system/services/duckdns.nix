@@ -2,7 +2,12 @@
 # DuckDNS dynamic DNS service configuration
 # Desktop-only service (fabio-nixos)
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 lib.mkIf (config.networking.hostName == "fabio-nixos") {
   # Sops secret for DuckDNS token
@@ -18,7 +23,7 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
     description = "DuckDNS Dynamic DNS updater";
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
-    
+
     serviceConfig = {
       Type = "oneshot";
       User = "nobody";
@@ -31,7 +36,7 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
   systemd.timers.duckdns = {
     description = "DuckDNS update timer";
     wantedBy = [ "timers.target" ];
-    
+
     timerConfig = {
       OnBootSec = "5min";
       OnUnitActiveSec = "5min";

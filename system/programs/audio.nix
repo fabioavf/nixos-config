@@ -1,7 +1,10 @@
 # /etc/nixos/system/programs/audio.nix
 # Audio configuration with PipeWire and conditional MacBook support
 
-{ config, lib, pkgs, ... }:
+{
+  pkgs,
+  ...
+}:
 
 {
   # Disable PulseAudio
@@ -20,9 +23,9 @@
 
   # Add audio tools
   environment.systemPackages = with pkgs; [
-    pulseaudio  # For pactl command
+    pulseaudio # For pactl command
     wireplumber # PipeWire session manager
-    pipewire    # PipeWire tools including wpctl
+    pipewire # PipeWire tools including wpctl
     pamixer
     pavucontrol
   ];

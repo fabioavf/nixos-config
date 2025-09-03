@@ -2,8 +2,6 @@
 # System-wide program configurations
 
 {
-  config,
-  lib,
   pkgs,
   ...
 }:

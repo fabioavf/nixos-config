@@ -2,9 +2,6 @@
 # Alacritty terminal emulator configuration
 
 {
-  config,
-  lib,
-  pkgs,
   ...
 }:
 

@@ -1,7 +1,5 @@
 # /etc/nixos/system/core/security.nix
 {
-  config,
-  lib,
   pkgs,
   ...
 }:

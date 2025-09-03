@@ -1,9 +1,6 @@
 # /etc/nixos/system/core/security-desktop.nix
 # Desktop-specific firewall rules (fabio-nixos)
 {
-  config,
-  lib,
-  pkgs,
   ...
 }:
 {

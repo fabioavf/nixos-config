@@ -39,7 +39,7 @@ let
 
     # Desktop hardware
     ./hardware/amd.nix
-    
+
     # Desktop-specific security
     ./core/security-desktop.nix
 
@@ -51,7 +51,7 @@ let
     ./services/filesystems.nix
     ./services/duckdns.nix
     ./services/media.nix
-    ./services/ftp.nix  # FTP server for Switch game transfers (DBI)
+    ./services/ftp.nix # FTP server for Switch game transfers (DBI)
   ];
 
   # Laptop-specific modules (fabio-macbook)
@@ -64,14 +64,15 @@ let
     # No gaming, desktop-heavy apps, filesystem mounts, or DuckDNS for laptop
   ];
 
-  # Vivobook-specific modules (fabio-vivobook) 
+  # Vivobook-specific modules (fabio-vivobook)
   vivobook = common ++ [
     # Vivobook hardware (AMD laptop)
     ./hardware/amd-laptop.nix
     ./programs/bluetooth.nix
-    
+
     # Development laptop - no gaming, desktop-heavy apps, filesystem mounts, or DuckDNS
   ];
-in {
+in
+{
   inherit desktop laptop vivobook;
 }

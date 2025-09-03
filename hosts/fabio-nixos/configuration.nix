@@ -1,7 +1,11 @@
 # /etc/nixos/hosts/fabio-nixos/configuration.nix
 # Desktop configuration - AMD gaming workstation
 
-{ config, lib, pkgs, inputs, ... }:
+{
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
   imports = [

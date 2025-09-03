@@ -2,10 +2,7 @@
 # Vivobook configuration - AMD Ryzen development laptop
 
 {
-  config,
-  lib,
   pkgs,
-  inputs,
   ...
 }:
 

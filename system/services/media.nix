@@ -1,19 +1,28 @@
 # Media services configuration - Desktop only
 # Jellyfin media server with automated torrent management
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 lib.mkIf (config.networking.hostName == "fabio-nixos") {
   # Create media system user and group
   users.groups.media = {
     gid = 993;
   };
-  
+
   users.users.media = {
     isSystemUser = true;
     uid = 993;
     group = "media";
-    extraGroups = [ "video" "render" "audio" ];
+    extraGroups = [
+      "video"
+      "render"
+      "audio"
+    ];
     home = "/var/lib/media";
     createHome = true;
   };
@@ -96,7 +105,7 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
     description = "qBittorrent headless torrent client";
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
-    
+
     serviceConfig = {
       Type = "forking";
       User = "media";
@@ -104,14 +113,17 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
       ExecStart = "${pkgs.qbittorrent-nox}/bin/qbittorrent-nox --daemon --webui-port=8080";
       Restart = "on-failure";
       RestartSec = 5;
-      
+
       # Security settings
       NoNewPrivileges = true;
       PrivateTmp = true;
       ProtectSystem = "strict";
       ProtectHome = true;
-      ReadWritePaths = [ "/var/lib/qbittorrent" "/mnt/hd/media" ];
-      
+      ReadWritePaths = [
+        "/var/lib/qbittorrent"
+        "/mnt/hd/media"
+      ];
+
       # Working directory
       WorkingDirectory = "/var/lib/qbittorrent";
     };
@@ -131,7 +143,11 @@ lib.mkIf (config.networking.hostName == "fabio-nixos") {
   systemd.services.sonarr.after = [ "network.target" ];
   systemd.services.radarr.after = [ "network.target" ];
   systemd.services.prowlarr.after = [ "network.target" ];
-  systemd.services.bazarr.after = [ "network.target" "sonarr.service" "radarr.service" ];
+  systemd.services.bazarr.after = [
+    "network.target"
+    "sonarr.service"
+    "radarr.service"
+  ];
 
   # Ensure services start on boot (qbittorrent-nox already has wantedBy in its definition)
   systemd.services.jellyfin.wantedBy = [ "multi-user.target" ];

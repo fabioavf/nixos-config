@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 
 let
   no-rgb = pkgs.writeScriptBin "no-rgb" ''
@@ -9,7 +9,8 @@ let
       ${pkgs.openrgb}/bin/openrgb --noautoconnect --device $i --mode static --color 000000
     done
   '';
-in {
+in
+{
   config = {
     services.udev.packages = [ pkgs.openrgb ];
     boot.kernelModules = [ "i2c-dev" ];

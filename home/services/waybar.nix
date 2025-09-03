@@ -1,7 +1,10 @@
 # /etc/nixos/home/services/waybar.nix
 # Waybar status bar configuration
 
-{ config, lib, pkgs, ... }:
+{
+  pkgs,
+  ...
+}:
 
 {
   # Enable waybar
@@ -18,9 +21,21 @@
         spacing = 0;
 
         # Module layout
-        modules-left = [ "niri/workspaces" "niri/window" ];
+        modules-left = [
+          "niri/workspaces"
+          "niri/window"
+        ];
         modules-center = [ "clock" ];
-        modules-right = [ "custom/keyboard-layout" "cpu" "memory" "disk" "network" "pulseaudio" "tray" "battery" ];
+        modules-right = [
+          "custom/keyboard-layout"
+          "cpu"
+          "memory"
+          "disk"
+          "network"
+          "pulseaudio"
+          "tray"
+          "battery"
+        ];
 
         # Workspaces module
         "niri/workspaces" = {
@@ -77,7 +92,11 @@
             phone = "";
             portable = "";
             car = "";
-            default = [ "" "" "" ];
+            default = [
+              ""
+              ""
+              ""
+            ];
           };
           on-click = "pavucontrol";
           on-click-right = "pactl set-sink-mute @DEFAULT_SINK@ toggle";
@@ -129,7 +148,18 @@
           format-charging = "󰂄 {capacity}%";
           format-plugged = "󰂄 {capacity}%";
           format-alt = "{icon} {time}";
-          format-icons = [ "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
+          format-icons = [
+            "󰁺"
+            "󰁻"
+            "󰁼"
+            "󰁽"
+            "󰁾"
+            "󰁿"
+            "󰂀"
+            "󰂁"
+            "󰂂"
+            "󰁹"
+          ];
           on-click = "gnome-power-statistics";
         };
 
@@ -168,7 +198,7 @@
         );
         color: #E8EAED;
         padding: 6px 8px;
-        box-shadow: 
+        box-shadow:
           0 2px 10px rgba(0, 0, 0, 0.8),
           inset 0 1px 0 rgba(148, 152, 161, 0.1),
           inset 0 -1px 0 rgba(0, 0, 0, 0.5);
@@ -192,7 +222,7 @@
         border-radius: 24px;
         padding: 3px 6px;
         margin: 2px 12px 2px 4px;
-        box-shadow: 
+        box-shadow:
           0 4px 8px rgba(0, 0, 0, 0.4),
           inset 0 1px 0 rgba(148, 152, 161, 0.08),
           inset 0 -1px 2px rgba(0, 0, 0, 0.3);
@@ -215,7 +245,7 @@
           rgba(148, 152, 161, 0.05)
         );
         color: #E8EAED;
-        box-shadow: 
+        box-shadow:
           0 2px 4px rgba(0, 0, 0, 0.2),
           inset 0 1px 0 rgba(148, 152, 161, 0.1);
       }
@@ -229,7 +259,7 @@
         );
         color: #FFFFFF;
         font-weight: 600;
-        box-shadow: 
+        box-shadow:
           0 2px 6px rgba(0, 0, 0, 0.3),
           inset 0 1px 0 rgba(148, 152, 161, 0.2),
           inset 0 -1px 0 rgba(0, 0, 0, 0.2);
@@ -256,7 +286,7 @@
         border-radius: 20px;
         padding: 6px 18px;
         margin: 2px 8px;
-        box-shadow: 
+        box-shadow:
           0 3px 6px rgba(0, 0, 0, 0.3),
           inset 0 1px 0 rgba(148, 152, 161, 0.05);
         font-weight: 400;
@@ -274,7 +304,7 @@
         border-radius: 20px;
         padding: 7px 22px;
         margin: 2px 12px;
-        box-shadow: 
+        box-shadow:
           0 4px 10px rgba(0, 0, 0, 0.4),
           inset 0 1px 0 rgba(148, 152, 161, 0.15),
           inset 0 -1px 2px rgba(0, 0, 0, 0.3);
@@ -301,7 +331,7 @@
         border-radius: 18px;
         padding: 6px 14px;
         margin: 2px 3px;
-        box-shadow: 
+        box-shadow:
           0 3px 6px rgba(0, 0, 0, 0.3),
           inset 0 1px 0 rgba(148, 152, 161, 0.06);
         transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
@@ -320,7 +350,7 @@
           #2A2D33 0%,
           #34373E 100%
         );
-        box-shadow: 
+        box-shadow:
           0 4px 10px rgba(0, 0, 0, 0.4),
           0 0 20px rgba(148, 152, 161, 0.1),
           inset 0 1px 0 rgba(148, 152, 161, 0.1);
@@ -390,7 +420,7 @@
           #2A4A3E 100%
         );
         color: #A8F5C7;
-        box-shadow: 
+        box-shadow:
           0 3px 8px rgba(0, 0, 0, 0.3),
           0 0 15px rgba(168, 245, 199, 0.15),
           inset 0 1px 0 rgba(168, 245, 199, 0.1);
@@ -412,7 +442,7 @@
             #8A5556 100%
           );
           color: #FFFFFF;
-          box-shadow: 
+          box-shadow:
             0 3px 10px rgba(255, 180, 171, 0.3),
             0 0 20px rgba(255, 180, 171, 0.2);
         }
@@ -476,7 +506,7 @@
         color: #E8EAED;
         border-radius: 12px;
         border: 1px solid rgba(148, 152, 161, 0.1);
-        box-shadow: 
+        box-shadow:
           0 8px 20px rgba(0, 0, 0, 0.6),
           inset 0 1px 0 rgba(148, 152, 161, 0.1);
       }

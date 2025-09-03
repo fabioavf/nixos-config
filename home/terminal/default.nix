@@ -1,7 +1,7 @@
 # /etc/nixos/home/terminal/default.nix
 # Terminal tools, CLI utilities, and development environment
 
-{ pkgs, inputs, ... }:
+{ pkgs, ... }:
 
 {
   imports = [

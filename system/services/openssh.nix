@@ -1,7 +1,9 @@
 # /etc/nixos/system/services/openssh.nix
 # SSH server configuration
 
-{ config, lib, pkgs, ... }:
+{
+  ...
+}:
 
 {
   services.openssh = {

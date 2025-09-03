@@ -1,7 +1,10 @@
 # /etc/nixos/system/programs/bluetooth.nix
 # Bluetooth configuration with BlueZ
 
-{ config, lib, pkgs, ... }:
+{
+  pkgs,
+  ...
+}:
 
 {
   # Enable Bluetooth

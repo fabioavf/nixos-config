@@ -9,29 +9,29 @@
     # ========================================
     # Wayland/Niri Core Tools
     # ========================================
-    grim                    # Screenshot tool
-    slurp                   # Screen area selection
-    wl-clipboard            # Wayland clipboard utilities (wl-copy, wl-paste)
-    swaylock                # Screen locker (niri compatible)
-    swaybg                  # Simple wallpaper tool (replacing swww)
-    fuzzel                  # App launcher (niri default)
+    grim # Screenshot tool
+    slurp # Screen area selection
+    wl-clipboard # Wayland clipboard utilities (wl-copy, wl-paste)
+    swaylock # Screen locker (niri compatible)
+    swaybg # Simple wallpaper tool (replacing swww)
+    fuzzel # App launcher (niri default)
     anyrun
 
     # ========================================
     # System Control and Utilities
     # ========================================
-    brightnessctl           # Brightness control
-    udiskie                 # Auto-mount removable media
+    brightnessctl # Brightness control
+    udiskie # Auto-mount removable media
 
     # ========================================
     # Clipboard and Authentication
     # ========================================
-    clipse                  # Clipboard manager
-    kdePackages.polkit-kde-agent-1  # Polkit agents for authentication
+    clipse # Clipboard manager
+    kdePackages.polkit-kde-agent-1 # Polkit agents for authentication
 
     # ========================================
     # Network Management
     # ========================================
-    networkmanagerapplet    # nm-applet
+    networkmanagerapplet # nm-applet
   ];
 }

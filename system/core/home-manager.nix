@@ -1,7 +1,10 @@
 # /etc/nixos/system/core/home-manager.nix
 # Home Manager integration for user configuration
 
-{ config, lib, pkgs, inputs, ... }:
+{
+  inputs,
+  ...
+}:
 
 {
   # Home Manager configuration - users are configured in flake.nix

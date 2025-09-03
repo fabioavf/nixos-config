@@ -2,7 +2,12 @@
 # AMD laptop configuration for Ryzen 7 7730U with integrated graphics
 # Vivobook-specific configuration (fabio-vivobook)
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 lib.mkIf (config.networking.hostName == "fabio-vivobook") {
   # ========================================
@@ -10,7 +15,7 @@ lib.mkIf (config.networking.hostName == "fabio-vivobook") {
   # ========================================
   boot.kernelParams = [
     # AMD laptop optimizations
-    "amd_pstate=guided"  # Use AMD P-State driver for better power management
+    "amd_pstate=guided" # Use AMD P-State driver for better power management
     "amdgpu.si_support=1"
     "amdgpu.cik_support=1"
   ];
@@ -18,7 +23,10 @@ lib.mkIf (config.networking.hostName == "fabio-vivobook") {
   # ========================================
   # Kernel Modules for AMD Laptop
   # ========================================
-  boot.kernelModules = [ "amdgpu" "kvm-amd" ];
+  boot.kernelModules = [
+    "amdgpu"
+    "kvm-amd"
+  ];
   boot.initrd.kernelModules = [ "amdgpu" ];
 
   # ========================================
@@ -26,7 +34,7 @@ lib.mkIf (config.networking.hostName == "fabio-vivobook") {
   # ========================================
   hardware.graphics = {
     enable = true;
-    enable32Bit = true;  # For compatibility
+    enable32Bit = true; # For compatibility
 
     extraPackages = with pkgs; [
       # AMD integrated graphics drivers
@@ -50,7 +58,7 @@ lib.mkIf (config.networking.hostName == "fabio-vivobook") {
   # ========================================
   powerManagement = {
     enable = true;
-    cpuFreqGovernor = "schedutil";  # Better for modern AMD
+    cpuFreqGovernor = "schedutil"; # Better for modern AMD
   };
 
   # ========================================
@@ -67,8 +75,8 @@ lib.mkIf (config.networking.hostName == "fabio-vivobook") {
   # ========================================
   # Laptop-specific Hardware Support
   # ========================================
-  services.thermald.enable = true;  # Thermal management
-  services.auto-cpufreq.enable = true;  # Automatic CPU frequency scaling
+  services.thermald.enable = true; # Thermal management
+  services.auto-cpufreq.enable = true; # Automatic CPU frequency scaling
 
   # ========================================
   # AMD Laptop Performance Tuning
@@ -76,11 +84,14 @@ lib.mkIf (config.networking.hostName == "fabio-vivobook") {
   boot.kernel.sysctl = {
     # Laptop battery optimizations
     "vm.laptop_mode" = 5;
-    "vm.swappiness" = 1;  # Lower swappiness for SSD longevity
+    "vm.swappiness" = 1; # Lower swappiness for SSD longevity
   };
 
   # ========================================
   # User Groups for Graphics Access
   # ========================================
-  users.users.fabio.extraGroups = [ "video" "render" ];
+  users.users.fabio.extraGroups = [
+    "video"
+    "render"
+  ];
 }

@@ -2,10 +2,7 @@
 # System-wide development tools and dependencies
 
 {
-  config,
-  lib,
   pkgs,
-  inputs,
   ...
 }:
 

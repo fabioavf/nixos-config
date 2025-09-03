@@ -1,12 +1,8 @@
 # /etc/nixos/home/services/niri/input.nix
 # Input configuration - keyboard, mouse, touchpad
 
-{ lib, osConfig, ... }:
+{ ... }:
 
-let
-  # Machine detection
-  isMacBook = osConfig.networking.hostName == "fabio-macbook";
-in
 {
   programs.niri.settings.input = {
     keyboard = {
